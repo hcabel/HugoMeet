@@ -41,6 +41,15 @@ export default function LandingPage()
 		history.push("/room/" + newRoomId);
 	}
 
+	function joinRoom(roomId) {
+		const format = new RegExp("/[ `!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~]/");
+		if (roomId.length !== 10 || format.test(roomId)) {
+			console.log("Contain special char");
+			return;
+		}
+		history.push("/room/" + roomId);
+	}
+
 	return (
 		<div className="LandingPage">
 			<div className="LP-Header">
@@ -81,7 +90,11 @@ export default function LandingPage()
 								</input>
 							</label>
 							{(_Focused || _Value.length > 0) &&
-								<button className="LP-B-TAB-B-JR-Button" style={{ color: (_Value.length > 0 ? "#1a73e8" : "rgba(60,64,67,0.38)")}}>
+								<button
+									className="LP-B-TAB-B-JR-Button"
+									style={{ color: (_Value.length > 0 ? "#1a73e8" : "rgba(60,64,67,0.38)")}}
+									onClick={() => joinRoom(_Value)}
+								>
 									Participer
 								</button>
 							}
