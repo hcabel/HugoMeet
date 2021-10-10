@@ -1,17 +1,16 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 
-import LandingPage from "./pages/landingPages/landingPage";
+import LandingPage from "./pages/landingPage/landingPage";
+import RoomPage from "./pages/roomPage/roomPage";
 
 export default function	App()
 {
 	return (
-		<Router>
-			<Switch>
-				<Route exact path="/" component={LandingPage} />
-				<Route render={() => <Redirect to="/" />} />
-			</Switch>
-		</Router>
-
+		<Switch>
+			<Route exact path="/" component={LandingPage} />
+			<Route exact path="/room/:roomId" component={RoomPage} />
+			<Route render={() => <Redirect to="/" />} />
+		</Switch>
 	);
 }
