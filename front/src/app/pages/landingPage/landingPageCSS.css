@@ -1,0 +1,378 @@
+html, body, #root, .LandingPage {
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+}
+
+.LP-Header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 10%;
+}
+
+.LP-Body {
+	align-items: center;
+	display: -webkit-inline-box;
+	display: inline-flex;
+	justify-content: space-evenly;
+	min-height: 100%;
+	width: 100vw;
+}
+
+@media screen and (max-aspect-ratio: 3 / 4), only screen and (max-width: 60rem) {
+	.LP-Body {
+		align-items: center;
+		flex-direction: column;
+		justify-content: center;
+		width: calc(100% - 2rem);
+		padding: 0 1rem;
+	}
+}
+
+.LP-B-TextAndButton {
+	display: -webkit-inline-box;
+	display: inline-flex;
+	flex-basis: 35rem;
+	flex-direction: column;
+	flex-shrink: 1;
+	max-width: 35rem;
+	padding: 1em 3em;
+}
+
+@media screen and (max-aspect-ratio: 3 / 4) and (min-height: 32rem), only screen and (max-width: 60rem) and (min-height: 32rem) {
+	.LP-B-TextAndButton {
+		align-items: center;
+		text-align: center;
+	}
+}
+
+@media screen and (max-aspect-ratio: 3 / 4), only screen and (max-width: 60rem) {
+	.LP-B-TextAndButton {
+		padding: 1rem 3%;
+		box-sizing: border-box;
+	}
+}
+
+
+.LP-B-TAB-Text {
+	font-family: 'Google Sans Display',Roboto,Arial,sans-serif;
+	font-size: 2.75rem;
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 3.25rem;
+	padding-bottom: .5em;
+}
+
+.LP-B-TAB-Text2 {
+	font-family: 'Google Sans',Roboto,Arial,sans-serif;
+	font-size: 1.125rem;
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 1.5rem;
+	color: #5f6368;
+	color: var(--gm-color-caption,#5f6368);
+	max-width: 30rem;
+	padding-bottom: 3em;
+}
+
+.LP-B-TAB-Button {
+	display: flex;
+	flex-wrap: wrap;
+
+	align-self: flex-start;
+}
+
+.LP-B-TAB-B-CreateNewRoom {
+	cursor: pointer;
+
+	background-color: #1a73e8;
+	color: white;
+	border-radius: 4px;
+	position: absolute;
+	overflow: hidden;
+	padding: 0 16px 0 12px;
+	box-shadow: none;
+	height: 3em;
+	margin-bottom: 1em;
+	margin-right: 1.5em;
+	white-space: nowrap;
+	outline: 1px solid transparent;
+
+	margin-top: 6px;
+
+	display: flex;
+	align-items: center;
+
+	position: relative;
+}
+
+.LP-B-TAB-B-CNR-Text {
+	display: inline;
+	/* transform: translateY(-50%); */
+}
+
+.LP-B-TAB-B-CNR-Img {
+	background: url('./assets/CamIcon.png') no-repeat center;
+	background-size: contain;
+	width: 1.125rem;
+	height: 1.125rem;
+	margin-right: 8px;
+}
+
+.LP-B-TAB-B-JoinRoom {
+	display: -webkit-inline-box;
+	display: inline-flex;
+	min-width: 17em;
+	flex: 1 1 12em;
+
+	margin-top: 6px;
+	max-width: 20em;
+	padding-right: .5em;
+	width: 100%;
+
+	position: relative;
+}
+
+.LP-B-TAB-B-JR-Button {
+
+    position: relative;
+    display: -webkit-inline-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 64px;
+    border: none;
+    outline: none;
+    line-height: inherit;
+    -webkit-user-select: none;
+    -webkit-appearance: none;
+    overflow: visible;
+    vertical-align: middle;
+    background: transparent;
+
+    display: inline;
+
+
+    font-family: "Google Sans",Roboto,Arial,sans-serif;
+    font-size: .875rem;
+    letter-spacing: .0107142857em;
+    font-weight: 500;
+    text-transform: none;
+
+    font-size: 1em;
+    height: 3em;
+    margin-bottom: 1em;
+    white-space: nowrap;
+    outline: 1px solid transparent;
+
+    font-family: "Google Sans",Roboto,Arial,sans-serif;
+	margin-left: 5px;
+
+    text-indent: 0px;
+    text-shadow: none;
+    text-align: center;
+    cursor: default;
+
+    text-size-adjust: 100%;
+    width: 200%;
+}
+
+.LP-B-TAB-B-JR-Button:hover {
+	background-color: #1a73e80f;
+	transition: opacity 15ms linear,background-color 15ms linear;
+}
+
+.LP-B-TAB-B-JR-Label {
+	box-sizing: border-box;
+    display: inline-flex;
+	align-items: baseline;
+	padding: 0 16px;
+	position: relative;
+	overflow: hidden;
+	will-change: opacity,transform,color;
+
+	width: 100vw;
+	height: 48px;
+	padding-left: 0;
+
+	border: 1px solid;
+	border-radius: 4px;
+}
+
+.LP-B-TAB-B-JR-L-Img {
+    align-self: center;
+	background: url("./assets/keyboardIcon.png") no-repeat center;
+	background-size: contain;
+
+    font-family: 'Material Icons Extended';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+
+    margin-left: 16px;
+    margin-right: 8px;
+    text-size-adjust: 100%;
+
+	height: 24px;
+	width: 24px;
+}
+
+
+.LP-B-TAB-B-JR-L-Input {
+    align-self: center;
+	font-family: Roboto,Arial,sans-serif;
+	font-size: 1rem;
+	letter-spacing: .00625em;
+	font-weight: 400;
+	caret-color: #1a73e8;
+	display: flex;
+	border: none!important;
+	background-color: transparent;
+    height: 100%;
+    appearance: none;
+    padding: 0;
+    border-radius: 0;
+	transition: opacity .15s cubic-bezier(.4,0,.2,1) 0ms;
+    width: 100%;
+    min-width: 0;
+}
+
+
+.LP-B-ImgList {
+	align-items: center;
+	display: -webkit-inline-box;
+	display: inline-flex;
+	flex-direction: column;
+	flex-basis: 45%;
+	overflow: hidden;
+	padding: 1em 3em;
+}
+
+@media screen and (max-aspect-ratio: 3 / 4), only screen and (max-width: 60rem) {
+	.LP-B-TextAndButton, .LP-B-ImgList {
+		flex-basis: auto;
+		flex-shrink: 0;
+		max-width: 39rem;
+		width: 100%;
+	}
+}
+
+.LP-B-TAB-HR {
+    margin-top: 1em;
+    border-bottom: 1px solid;
+    align-self: stretch;
+    max-width: 42rem;
+    border-color: #dadce0;
+}
+
+.LP-B-TAB-MoreInfos {
+    letter-spacing: .00625em;
+    font-family: Roboto,Arial,sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    padding-top: 1.5em;
+    color: #5f6368;
+    color: var(--gm-color-caption,#5f6368);
+}
+
+.LP-B-TAB-MI-Span {
+    cursor: pointer;
+    letter-spacing: .00625em;
+    font-family: Roboto,Arial,sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    padding-top: 1.5em;
+    color: #5f6368;
+}
+
+.LP-B-TAB-MI-S-Href {
+    text-decoration: none;
+    color: #2962ff;
+}
+
+.LP-B-IL-Content {
+	display: flex;
+	flex-direction: row;
+}
+
+.LP-B-IL-C-ButtonLeft, .LP-B-IL-C-ButtonRight {
+    margin-top: 141px;
+	display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    fill: currentColor;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-user-select: none;
+    overflow: visible;
+
+    width: 48px;
+    height: 48px;
+}
+.LP-B-IL-C-ButtonLeft:disabled, .LP-B-IL-C-ButtonRight:disabled {
+	color: rgba(60,64,67,0.38);
+}
+
+.LP-B-IL-IndexList {
+    margin-top: 8px;
+    text-align: center;
+}
+.LP-B-IL-IL-Item {
+    background: #dadce0;
+    border-radius: 50%;
+    display: inline-block;
+    height: 6px;
+    margin: 0 4px;
+    width: 6px;
+}
+
+.CurrentItem {
+    background: #1a73e8;
+}
+
+.LP-B-IL-C-C-TextImage {
+    width: 330px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.LP-B-IL-C-C-TI-Text {
+    display: block;
+}
+
+.LP-B-IL-C-C-TI-T-Title {
+    font-family: 'Google Sans',Roboto,Arial,sans-serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 2rem;
+    margin-top: 12px;
+}
+
+.LP-B-IL-C-C-TI-T-Text {
+    letter-spacing: .01428571em;
+    font-family: Roboto,Arial,sans-serif;
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+}
