@@ -1,11 +1,13 @@
 import React, {useState, useEffect} from "react";
-import {useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import config from "../../config";
 
 export default function	RoomPage()
 {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_PeersId, set_PeersId] = useState([]);
+
+	const history = useHistory();
 
 	let { roomId } = useParams();
 
@@ -32,8 +34,12 @@ export default function	RoomPage()
 		set_LoadingMessage("SUCCEEDED: Connection to the Signaling server establish.");
 	}
 
+	function	onClose(code, reason) {
+		console.log(`WS close: ${code} - ${reason}`);
+		history.push(`/`);
+	}
+
 	function	connectClient(roomId) {
-		console.log("START");
 		set_LoadingMessage("Connection to the Signaling Server...");
 		if (!window.WebSocket) {
 			set_LoadingMessage("FAILED: Your browser's version is to old.");
@@ -43,6 +49,7 @@ export default function	RoomPage()
 
 		window.SignalingSocket.onopen = onOpen;
 		window.SignalingSocket.onmessage = onMessage;
+		window.SignalingSocket.onclose = onClose;
 	}
 
 	useEffect(() => {
