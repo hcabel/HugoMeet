@@ -40,9 +40,27 @@ function	generateUniqueId(length, blacklist = []) {
 	return (newid);
 }
 
+function	sendToClientsRoom(roomMap, msg, blacklist = []) {
+	roomMap.forEach((client) => {
+		let sendTo = true;
+
+		for (const entry of blacklist) {
+			if (entry === client.id) {
+				sendTo = false;
+				break;
+			}
+		}
+
+		if (sendTo) {
+			client.ws.send(msg);
+		}
+	});
+}
+
 const Utils = {
 	generateId,
 	generateUniqueId,
+	sendToClientsRoom
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,7 +76,7 @@ clientServer.on('connection', function (socket, req) {
 	const roomId = urlOrigin.searchParams.get("roomid");
 
 	// Add new client to the list
-	let roomPeers = null;
+	let roomPeers = null; // contain everyone in the room (Also the current client)
 	let clientId = -1;
 
 	if (rooms.has(roomId)) {
@@ -81,6 +99,7 @@ clientServer.on('connection', function (socket, req) {
 		clientId = Utils.generateId(5);
 		newMap.set(clientId, { id: clientId, ws: socket });
 		rooms.set(roomId, newMap);
+		roomPeers = newMap;
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);
 
@@ -120,9 +139,8 @@ clientServer.on('connection', function (socket, req) {
 		roomPeers.delete(clientId);
 		rooms.set(roomId, roomPeers);
 
-		roomPeers.forEach((peer) => {
-			peer.ws.send(`{ "type": "playerDisconnected", "playerId": ${clientId} }`);
-		});
+		const peersId = JSON.stringify(Array.from(roomPeers.keys()));
+		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peersId} }`, [clientId]);
 	}
 
 	socket.on('close', function (code, reason) {
@@ -136,8 +154,9 @@ clientServer.on('connection', function (socket, req) {
 		onPlayerDisconnected();
 	});
 
-	// Allow stream to be see from the outside of your network (just specified the streamIP int the turn)
-	let peerConnectionOptions = JSON.stringify({
+	// Allow peer connection from the outside of your network
+	// (But not if they'r behing a symetric NAT, I didn't implement a TURN server)
+	const peerConnectionOptions = JSON.stringify({
 		iceServers: [{
 			urls: ["stun:stun.l.google.com:19302"]
 		}, {
@@ -148,7 +167,14 @@ clientServer.on('connection', function (socket, req) {
 			urls: ["stun:stun3.l.google.com:19302"]
 		}]
 	});
-	socket.send(`{ "type": "ConnectionCallback", "peerConnectionOptions": ${peerConnectionOptions} }`);
+
+	const peersId = JSON.stringify(Array.from(roomPeers.keys()));
+	socket.send(`{ \
+		"type": "ConnectionCallback", \
+		"peerConnectionOptions": ${peerConnectionOptions}, \
+		"peersId": ${peersId} \
+	}`);
+	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peersId} }`, [clientId]);
 });
 
 server.listen(port, () => {
