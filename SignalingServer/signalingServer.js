@@ -5,39 +5,86 @@ const http = require('http');
 const server = http.createServer(app);
 const WebSocket = require('ws');
 
-let rooms = new Map(); // <RoomId, ClientArray>
+///////////////////////////////////////////////////////////////////////////////
+//	Utils
+
+function	generateId(length) {
+	let result = '';
+	let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+	for (let i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * characters.length));
+	}
+	return (result);
+}
+
+function	generateUniqueId(length, blacklist = []) {
+	let unique = false;
+	let newid = "";
+	let retry = 0;
+
+	while (!unique && retry < 1000) {
+		newid = generateId(length);
+		unique = true;
+		for (const entry of blacklist) {
+			if (entry === newid) {
+				unique = false;
+				break;
+			}
+		}
+		retry += 1;
+	}
+	if (retry >= 1000) {
+		return ("");
+	}
+	return (newid);
+}
+
+const Utils = {
+	generateId,
+	generateUniqueId,
+};
 
 ///////////////////////////////////////////////////////////////////////////////
-//	PixelStreaming CLIENT
+//	CLIENT SERVER
+
+let rooms = new Map(); // <RoomId, ClientArray>
 
 let clientServer = new WebSocket.Server({ server: server });
 console.log(`WebSocket listening to Client connections on *:${port}`);
 
-clientServer.on('connection', function (webSocket, req) {
+clientServer.on('connection', function (socket, req) {
 	const urlOrigin = new URL(`${req.headers.origin}${req.url}`);
 	const roomId = urlOrigin.searchParams.get("roomid");
 
 	// Add new client to the list
 	let roomPeers = null;
-	let clientId = 0;
+	let clientId = -1;
 
 	if (rooms.has(roomId)) {
 		roomPeers = rooms.get(roomId);
-		clientId = roomPeers.size;
+		const blacklist = Array.from(roomPeers.keys());
+		clientId = Utils.generateUniqueId(5, blacklist);
+		if (clientId === "") {
+			console.log(`** WS:\tCould find Id to a new User`);
+			socket.close(1011 /* Internal Error */, "Could find Unique ID");
+			return;
+		}
 
-		roomPeers.set(clientId, { id: clientId, ws: webSocket });
+		roomPeers.set(clientId, { id: clientId, ws: socket });
 		rooms.set(roomId, roomPeers);
 	}
 	else {
 		console.log(`** WS:\tCreate new room: ${roomId}`);
 
 		const newMap = new Map();
-		newMap.set(clientId, { id: clientId, ws: webSocket });
+		clientId = Utils.generateId(5);
+		newMap.set(clientId, { id: clientId, ws: socket });
 		rooms.set(roomId, newMap);
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);
 
-	webSocket.on('message', function (msg) {
+	socket.on('message', function (msg) {
 		console.log(`Room_${roomId}:\t<-- Client_${clientId}:\tMessage received.`);
 
 		// Parse JSON msg, if not close stream
@@ -78,12 +125,12 @@ clientServer.on('connection', function (webSocket, req) {
 		});
 	}
 
-	webSocket.on('close', function (code, reason) {
+	socket.on('close', function (code, reason) {
 		console.log(`Room_${roomId}:\tClient_${clientId}:\tConnection closed:\t${code} - ${reason}`);
 		onPlayerDisconnected();
 	});
 
-	webSocket.on('error', function (error) {
+	socket.on('error', function (error) {
 		console.log(`Room_${roomId}:\tClient_${clientId}:\tConnection error:\t${code} - ${reason}`);
 		ws.close(1006/* abnormal closure */, error);
 		onPlayerDisconnected();
@@ -101,7 +148,7 @@ clientServer.on('connection', function (webSocket, req) {
 			urls: ["stun:stun3.l.google.com:19302"]
 		}]
 	});
-	webSocket.send(`{ "type": "ConnectionCallback", "peerConnectionOptions": ${peerConnectionOptions} }`);
+	socket.send(`{ "type": "ConnectionCallback", "peerConnectionOptions": ${peerConnectionOptions} }`);
 });
 
 server.listen(port, () => {
