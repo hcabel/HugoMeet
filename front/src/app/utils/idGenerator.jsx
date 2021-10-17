@@ -1,5 +1,5 @@
 
-function	genNewID(length) {
+function	generateID(length) {
 	let result = '';
 	let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -9,4 +9,6 @@ function	genNewID(length) {
 	return (result);
 }
 
-export default genNewID;
+export default {
+	generateID
+};

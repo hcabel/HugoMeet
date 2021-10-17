@@ -8,7 +8,7 @@ import Presentation_2_Img from "./assets/Presentation_2_Img.svg"
 import Presentation_3_Img from "./assets/Presentation_3_Img.svg"
 import Presentation_4_Img from "./assets/Presentation_4_Img.svg"
 
-import genNewID from "../../utils/generateRoomId";
+import Utils from "../../utils/utils";
 
 const	PresentationPhotos = [
 	Presentation_1_Img,
@@ -37,7 +37,7 @@ export default function LandingPage()
 	const [_Focused, set_Focused] = useState(false);
 
 	function createNewRoom() {
-		const newRoomId = genNewID(10);
+		const newRoomId = Utils.idGenerator.generateID(10);
 		history.push("/room/" + newRoomId);
 	}
 
