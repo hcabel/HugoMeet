@@ -106,32 +106,53 @@ clientServer.on('connection', function (socket, req) {
 	socket.on('message', function (msg) {
 		console.log(`Room_${roomId}:\t<-- Client_${clientId}:\tMessage received.`);
 
-		// Parse JSON msg, if not close stream
+		// Parse JSON msg
 		try {
 			msg = JSON.parse(msg);
 		} catch (err) {
 			console.error(`Cannot parse message: ${msg}\nError: ${err}`);
 			ws.close(1008 /* Policy violation */, "Cannot parse msg");
-			return ;
+			return;
 		}
 		console.log('== ', msg);
 
+		// Update peers
+		roomPeers = rooms.get(roomId);
+
+		// who send the message
+		msg.from = clientId;
+
+		// Send the msg to who
+		let target = roomPeers.get(msg.to);
+		if (!target) {
+			console.error(`Message to client_${msg.to} dropped: Player not find`);
+			ws.close(1008 /* Policy violation */, "Cannot find peers id");
+			return;
+		}
+		else if (msg.to === clientId) {
+			console.error(`Client_${msg.to} Trying to send msg to himself`);
+			ws.close(1008 /* Policy violation */, "Sending message to himself is not allow");
+			return;
+		}
+
 		// dispatch based on msg.type value
-		// if (msg.type === "offer") {
-		// 	console.log(`** WS:\t<-- Client ${clientId}:\toffer`);
-		// 	msg.playerId = clientId;
-		// 	streamer.send(JSON.stringify(msg));
-		// }
-		// else if (msg.type === "iceCandidate") {
-		// 	console.log(`** WS:\t<-- Client ${clientId}:\tIceCandidate`);
-		// 	msg.playerId = clientId;
-		// 	streamer.send(JSON.stringify(msg));
-		// }
-		// else {
-		// 	console.error(`** WS:\tClient ${clientId}:\tUnsuported message type:\t${msg.type}`);
-		// 	ws.close(1008/* Custom kick */, "kicked");
-		// 	return ;
-		// }
+		if (msg.type === "Offer") {
+			console.log(`** WS:\t<-- Client ${clientId}:\tOffer`);
+			target.ws.send(JSON.stringify(msg));
+		}
+		else if (msg.type === "Answer") {
+			console.log(`** WS:\t<-- Client ${clientId}:\tAnswer`);
+			target.ws.send(JSON.stringify(msg));
+		}
+		else if (msg.type === "IceCandidate") {
+			console.log(`** WS:\t<-- Client ${clientId}:\tIceCandidate`);
+			target.ws.send(JSON.stringify(msg));
+		}
+		else {
+			console.error(`** WS:\tClient ${clientId}:\tUnsuported message type:\t${msg.type}`);
+			ws.close(1008/* Custom kick */, "kicked");
+			return ;
+		}
 	});
 
 	function	onPlayerDisconnected() {
@@ -140,7 +161,7 @@ clientServer.on('connection', function (socket, req) {
 		rooms.set(roomId, roomPeers);
 
 		const peersId = JSON.stringify(Array.from(roomPeers.keys()));
-		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peersId} }`, [clientId]);
+		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peersId}, "from": "${clientId}" }`, [clientId]);
 	}
 
 	socket.on('close', function (code, reason) {
@@ -172,9 +193,10 @@ clientServer.on('connection', function (socket, req) {
 	socket.send(`{ \
 		"type": "ConnectionCallback", \
 		"peerConnectionOptions": ${peerConnectionOptions}, \
-		"peersId": ${peersId} \
+		"peersId": ${peersId}, \
+		"selfId": "${clientId}" \
 	}`);
-	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peersId} }`, [clientId]);
+	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peersId}, "from": "${clientId}" }`, [clientId]);
 });
 
 server.listen(port, () => {
