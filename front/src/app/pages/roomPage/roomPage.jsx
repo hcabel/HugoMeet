@@ -21,15 +21,15 @@ export default function	RoomPage()
 	//	DataChanel
 
 	function	DConOpen(peerId) {
-		console.log("DC Connected with: ", peerId);
+		console.log(`DC_${peerId}:\tConnected`);
 	}
 
 	function	DConMessage(peerId, msg) {
-		console.log(peerId, " send you: ", msg.data);
+		console.log(`DC_${peerId}:\tReceveived Message`, msg.data);
 	}
 
 	function	DConClose(peerId) {
-		console.log("DC Disconnected with: ", peerId);
+		console.log(`DC_${peerId}:\tDisconnected`);
 	}
 
 	function	initDCFunctions(dataChannel, peerId) {
@@ -42,8 +42,22 @@ export default function	RoomPage()
 	//	WebRTC
 
 	function	sendAnswerBasedOffer(offer, peerId) {
-		console.log(`Client_${peerId} Want to be connected with you`);
+		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
 		let newConnection = new RTCPeerConnection();
+
+		newConnection.onicecandidate = (e) => {
+			if (!e.candidate) {
+				return;
+			}
+
+			let descriptor = {
+				to: peerId,
+				type: "IceCandidate",
+				iceCandidate: e.candidate
+			}
+			console.log(`WebRTC:\tSend ICE to Client_${peerId}\t${e.candidate.type}`);
+			window.SignalingSocket.send(JSON.stringify(descriptor));
+		}
 
 		newConnection.ondatachannel = (event) => {
 			// this function will be executed when the two peers has set theyr local/remote description
@@ -53,27 +67,19 @@ export default function	RoomPage()
 			initDCFunctions(peerConnection.DC, peerId);
 		};
 
-		newConnection.onicecandidate = (e) => {
-			let descriptor = {
-				to: peerId,
-				type: "IceCandidate",
-				iceCandidate: e.candidate
-			}
-			console.log(`Send ICE to Client_${peerId}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
-		}
-
-		newConnection.setRemoteDescription(offer);
+		newConnection.setRemoteDescription(offer)
+		.then(() => console.log(`WebRTC:\tClient_${peerId} Remote description set`));
 		newConnection.createAnswer()
 		.then((answer) => {
-			newConnection.setLocalDescription(answer);
+			newConnection.setLocalDescription(answer)
+			.then(() => console.log(`WebRTC:\tLocal description set`));
 
 			let descriptor = {
 				to: peerId,
 				type: "Answer",
 				answer: answer
 			}
-			console.log(`Send Answer to Client_${peerId}`);
+			console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
 			window.SignalingSocket.send(JSON.stringify(descriptor));
 		})
 
@@ -84,11 +90,8 @@ export default function	RoomPage()
 	}
 
 	function	createNewPeerConnection(peerId) {
-		console.log(`>>> Create peer connection with: Client_${peerId} <<<`);
+		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`);
 		let newConnection = new RTCPeerConnection();
-
-		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
-		initDCFunctions(dataChannel, peerId);
 
 		newConnection.onicecandidate = (e) => {
 			let descriptor = {
@@ -96,20 +99,38 @@ export default function	RoomPage()
 				type: "IceCandidate",
 				iceCandidate: e.candidate
 			}
-			console.log(`Send ICE to Client_${peerId}`);
+			console.log(`WebRTC:\tSend ICE to Client_${peerId}`);
+			window.SignalingSocket.send(JSON.stringify(descriptor));
+		}
+
+		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
+		initDCFunctions(dataChannel, peerId);
+
+		newConnection.onicecandidate = (e) => {
+			if (!e.candidate) {
+				return;
+			}
+
+			let descriptor = {
+				to: peerId,
+				type: "IceCandidate",
+				iceCandidate: e.candidate
+			}
+			console.log(`WebRTC:\tSend ICE to Client_${peerId}\t${e.candidate.type}`);
 			window.SignalingSocket.send(JSON.stringify(descriptor));
 		}
 
 		newConnection.createOffer()
 		.then((offer) => {
-			newConnection.setLocalDescription(offer);
+			newConnection.setLocalDescription(offer)
+			.then(() => console.log(`WebRTC:\tLocal description set`));
 
 			let descriptor = {
 				to: peerId,
 				type: "Offer",
 				offer: offer
 			}
-			console.log(`Send Offer to Client_${peerId}`);
+			console.log(`WebRTC:\tSend Offer to Client_${peerId}`);
 			window.SignalingSocket.send(JSON.stringify(descriptor));
 		})
 
@@ -126,25 +147,23 @@ export default function	RoomPage()
 				...sendAnswerBasedOffer(msg.offer, msg.from)
 			});
 		}
-		else if (msg.type === "Answer") {
-			console.log("Answer received");
-			let connection = PeersConnection.get(msg.from);
-			if (connection) {
-				connection.PC.setRemoteDescription(msg.answer);
-			}
-			else {
-				throw Error("You receive a answer from a undefined peer");
-			}
+
+		let connection = PeersConnection.get(msg.from);
+		if (!connection) {
+			throw Error("You receive a answer from a undefined peer");
+		}
+
+		if (msg.type === "Answer") {
+			console.log(`WebRTC:\tClient_${msg.from}:\tAnswer received`);
+
+			connection.PC.setRemoteDescription(msg.answer)
+			.then(() => console.log(`WebRTC:\tClient_${msg.from} Remote description set`));
 		}
 		else if (msg.type === "IceCandidate") {
-			console.log("ICE received");
-			let connection = PeersConnection.get(msg.from);
-			if (connection) {
-				connection.PC.addIceCandidate(msg.iceCandidate);
-			}
-			else {
-				throw Error("You receive a answer from a undefined peer");
-			}
+			console.log(`WebRTC:\tClient_${msg.from}:\tICE received:\t${msg.iceCandidate?.candidate.split(" ")[7]}`);
+
+			connection.PC.addIceCandidate(msg.iceCandidate)
+			.then(() => console.log(`WebRTC:\tAdd new ICE from Client_${msg.from}`));
 		}
 	}
 
