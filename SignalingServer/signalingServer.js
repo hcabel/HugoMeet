@@ -160,8 +160,8 @@ clientServer.on('connection', function (socket, req) {
 		roomPeers.delete(clientId);
 		rooms.set(roomId, roomPeers);
 
-		const peersId = JSON.stringify(Array.from(roomPeers.keys()));
-		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peersId}, "from": "${clientId}" }`, [clientId]);
+		const peers = JSON.stringify(Array.from(roomPeers.keys()));
+		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 	}
 
 	socket.on('close', function (code, reason) {
@@ -189,14 +189,14 @@ clientServer.on('connection', function (socket, req) {
 		}]
 	});
 
-	const peersId = JSON.stringify(Array.from(roomPeers.keys()));
+	const peers = JSON.stringify(Array.from(roomPeers.keys()));
 	socket.send(`{ \
 		"type": "ConnectionCallback", \
 		"peerConnectionOptions": ${peerConnectionOptions}, \
-		"peersId": ${peersId}, \
+		"peers": ${peers}, \
 		"selfId": "${clientId}" \
 	}`);
-	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peersId}, "from": "${clientId}" }`, [clientId]);
+	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 });
 
 server.listen(port, () => {

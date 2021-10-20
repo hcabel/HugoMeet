@@ -8,10 +8,9 @@ import "./roomPageCSS.css";
 
 let PeersConnection = new Map();
 
-export default function	RoomPage()
-{
+export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
-	const [_PeersId, set_PeersId] = useState([]);
+	const [_Peers, set_Peers] = useState([]);
 
 	const history = useHistory();
 
@@ -168,13 +167,13 @@ export default function	RoomPage()
 	}
 
 	function onRoomConnectionEstablish(msg) {
-		set_PeersId(msg.peersId);
+		set_Peers(msg.peers);
 		// peerConnectionOptions = msg.peerConnectionOptions;
-		for (const peerId of msg.peersId) {
-			if (peerId !== msg.selfId) {
-				PeersConnection.set(peerId, {
-					id: peerId,
-					...createNewPeerConnection(peerId)
+		for (const peer of msg.peers) {
+			if (peer !== msg.selfId) {
+				PeersConnection.set(peer, {
+					id: peer,
+					...createNewPeerConnection(peer)
 				});
 			}
 		}
@@ -196,8 +195,8 @@ export default function	RoomPage()
 			onRoomConnectionEstablish(msg);
 		}
 		else if (msg.type === "clientJoin" || msg.type === "clientLeave") {
-			// I have to send all the clients because for some reasont _PeersId is empty in this function
-			set_PeersId(msg.peers);
+			// I have to send all the clients because for some reasont _Peers is empty in this function
+			set_Peers(msg.peers);
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
 			RTCMessageDispatcher(msg);
@@ -235,6 +234,23 @@ export default function	RoomPage()
 		}
 	})
 
+	// TODO: find math to remove that crap
+	const numberOfColumns = {
+		1: 1,
+		2: 2,
+		3: 2,
+		4: 2,
+		5: 3,
+		6: 3,
+		7: 3,
+		8: 3,
+		9: 3,
+		10: 4,
+		11: 4,
+	};
+
+	// console.log('>> ', _Peers.length,  numberOfColumns[_Peers.length]);
+
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render
 
@@ -246,9 +262,12 @@ export default function	RoomPage()
 					{_LoadingMessage}
 				</div>
 			}
-			<div className="RP-VideoContainer">
-				{_PeersId.map((value, index) =>
+			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
+				{_Peers.map((value, index) =>
 					<div key={index} className="RP-VC-Peer">
+						<div className="RP-VC-P-Name">
+							{value}
+						</div>
 					</div>
 				)}
 			</div>
