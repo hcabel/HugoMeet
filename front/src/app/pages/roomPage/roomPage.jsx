@@ -68,7 +68,7 @@ export default function	RoomPage()
 		};
 
 		newConnection.setRemoteDescription(offer)
-		.then(() => console.log(`WebRTC:\tClient_${peerId} Remote description set`));
+		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
 		newConnection.createAnswer()
 		.then((answer) => {
 			newConnection.setLocalDescription(answer)
@@ -241,31 +241,28 @@ export default function	RoomPage()
 	console.log("RoomPage:\tRefresh");
 	return (
 		<div className="RoomPage">
-			{_LoadingMessage}
-			{_PeersId.map((value, index) =>
-				<div key={index} style={{ display: "flex", width: "100%", justifyContent: "space-around" }}>
-					<div key={index}>
-						{value}
-					</div>
-					<div>
-						{PeersConnection.has(value) &&
-							PeersConnection.get(value).PC.connectionState
-						}
-					</div>
-					<button onClick={() => {
-						const peer = PeersConnection.get(value);
-						if (peer) {
-							if (peer.DC) {
-								peer.DC.send("HELLOBOY");
-							}else {
-								console.log(peer);
-							}
-						}
-					}}>
-						send data
-					</button>
+			{_LoadingMessage !== "" &&
+				<div className="RP-InformationMessage">
+					{_LoadingMessage}
 				</div>
-			)}
+			}
+			<div className="RP-VideoContainer">
+				{_PeersId.map((value, index) =>
+					<div key={index} className="RP-VC-Peer">
+					</div>
+				)}
+			</div>
+			<div className="RP-ToolsBox">
+				<div className="RP-TB-Left">
+					{`Welcome to room: ${roomId}`}
+				</div>
+				<div className="RP-TB-Center">
+
+				</div>
+				<div className="RP-TB-Right">
+
+				</div>
+			</div>
 		</div>
 	);
 };
