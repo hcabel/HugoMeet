@@ -9,15 +9,26 @@ export default function	App()
 	const history = useHistory();
 
 	useEffect(() => {
-		return (history.listen(() => {
-			// This function will be execute every time the Browser route change
-			if (window.SignalingSocket) {
-				if (window.SignalingSocket.readyState === 0 || window.SignalingSocket.readyState === 1) {
-					window.SignalingSocket.close();
+		return (history.listen((e) => {
+			// If go on a page that isn't a room page
+			if (!e.pathname.includes("/room/")) {
+				if (window.SignalingSocket) {
+					// Close signaling WebSocket
+					if (window.SignalingSocket.readyState === 0 || window.SignalingSocket.readyState === 1) {
+						window.SignalingSocket.close();
+					}
+					window.SignalingSocket = null;
 				}
-				window.SignalingSocket = null;
-			}
 
+				if (window.localStream) {
+					// Close Camera and Audio
+					window.localStream.getTracks().forEach((tracks) => {
+						if (tracks.readyState === "live") {
+							tracks.stop();
+						}
+					});
+				}
+			}
 		}));
 	},[ history ])
 

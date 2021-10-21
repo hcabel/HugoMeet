@@ -221,6 +221,7 @@ export default function	RoomPage() {
 		.then(function(localStream) {
 			const video = document.getElementById("localVideo");
 			video.onloadedmetadata = () => video.play();
+			window.localStream = localStream;
 			video.srcObject = localStream;
 			// localStream.getTracks().forEach(track => newConnection.addTrack(track, localStream));
 		})
