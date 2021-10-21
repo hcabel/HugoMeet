@@ -11,6 +11,7 @@ let PeersConnection = new Map();
 export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
+	const [_Self, set_Self] = useState(-1);
 
 	const history = useHistory();
 
@@ -65,6 +66,8 @@ export default function	RoomPage() {
 			peerConnection.DC = event.channel;
 			initDCFunctions(peerConnection.DC, peerId);
 		};
+
+		newConnection.addTransceiver("video", { direction: "sendrecv",  });
 
 		newConnection.setRemoteDescription(offer)
 		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
@@ -168,6 +171,7 @@ export default function	RoomPage() {
 
 	function onRoomConnectionEstablish(msg) {
 		set_Peers(msg.peers);
+		set_Self(msg.selfId)
 		// peerConnectionOptions = msg.peerConnectionOptions;
 		for (const peer of msg.peers) {
 			if (peer !== msg.selfId) {
@@ -208,6 +212,31 @@ export default function	RoomPage() {
 
 	function	WSonOpen() {
 		set_LoadingMessage("SUCCEEDED: Connection to the Signaling server establish.");
+
+		const mediaConstraints = {
+			audio: false,
+			video: true
+		};
+		navigator.mediaDevices.getUserMedia(mediaConstraints)
+		.then(function(localStream) {
+			const video = document.getElementById("localVideo");
+			video.onloadedmetadata = () => video.play();
+			video.srcObject = localStream;
+			// localStream.getTracks().forEach(track => newConnection.addTrack(track, localStream));
+		})
+		.catch((e) => {
+			switch (e.name) {
+				case "NotFoundError":
+					alert("Unable to open your call because no camera and/or microphone were found");
+					break;
+				case "SecurityError":
+				case "PermissionDeniedError":
+					break;
+				default:
+					alert("Error opening your camera and/or microphone: " + e.message);
+					break;
+			}
+		});
 	}
 
 	function	WSonClose(code, reason) {
@@ -265,6 +294,7 @@ export default function	RoomPage() {
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((value, index) =>
 					<div key={index} className="RP-VC-Peer">
+						<video className="RP-VC-P-Video" id={value === _Self ? "localVideo": "" } />
 						<div className="RP-VC-P-Name">
 							{value}
 						</div>

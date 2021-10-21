@@ -25,6 +25,7 @@
 }
 
 .RP-VC-Peer {
+	position: relative;
 	box-sizing: border-box;
 	background: #3c4043;
 	border-radius: 10px;
@@ -32,12 +33,19 @@
 	align-self: center;
 	width: 100%;
 	height: 100%;
-
 	display: flex;
 	flex-direction: column;
 }
 
+.RP-VC-P-Video {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
 .RP-VC-P-Name {
+	position: absolute;
 	width: 100%;
 	height: 100%;
 	text-align: center;
