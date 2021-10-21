@@ -11,7 +11,6 @@ let PeersConnection = new Map();
 export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
-	const [_Self, set_Self] = useState(-1);
 
 	const history = useHistory();
 
@@ -41,6 +40,7 @@ export default function	RoomPage() {
 	///////////////////////////////////////////////////////////////////////////////
 	//	WebRTC
 
+	// When a new client wish to connect with you
 	function	sendAnswerBasedOffer(offer, peerId) {
 		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
 		let newConnection = new RTCPeerConnection();
@@ -67,7 +67,16 @@ export default function	RoomPage() {
 			initDCFunctions(peerConnection.DC, peerId);
 		};
 
-		newConnection.addTransceiver("video", { direction: "sendrecv",  });
+		if (window.localStream) {
+			// Send your local video stream to the client
+			window.localStream.getTracks().forEach(track => newConnection.addTrack(track, window.localStream));
+		}
+		newConnection.ontrack = (event) => {
+			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
+			const video = document.getElementById(`VideoStream_${peerId}`);
+			video.onloadeddata = () => video.play();
+			video.srcObject = event.streams[0];
+		}
 
 		newConnection.setRemoteDescription(offer)
 		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
@@ -91,6 +100,7 @@ export default function	RoomPage() {
 		});
 	}
 
+	// when you ask a peer to be connected with
 	function	createNewPeerConnection(peerId) {
 		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`);
 		let newConnection = new RTCPeerConnection();
@@ -108,18 +118,16 @@ export default function	RoomPage() {
 		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
 		initDCFunctions(dataChannel, peerId);
 
-		newConnection.onicecandidate = (e) => {
-			if (!e.candidate) {
-				return;
-			}
-
-			let descriptor = {
-				to: peerId,
-				type: "IceCandidate",
-				iceCandidate: e.candidate
-			}
-			console.log(`WebRTC:\tSend ICE to Client_${peerId}\t${e.candidate.type}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
+		newConnection.addTransceiver("video", { direction: "sendrecv",  });
+		if (window.localStream) {
+			console.log("Send video TO ", peerId);
+			window.localStream.getTracks().forEach(track => newConnection.addTrack(track, window.localStream));
+		}
+		newConnection.ontrack = (event) => {
+			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
+			const video = document.getElementById(`VideoStream_${peerId}`);
+			video.onloadeddata = () => video.play();
+			video.srcObject = event.streams[0];
 		}
 
 		newConnection.createOffer()
@@ -169,9 +177,39 @@ export default function	RoomPage() {
 		}
 	}
 
-	function onRoomConnectionEstablish(msg) {
+	async function	initialiseLocalVideo(selfId) {
+		const mediaConstraints = {
+			audio: false,
+			video: true
+		};
+
+		await navigator.mediaDevices.getUserMedia(mediaConstraints)
+		.then(function(localStream) {
+			const video = document.getElementById(`VideoStream_${selfId}`);
+			video.onloadedmetadata = () => video.play();
+			window.localStream = localStream;
+			video.srcObject = localStream;
+		})
+		.catch((e) => {
+			switch (e.name) {
+				case "NotFoundError":
+					alert("Unable to open your call because no camera and/or microphone were found");
+					break;
+				case "SecurityError":
+				case "PermissionDeniedError":
+					break;
+				default:
+					alert("Error opening your camera and/or microphone: " + e.message);
+					break;
+			}
+		});
+	}
+
+	async function	onRoomConnectionEstablish(msg) {
 		set_Peers(msg.peers);
-		set_Self(msg.selfId)
+
+		await initialiseLocalVideo(msg.selfId);
+
 		// peerConnectionOptions = msg.peerConnectionOptions;
 		for (const peer of msg.peers) {
 			if (peer !== msg.selfId) {
@@ -212,32 +250,6 @@ export default function	RoomPage() {
 
 	function	WSonOpen() {
 		set_LoadingMessage("SUCCEEDED: Connection to the Signaling server establish.");
-
-		const mediaConstraints = {
-			audio: false,
-			video: true
-		};
-		navigator.mediaDevices.getUserMedia(mediaConstraints)
-		.then(function(localStream) {
-			const video = document.getElementById("localVideo");
-			video.onloadedmetadata = () => video.play();
-			window.localStream = localStream;
-			video.srcObject = localStream;
-			// localStream.getTracks().forEach(track => newConnection.addTrack(track, localStream));
-		})
-		.catch((e) => {
-			switch (e.name) {
-				case "NotFoundError":
-					alert("Unable to open your call because no camera and/or microphone were found");
-					break;
-				case "SecurityError":
-				case "PermissionDeniedError":
-					break;
-				default:
-					alert("Error opening your camera and/or microphone: " + e.message);
-					break;
-			}
-		});
 	}
 
 	function	WSonClose(code, reason) {
@@ -295,7 +307,7 @@ export default function	RoomPage() {
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((value, index) =>
 					<div key={index} className="RP-VC-Peer">
-						<video className="RP-VC-P-Video" id={value === _Self ? "localVideo": "" } />
+						<video className="RP-VC-P-Video" id={`VideoStream_${value}`} />
 						<div className="RP-VC-P-Name">
 							{value}
 						</div>
