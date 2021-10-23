@@ -179,7 +179,7 @@ export default function	RoomPage() {
 
 	async function	initialiseLocalVideo(selfId) {
 		const mediaConstraints = {
-			audio: false,
+			audio: true,
 			video: true
 		};
 
@@ -187,8 +187,9 @@ export default function	RoomPage() {
 		.then(function(localStream) {
 			const video = document.getElementById(`VideoStream_${selfId}`);
 			video.onloadedmetadata = () => video.play();
-			window.localStream = localStream;
+			video.muted = true;
 			video.srcObject = localStream;
+			window.localStream = localStream;
 		})
 		.catch((e) => {
 			switch (e.name) {
