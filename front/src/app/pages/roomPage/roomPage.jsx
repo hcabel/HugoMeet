@@ -271,8 +271,17 @@ export default function	RoomPage() {
 		window.SignalingSocket.onclose = WSonClose;
 	}
 
+	///////////////////////////////////////////////////////////////////////////////
+	//	UseEffect
+
 	useEffect(() => {
-		if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
+		if (roomId.length !== 10) {
+			history.push("/");
+		}
+	}, [roomId]);
+
+	useEffect(() => {
+		if (roomId.length === 10 && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
 			connectClient(roomId);
 		}
 	})
