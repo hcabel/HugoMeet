@@ -1,6 +1,6 @@
 
 const prefix = "http";
-const url = "localhost";
+const url = "192.168.0.138";
 
 const config = {
 	url_front: `${prefix}://${url}:3000`,
