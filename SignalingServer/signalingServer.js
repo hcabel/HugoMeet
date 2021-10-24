@@ -111,7 +111,7 @@ clientServer.on('connection', function (socket, req) {
 			msg = JSON.parse(msg);
 		} catch (err) {
 			console.error(`Cannot parse message: ${msg}\nError: ${err}`);
-			ws.close(1008 /* Policy violation */, "Cannot parse msg");
+			socket.close(1008 /* Policy violation */, "Cannot parse msg");
 			return;
 		}
 		console.log('== ', msg);
@@ -126,12 +126,12 @@ clientServer.on('connection', function (socket, req) {
 		let target = roomPeers.get(msg.to);
 		if (!target) {
 			console.error(`Message to client_${msg.to} dropped: Player not find`);
-			ws.close(1008 /* Policy violation */, "Cannot find peers id");
+			socket.close(1008 /* Policy violation */, "Cannot find peers id");
 			return;
 		}
 		else if (msg.to === clientId) {
 			console.error(`Client_${msg.to} Trying to send msg to himself`);
-			ws.close(1008 /* Policy violation */, "Sending message to himself is not allow");
+			socket.close(1008 /* Policy violation */, "Sending message to himself is not allow");
 			return;
 		}
 
@@ -171,7 +171,7 @@ clientServer.on('connection', function (socket, req) {
 
 	socket.on('error', function (error) {
 		console.log(`Room_${roomId}:\tClient_${clientId}:\tConnection error:\t${code} - ${reason}`);
-		ws.close(1006/* abnormal closure */, error);
+		socket.close(1006/* abnormal closure */, error);
 		onPlayerDisconnected();
 	});
 
