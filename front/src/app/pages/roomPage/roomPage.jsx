@@ -13,7 +13,7 @@ export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_IsMuted, set_IsMuted] = useState(true);
+	const [_IsMuted, set_IsMuted] = useState(false);
 	const [_IsCameraOn, set_IsCameraOn] = useState(true);
 
 	const history = useHistory();
@@ -300,8 +300,6 @@ export default function	RoomPage() {
 
 	useEffect(() => {
 		if (window.localStream) {
-			console.log("Mute/Unmute audio");
-
 			const audiTracks = window.localStream.getAudioTracks();
 			if (audiTracks.length > 0) {
 				audiTracks.forEach((track) => {
@@ -309,7 +307,6 @@ export default function	RoomPage() {
 				});
 			}
 			else {
-				console.log("INIT Audio (Video already exist)");
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
 				navigator.mediaDevices.getUserMedia({ audio: true })
 				.then((localStream) => {
@@ -332,15 +329,12 @@ export default function	RoomPage() {
 	useEffect(() => {
 		if (window.localStream) {
 			if (!_IsCameraOn) {
-				console.log("Kill Video");
 				// If `_IsCameraOn` is FALSE it mean it was TRUE before, so close the video stream
 				window.localStream.getVideoTracks().forEach((track) => {
 					track.stop();
 				});
 			}
 			else {
-				console.log("INIT Video");
-
 				// If `_IsCameraOn` is TRUE it mean it was FALSE before, so restart webcam
 				navigator.mediaDevices.getUserMedia({ video: true })
 				.then((localStream) => {
