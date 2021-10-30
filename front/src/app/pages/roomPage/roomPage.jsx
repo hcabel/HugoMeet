@@ -13,8 +13,8 @@ export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_IsMuted, set_IsMuted] = useState(false);
-	const [_IsCameraOn, set_IsCameraOn] = useState(false);
+	const [_IsMuted, set_IsMuted] = useState(true);
+	const [_IsCameraOn, set_IsCameraOn] = useState(true);
 
 	const history = useHistory();
 
@@ -197,7 +197,7 @@ export default function	RoomPage() {
 		.then(function(localStream) {
 			const video = document.getElementById(`VideoStream_${selfId}`);
 			video.onloadedmetadata = () => video.play(); // autoplay
-			// video.muted = true;	// Dont want to hear myself
+			video.muted = true;	// Dont want to hear myself
 			video.srcObject = localStream;
 			window.localStream = localStream;
 		})
@@ -300,6 +300,8 @@ export default function	RoomPage() {
 
 	useEffect(() => {
 		if (window.localStream) {
+			console.log("Mute/Unmute audio");
+
 			const audiTracks = window.localStream.getAudioTracks();
 			if (audiTracks.length > 0) {
 				audiTracks.forEach((track) => {
@@ -307,17 +309,20 @@ export default function	RoomPage() {
 				});
 			}
 			else {
+				console.log("INIT Audio (Video already exist)");
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
 				navigator.mediaDevices.getUserMedia({ audio: true })
 				.then((localStream) => {
-					const newAudioTracks = localStream.getAudioTracks();
-					newAudioTracks.forEach((track) => {
-						window.localStream.addTrack(track);
+
+					const newTracks = window.localStream.getVideoTracks();
+					newTracks.forEach((track) => {
+						localStream.addTrack(track);
 					});
 
 					// Update srcObject with the localstream with the new audio tracks
 					const video = document.getElementById(`VideoStream_${_SelfId}`);
-					video.srcObject = window.localStream;
+					video.srcObject = localStream;
+					window.localStream = localStream;
 				});
 			}
 
@@ -327,23 +332,27 @@ export default function	RoomPage() {
 	useEffect(() => {
 		if (window.localStream) {
 			if (!_IsCameraOn) {
+				console.log("Kill Video");
 				// If `_IsCameraOn` is FALSE it mean it was TRUE before, so close the video stream
 				window.localStream.getVideoTracks().forEach((track) => {
 					track.stop();
 				});
 			}
 			else {
+				console.log("INIT Video");
+
 				// If `_IsCameraOn` is TRUE it mean it was FALSE before, so restart webcam
 				navigator.mediaDevices.getUserMedia({ video: true })
 				.then((localStream) => {
-					const newVideoTracks = localStream.getVideoTracks();
-					newVideoTracks.forEach((track) => {
-						window.localStream.addTrack(track);
+
+					const newTracks = window.localStream.getAudioTracks();
+					newTracks.forEach((track) => {
+						localStream.addTrack(track);
 					});
 
-					// Update srcObject with the localstream with the new video tracks
 					const video = document.getElementById(`VideoStream_${_SelfId}`);
 					video.srcObject = localStream;
+					window.localStream = localStream;
 				});
 			}
 		}
