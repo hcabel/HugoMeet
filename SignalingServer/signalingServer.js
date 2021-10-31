@@ -40,7 +40,7 @@ function	generateUniqueId(length, blacklist = []) {
 	return (newid);
 }
 
-function	sendToClientsRoom(roomMap, msg, blacklist = []) {
+function	sendMsgToAllClientsInTheRoom(roomMap, msg, blacklist = []) {
 	roomMap.forEach((client) => {
 		let sendTo = true;
 
@@ -52,7 +52,12 @@ function	sendToClientsRoom(roomMap, msg, blacklist = []) {
 		}
 
 		if (sendTo) {
-			client.ws.send(msg);
+			if (client.ws && client.ws.readyState === 1) {
+				client.ws.send(msg);
+			}
+			else {
+				console.warn(`Client_${client.id} WebSocket is closed, message dropped:\t`, msg);
+			}
 		}
 	});
 }
@@ -60,7 +65,7 @@ function	sendToClientsRoom(roomMap, msg, blacklist = []) {
 const Utils = {
 	generateId,
 	generateUniqueId,
-	sendToClientsRoom
+	sendMsgToAllClientsInTheRoom
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,7 +119,7 @@ clientServer.on('connection', function (socket, req) {
 			socket.close(1008 /* Policy violation */, "Cannot parse msg");
 			return;
 		}
-		console.log('== ', msg);
+		// console.log('== ', msg);
 
 		// Update peers
 		roomPeers = rooms.get(roomId);
@@ -132,6 +137,11 @@ clientServer.on('connection', function (socket, req) {
 		else if (msg.to === clientId) {
 			console.error(`Client_${msg.to} Trying to send msg to himself`);
 			socket.close(1008 /* Policy violation */, "Sending message to himself is not allow");
+			return;
+		}
+
+		if (!target.ws || (target.ws && target.ws.readyState !== 1)) {
+			console.error(`Client_${msg.to} WebSocket is closed, message ${msg.type} dropped`);
 			return;
 		}
 
@@ -161,7 +171,8 @@ clientServer.on('connection', function (socket, req) {
 		rooms.set(roomId, roomPeers);
 
 		const peers = JSON.stringify(Array.from(roomPeers.keys()));
-		Utils.sendToClientsRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
+		console.log("DISCO");
+		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 	}
 
 	socket.on('close', function (code, reason) {
@@ -170,7 +181,7 @@ clientServer.on('connection', function (socket, req) {
 	});
 
 	socket.on('error', function (error) {
-		console.log(`Room_${roomId}:\tClient_${clientId}:\tConnection error:\t${code} - ${reason}`);
+		console.log(`Room_${roomId}:\tClient_${clientId}:\tConnection error`);
 		socket.close(1006/* abnormal closure */, error);
 		onPlayerDisconnected();
 	});
@@ -190,8 +201,7 @@ clientServer.on('connection', function (socket, req) {
 	});
 
 	const peers = JSON.stringify(Array.from(roomPeers.values()).map((value) => {
-		delete value.ws;
-		return (value);
+		return ({ ...value, ws: undefined });
 	}));
 	socket.send(`{ \
 		"type": "ConnectionCallback", \
@@ -199,7 +209,8 @@ clientServer.on('connection', function (socket, req) {
 		"peers": ${peers}, \
 		"selfId": "${clientId}" \
 	}`);
-	Utils.sendToClientsRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
+	console.log("clientJoin", clientId, );
+	Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 });
 
 server.listen(port, () => {

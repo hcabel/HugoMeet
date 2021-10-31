@@ -13,8 +13,8 @@ export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_IsMuted, set_IsMuted] = useState(true);
-	const [_IsCameraOn, set_IsCameraOn] = useState(false);
+	const [_IsMuted, set_IsMuted] = useState(false);
+	const [_IsCameraOn, set_IsCameraOn] = useState(true);
 
 	const history = useHistory();
 
@@ -28,7 +28,17 @@ export default function	RoomPage() {
 	}
 
 	function	DConMessage(peerId, msg) {
-		console.log(`DC_${peerId}:\tReceveived Message`, msg.data);
+		console.log(`DC_${peerId}:\tMessage Receveived`, msg.data);
+
+		if (msg.type === "muteStateChange") {
+			const peer = PeersConnection.get(msg.id);
+			if (peer) {
+				console.log(`>>>>>>>>>>>>>>>>>>    ${msg.id} is now ${msg.isMuted ? "muted" : "unmuted"}`);
+			}
+			else {
+				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.id, `does not belong to anyone`);
+			}
+		}
 	}
 
 	function	DConClose(peerId) {
@@ -39,6 +49,14 @@ export default function	RoomPage() {
 		dataChannel.onopen = () => DConOpen(peerId);
 		dataChannel.onmessage = (msg) => DConMessage(peerId, msg);
 		dataChannel.onclose = () => DConClose(peerId);
+	}
+
+	function	sendMessageToEveryoneInTheRoom(msg) {
+		for (const PeerRtcObj of PeersConnection) {
+			if (PeerRtcObj.id !== _SelfId) {
+				PeerRtcObj.DC.send(msg);
+			}
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -271,8 +289,13 @@ export default function	RoomPage() {
 		}, 5000);
 	}
 
-	function	WSonClose(code, reason) {
-		console.log(`WS close: ${code} - ${reason}`);
+	function	WSonClose(event) {
+		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`, event);
+		history.push(`/`);
+	}
+
+	function	WSonError(event) {
+		console.log(`WS error:`, event);
 		history.push(`/`);
 	}
 
@@ -287,6 +310,7 @@ export default function	RoomPage() {
 		window.SignalingSocket.onopen = WSonOpen;
 		window.SignalingSocket.onmessage = WSonMessage;
 		window.SignalingSocket.onclose = WSonClose;
+		window.SignalingSocket.onerror = WSonError;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -306,6 +330,7 @@ export default function	RoomPage() {
 				audiTracks.forEach((track) => {
 					track.enabled = !_IsMuted;
 				});
+				sendMessageToEveryoneInTheRoom(JSON.parse({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
@@ -321,6 +346,8 @@ export default function	RoomPage() {
 					const video = document.getElementById(`VideoStream_${_SelfId}`);
 					video.srcObject = localStream;
 					window.localStream = localStream;
+
+					sendMessageToEveryoneInTheRoom(JSON.parse({ type: "muteStateChange", id: _SelfId, isMuted: false }));
 				});
 			}
 		}
@@ -386,11 +413,11 @@ export default function	RoomPage() {
 				</div>
 			}
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
-				{_Peers.map((value, index) =>
+				{_Peers.map((peer, index) =>
 					<div key={index} className="RP-VC-Peer">
-						<video className="RP-VC-P-Video" id={`VideoStream_${value}`} />
+						<video className="RP-VC-P-Video" id={`VideoStream_${peer.id}`} />
 						<div className="RP-VC-P-Name">
-							{value.id}
+							{peer.id}
 						</div>
 					</div>
 				)}
