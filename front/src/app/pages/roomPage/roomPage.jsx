@@ -30,13 +30,13 @@ export default function	RoomPage() {
 	function	DConMessage(peerId, msg) {
 		console.log(`DC_${peerId}:\tMessage Receveived`, msg.data);
 
-		if (msg.type === "muteStateChange") {
-			const peer = PeersConnection.get(msg.id);
+		if (msg.data.type === "muteStateChange") {
+			const peer = PeersConnection.get(msg.data.id);
 			if (peer) {
-				console.log(`>>>>>>>>>>>>>>>>>>    ${msg.id} is now ${msg.isMuted ? "muted" : "unmuted"}`);
+				console.log(`>>>>>>>>>> ${msg.data.id} is now ${msg.data.isMuted ? "muted" : "unmuted"}`);
 			}
 			else {
-				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.id, `does not belong to anyone`);
+				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.data.id, `does not belong to anyone`);
 			}
 		}
 	}
@@ -52,9 +52,16 @@ export default function	RoomPage() {
 	}
 
 	function	sendMessageToEveryoneInTheRoom(msg) {
-		for (const PeerRtcObj of PeersConnection) {
-			if (PeerRtcObj.id !== _SelfId) {
-				PeerRtcObj.DC.send(msg);
+
+		const peersRTCObjs = PeersConnection.values();
+		for (const peerRtcObj of peersRTCObjs) {
+			if (peerRtcObj.id !== _SelfId) {
+				if (peerRtcObj.DC && peerRtcObj.DC.readyState === "open") {
+					peerRtcObj.DC.send(msg);
+				}
+				else {
+					console.log(`DC:\tIs disconnected`, peerRtcObj);
+				}
 			}
 		}
 	}
@@ -248,7 +255,7 @@ export default function	RoomPage() {
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
 			if (peer.id !== msg.selfId) {
-				PeersConnection.set(peer, {
+				PeersConnection.set(peer.id, {
 					...peer,
 					...createNewPeerConnection(peer.id)
 				});
@@ -330,7 +337,8 @@ export default function	RoomPage() {
 				audiTracks.forEach((track) => {
 					track.enabled = !_IsMuted;
 				});
-				sendMessageToEveryoneInTheRoom(JSON.parse({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
+
+				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
@@ -347,7 +355,7 @@ export default function	RoomPage() {
 					video.srcObject = localStream;
 					window.localStream = localStream;
 
-					sendMessageToEveryoneInTheRoom(JSON.parse({ type: "muteStateChange", id: _SelfId, isMuted: false }));
+					sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: false }));
 				});
 			}
 		}
