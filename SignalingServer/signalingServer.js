@@ -171,7 +171,6 @@ clientServer.on('connection', function (socket, req) {
 		rooms.set(roomId, roomPeers);
 
 		const peers = JSON.stringify(Array.from(roomPeers.keys()));
-		console.log("DISCO");
 		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 	}
 
@@ -201,6 +200,7 @@ clientServer.on('connection', function (socket, req) {
 	});
 
 	const peers = JSON.stringify(Array.from(roomPeers.values()).map((value) => {
+		// You can't use `delete value.ws` because it will be erase in `roonPeers` has well
 		return ({ ...value, ws: undefined });
 	}));
 	socket.send(`{ \
@@ -209,7 +209,6 @@ clientServer.on('connection', function (socket, req) {
 		"peers": ${peers}, \
 		"selfId": "${clientId}" \
 	}`);
-	console.log("clientJoin", clientId, );
 	Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
 });
 
