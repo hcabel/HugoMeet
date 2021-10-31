@@ -325,7 +325,7 @@ export default function	RoomPage() {
 
 	// If you enter in a room with a wrong RoomId, expulse to
 	useEffect(() => {
-		if (roomId.length !== 10) {
+		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
 			history.push("/");
 		}
 	}, [roomId]);

@@ -37,14 +37,13 @@ export default function LandingPage()
 	const [_Focused, set_Focused] = useState(false);
 
 	function createNewRoom() {
-		const newRoomId = Utils.idGenerator.generateID(10);
+		const newRoomId = Utils.idGenerator.generateRoomID(9);
 		history.push("/room/" + newRoomId);
 	}
 
 	function joinRoom(roomId) {
-		const format = new RegExp("/[ `!@#$%^&*()_+-=[]{};':\"\\|,.<>/?~]/");
-		if (roomId.length !== 10 || format.test(roomId)) {
-			console.warn("roomId contain special char");
+		if (Utils.idGenerator.isRoomIDValid(roomId)) {
+			console.warn("RoomID is not valid !");
 			return;
 		}
 		history.push("/room/" + roomId);
@@ -92,8 +91,8 @@ export default function LandingPage()
 							{(_Focused || _Value.length > 0) &&
 								<button
 									className="LP-B-TAB-B-JR-Button"
-									style={{ color: (_Value.length === 10 ? "#1a73e8" : "rgba(60,64,67,0.38)")}}
-									onClick={() => (_Value.length === 10 ? joinRoom(_Value) : undefined)}
+									style={{ color: (Utils.idGenerator.isRoomIDValid(_Value) ? "#1a73e8" : "rgba(60,64,67,0.38)")}}
+									onClick={() => (Utils.idGenerator.isRoomIDValid(_Value) ? joinRoom(_Value) : undefined)}
 								>
 									Participer
 								</button>
