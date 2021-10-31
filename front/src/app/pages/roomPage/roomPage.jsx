@@ -10,7 +10,7 @@ import "./roomPageCSS.css";
 let PeersConnection = new Map();
 
 export default function	RoomPage() {
-	const [_LoadingMessage, set_LoadingMessage] = useState("");
+	const [_LoadingMessage, set_LoadingMessage] = useState("Loading...");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
 	const [_IsMuted, set_IsMuted] = useState(false);
@@ -52,7 +52,7 @@ export default function	RoomPage() {
 	}
 
 	function	sendMessageToEveryoneInTheRoom(msg) {
-
+		// send message to everyone in the room excepte you
 		const peersRTCObjs = PeersConnection.values();
 		for (const peerRtcObj of peersRTCObjs) {
 			if (peerRtcObj.id !== _SelfId) {
@@ -90,30 +90,34 @@ export default function	RoomPage() {
 
 		newConnection.ondatachannel = (event) => {
 			// this function will be executed when the two peers has set theyr local/remote description
-			// So the function `sendAnswerBasedOffer` will already return and the value store into `PeersConnection` Map
 			const peerConnection = PeersConnection.get(peerId);
 			peerConnection.DC = event.channel;
 			initDCFunctions(peerConnection.DC, peerId);
 		};
 
 		if (window.localStream) {
-			// Send your local video stream to the client
+			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
 		newConnection.ontrack = (event) => {
+			// When you receive streams from the peer
 			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
 			const video = document.getElementById(`VideoStream_${peerId}`);
 			video.onloadeddata = () => video.play();
 			video.srcObject = event.streams[0];
 		}
 
+		// Set local description of the peer
 		newConnection.setRemoteDescription(offer)
 		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
+
+		// Create/Set your own local description
 		newConnection.createAnswer()
 		.then((answer) => {
 			newConnection.setLocalDescription(answer)
 			.then(() => console.log(`WebRTC:\tLocal description set`));
 
+			// Send your local description to the peer
 			let descriptor = {
 				to: peerId,
 				type: "Answer",
@@ -125,7 +129,7 @@ export default function	RoomPage() {
 
 		return ({
 			PC: newConnection,
-			DC: null
+			DC: null // We return null because DC will be set when `ondatachannel` will be triggered
 		});
 	}
 
@@ -135,6 +139,7 @@ export default function	RoomPage() {
 		let newConnection = new RTCPeerConnection();
 
 		newConnection.onicecandidate = (e) => {
+			// When you create a new ice, send it to the peer
 			let descriptor = {
 				to: peerId,
 				type: "IceCandidate",
@@ -147,23 +152,28 @@ export default function	RoomPage() {
 		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
 		initDCFunctions(dataChannel, peerId);
 
+		// TODO: Make sure of the importance of this line (I think it's already set to `sendrecv`)
 		newConnection.addTransceiver("video", { direction: "sendrecv",  });
+
 		if (window.localStream) {
-			console.log("Send video TO ", peerId);
+			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
 		newConnection.ontrack = (event) => {
+			// When you receive streams from the peer
 			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
 			const video = document.getElementById(`VideoStream_${peerId}`);
 			video.onloadeddata = () => video.play();
 			video.srcObject = event.streams[0];
 		}
 
+		// Create/Set your own local description
 		newConnection.createOffer()
 		.then((offer) => {
 			newConnection.setLocalDescription(offer)
 			.then(() => console.log(`WebRTC:\tLocal description set`));
 
+			// send local description to the peer
 			let descriptor = {
 				to: peerId,
 				type: "Offer",
@@ -181,6 +191,7 @@ export default function	RoomPage() {
 
 	function	RTCMessageDispatcher(msg) {
 		if (msg.type === "Offer") {
+			// somemone new has join the room and send you an offer start a peer connection
 			PeersConnection.set(msg.from, {
 				id: msg.from,
 				...sendAnswerBasedOffer(msg.offer, msg.from)
@@ -193,28 +204,33 @@ export default function	RoomPage() {
 		}
 
 		if (msg.type === "Answer") {
+			// someone reponce to your offer with is own local description
 			console.log(`WebRTC:\tClient_${msg.from}:\tAnswer received`);
 
+			// set the local description of the remote peer
 			connection.PC.setRemoteDescription(msg.answer)
 			.then(() => console.log(`WebRTC:\tClient_${msg.from} Remote description set`));
 		}
 		else if (msg.type === "IceCandidate") {
+			// You received a new ICE from one of your remote peers
 			console.log(`WebRTC:\tClient_${msg.from}:\tICE received:\t${msg.iceCandidate?.candidate.split(" ")[7]}`);
 
+			// /!\ It's actually very important to add ICE because they change the local description of the remote peer
+			// /!\ and if you don't do it, your peer will have a local description who isn't matching with the one you added with `setRemoteDescription`
+			// /!\ and you will be DISCONNECTED has soon has it was connected
 			connection.PC.addIceCandidate(msg.iceCandidate)
 			.then(() => console.log(`WebRTC:\tAdd new ICE from Client_${msg.from}`));
 		}
 	}
 
 	async function	initialiseLocalVideo(selfId) {
-
 		if (!_IsCameraOn && _IsMuted) {
-			// can't init device will all the constraints `false`
+			// can't init device with all the constraints has `false`
 			return;
 		}
-
 		if (!navigator.mediaDevices) {
-			set_LoadingMessage("This site is untrusted we can access to the camera and microphone !");
+			set_LoadingMessage("Failed, Unable to load: Untrusted");
+			alert("This site is untrusted we can access to the camera and microphone !");
 			return;
 		}
 
@@ -222,8 +238,8 @@ export default function	RoomPage() {
 		await navigator.mediaDevices.getUserMedia({ audio: !_IsMuted, video: _IsCameraOn })
 		.then(function(localStream) {
 			const video = document.getElementById(`VideoStream_${selfId}`);
-			video.onloadedmetadata = () => video.play(); // autoplay
-			video.muted = true;	// Dont want to hear myself
+			video.onloadedmetadata = () => video.play(); // play once video stream is setup
+			video.muted = true;	// Mute my own vide to avoid hearing myself
 			video.srcObject = localStream;
 			window.localStream = localStream;
 		})
@@ -246,8 +262,8 @@ export default function	RoomPage() {
 		set_Peers(msg.peers);
 		set_SelfId(msg.selfId);
 
-		// We wait because if not our streams are not in the `window.localstream` variable
-		// and we can't send them to the peers
+		// We wait because to initialise `window.localstream`
+		// If we don't we will be unable to send video/audio streams to the Peers
 		await initialiseLocalVideo(msg.selfId);
 
 		/* peerConnectionOptions = msg.peerConnectionOptions; */
@@ -268,6 +284,7 @@ export default function	RoomPage() {
 
 	function	WSonMessage(msg) {
 		try {
+			// WebSocket message are always stringify JSON (in my case)
 			msg = JSON.parse(msg.data);
 		} catch (err) {
 			console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
@@ -275,6 +292,7 @@ export default function	RoomPage() {
 		}
 
 		if (msg.type === "ConnectionCallback") {
+			// once you sucessfully been connected to the room (msg contain all the initialising value)
 			onRoomConnectionEstablish(msg);
 		}
 		else if (msg.type === "clientJoin" || msg.type === "clientLeave") {
@@ -282,6 +300,7 @@ export default function	RoomPage() {
 			set_Peers(msg.peers);
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
+			// msg.type === Offer | Answer | IceCandidate
 			RTCMessageDispatcher(msg);
 		}
 		else {
@@ -312,6 +331,7 @@ export default function	RoomPage() {
 			set_LoadingMessage("FAILED: Your browser's version is to old.");
 		}
 
+		// connect to signalling server
 		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}`);
 
 		window.SignalingSocket.onopen = WSonOpen;
@@ -323,21 +343,16 @@ export default function	RoomPage() {
 	///////////////////////////////////////////////////////////////////////////////
 	//	UseEffect
 
-	// If you enter in a room with a wrong RoomId, expulse to
 	useEffect(() => {
-		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
-			history.push("/");
-		}
-	}, [roomId]);
-
-	useEffect(() => {
+		// When your micro status change
 		if (window.localStream) {
 			const audiTracks = window.localStream.getAudioTracks();
-			if (audiTracks.length > 0) {
+			if (audiTracks.length > 0) { // If was alread initialised
+
+				// switch between mute and unmute
 				audiTracks.forEach((track) => {
 					track.enabled = !_IsMuted;
 				});
-
 				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
 			}
 			else {
@@ -362,6 +377,7 @@ export default function	RoomPage() {
 	}, [_IsMuted]);
 
 	useEffect(() => {
+		// when you camera state change
 		if (window.localStream) {
 			if (!_IsCameraOn) {
 				// If `_IsCameraOn` is FALSE it mean it was TRUE before, so close the video stream
@@ -389,10 +405,17 @@ export default function	RoomPage() {
 
 	// Constructor, will be excuted only once
 	useEffect(() => {
-		if (roomId.length === 10 && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
+		if (Utils.idGenerator.isRoomIDValid(roomId) && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
 			connectClient(roomId);
 		}
 	});
+
+	// If you enter in a room with a wrong RoomId, expulse to
+	useEffect(() => {
+		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
+			history.push("/");
+		}
+	}, [roomId]);
 
 	// TODO: find math to remove that crap
 	const numberOfColumns = {
@@ -420,6 +443,7 @@ export default function	RoomPage() {
 					{_LoadingMessage}
 				</div>
 			}
+			{/* VIDEOS */}
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) =>
 					<div key={index} className="RP-VC-Peer">
@@ -430,6 +454,7 @@ export default function	RoomPage() {
 					</div>
 				)}
 			</div>
+			{/* BUTTONS UNDER VIDEOS */}
 			<div className="RP-ToolsBox">
 				<div className="RP-TB-Left">
 					{`Welcome to room: ${roomId}`}
