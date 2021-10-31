@@ -13,8 +13,8 @@ export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_IsMuted, set_IsMuted] = useState(false);
-	const [_IsCameraOn, set_IsCameraOn] = useState(true);
+	const [_IsMuted, set_IsMuted] = useState(true);
+	const [_IsCameraOn, set_IsCameraOn] = useState(false);
 
 	const history = useHistory();
 
@@ -182,10 +182,11 @@ export default function	RoomPage() {
 	}
 
 	async function	initialiseLocalVideo(selfId) {
-		const mediaConstraints = {
-			audio: true,
-			video: true
-		};
+
+		if (!_IsCameraOn && _IsMuted) {
+			// can't init device will all the constraints `false`
+			return;
+		}
 
 		if (!navigator.mediaDevices) {
 			set_LoadingMessage("This site is untrusted we can access to the camera and microphone !");
@@ -228,10 +229,10 @@ export default function	RoomPage() {
 
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
-			if (peer !== msg.selfId) {
+			if (peer.id !== msg.selfId) {
 				PeersConnection.set(peer, {
-					id: peer,
-					...createNewPeerConnection(peer)
+					...peer,
+					...createNewPeerConnection(peer.id)
 				});
 			}
 		}
@@ -322,7 +323,6 @@ export default function	RoomPage() {
 					window.localStream = localStream;
 				});
 			}
-
 		}
 	}, [_IsMuted]);
 
@@ -390,7 +390,7 @@ export default function	RoomPage() {
 					<div key={index} className="RP-VC-Peer">
 						<video className="RP-VC-P-Video" id={`VideoStream_${value}`} />
 						<div className="RP-VC-P-Name">
-							{value}
+							{value.id}
 						</div>
 					</div>
 				)}

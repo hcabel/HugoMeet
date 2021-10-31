@@ -189,7 +189,10 @@ clientServer.on('connection', function (socket, req) {
 		}]
 	});
 
-	const peers = JSON.stringify(Array.from(roomPeers.keys()));
+	const peers = JSON.stringify(Array.from(roomPeers.values()).map((value) => {
+		delete value.ws;
+		return (value);
+	}));
 	socket.send(`{ \
 		"type": "ConnectionCallback", \
 		"peerConnectionOptions": ${peerConnectionOptions}, \
