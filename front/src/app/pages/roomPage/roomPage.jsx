@@ -70,12 +70,14 @@ export default function	RoomPage() {
 	//	WebRTC
 
 	// When a new client wish to connect with you
-	function	sendAnswerBasedOffer(offer, peerId) {
-		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
-		let newConnection = new RTCPeerConnection();
+	function	sendAnswerBasedOffer(offer, peerId, options) {
+		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`, options);
+		let newConnection = new RTCPeerConnection(options);
 
 		newConnection.onicecandidate = (e) => {
 			if (!e.candidate) {
+				// This function is triggered one last time with an empty candidate when all candidate are send
+				// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
 				return;
 			}
 
@@ -134,11 +136,17 @@ export default function	RoomPage() {
 	}
 
 	// when you ask a peer to be connected with
-	function	createNewPeerConnection(peerId) {
-		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`);
-		let newConnection = new RTCPeerConnection();
+	function	createNewPeerConnection(peerId, options) {
+		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`, options);
+		let newConnection = new RTCPeerConnection(options);
 
 		newConnection.onicecandidate = (e) => {
+			if (!e.candidate) {
+				// This function is triggered one last time with an empty candidate when all candidate are send
+				// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
+				return;
+			}
+
 			// When you create a new ice, send it to the peer
 			let descriptor = {
 				to: peerId,
@@ -194,7 +202,7 @@ export default function	RoomPage() {
 			// somemone new has join the room and send you an offer start a peer connection
 			PeersConnection.set(msg.from, {
 				id: msg.from,
-				...sendAnswerBasedOffer(msg.offer, msg.from)
+				...sendAnswerBasedOffer(msg.offer, msg.from, msg.peerConnectionOptions)
 			});
 		}
 
@@ -212,14 +220,20 @@ export default function	RoomPage() {
 			.then(() => console.log(`WebRTC:\tClient_${msg.from} Remote description set`));
 		}
 		else if (msg.type === "IceCandidate") {
+			if (!msg.iceCandidate) {
+				console.error(`WebRTC:\tClient_${msg.from}:\tSend you a not valid ICE candidate`);
+				return;
+			}
+
 			// You received a new ICE from one of your remote peers
-			console.log(`WebRTC:\tClient_${msg.from}:\tICE received:\t${msg.iceCandidate?.candidate.split(" ")[7]}`);
+			console.log(`WebRTC:\tClient_${msg.from}:\tICE received`);
 
 			// /!\ It's actually very important to add ICE because they change the local description of the remote peer
 			// /!\ and if you don't do it, your peer will have a local description who isn't matching with the one you added with `setRemoteDescription`
 			// /!\ and you will be DISCONNECTED has soon has it was connected
-			connection.PC.addIceCandidate(msg.iceCandidate)
-			.then(() => console.log(`WebRTC:\tAdd new ICE from Client_${msg.from}`));
+			const ice = new RTCIceCandidate(msg.iceCandidate);
+			connection.PC.addIceCandidate(ice)
+			.then(() => console.log(`WebRTC:\tAdd new ICE from Client_${msg.from}\t${ice.type}`));
 		}
 	}
 
@@ -266,14 +280,12 @@ export default function	RoomPage() {
 		// If we don't we will be unable to send video/audio streams to the Peers
 		await initialiseLocalVideo(msg.selfId);
 
-		/* peerConnectionOptions = msg.peerConnectionOptions; */
-
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
 			if (peer.id !== msg.selfId) {
 				PeersConnection.set(peer.id, {
 					...peer,
-					...createNewPeerConnection(peer.id)
+					...createNewPeerConnection(peer.id, msg.peerConnectionOptions)
 				});
 			}
 		}
