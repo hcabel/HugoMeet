@@ -105,3 +105,6 @@ dist
 
 .DS_Store
 .git
+
+front/package-lock.json
+SignallingServer/package-lock.json

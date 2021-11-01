@@ -5,6 +5,20 @@ const http = require('http');
 const server = http.createServer(app);
 const WebSocket = require('ws');
 
+// Allow peer connection from the outside of your network
+// (But not if they'r behing a symetric NAT, I didn't implement a TURN server)
+const peerConnectionOptions = {
+	iceServers: [{
+		urls: ["stun:stun.l.google.com:19302"]
+	}, {
+		urls: ["stun:stun1.l.google.com:19302"]
+	}, {
+		urls: ["stun:stun2.l.google.com:19302"]
+	}, {
+		urls: ["stun:stun3.l.google.com:19302"]
+	}]
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 //	Utils
 
@@ -82,7 +96,7 @@ clientServer.on('connection', function (socket, req) {
 
 	// Add new client to the list
 	let roomPeers = null; // contain everyone in the room (Also the current client)
-	let clientId = -1;
+	let clientId = "";
 
 	if (rooms.has(roomId)) {
 		roomPeers = rooms.get(roomId);
@@ -148,6 +162,8 @@ clientServer.on('connection', function (socket, req) {
 		// dispatch based on msg.type value
 		if (msg.type === "Offer") {
 			console.log(`** WS:\t<-- Client ${clientId}:\tOffer`);
+			// add peer connection options
+			msg.peerConnectionOptions = peerConnectionOptions;
 			target.ws.send(JSON.stringify(msg));
 		}
 		else if (msg.type === "Answer") {
@@ -185,31 +201,25 @@ clientServer.on('connection', function (socket, req) {
 		onPlayerDisconnected();
 	});
 
-	// Allow peer connection from the outside of your network
-	// (But not if they'r behing a symetric NAT, I didn't implement a TURN server)
-	const peerConnectionOptions = JSON.stringify({
-		iceServers: [{
-			urls: ["stun:stun.l.google.com:19302"]
-		}, {
-			urls: ["stun:stun1.l.google.com:19302"]
-		}, {
-			urls: ["stun:stun2.l.google.com:19302"]
-		}, {
-			urls: ["stun:stun3.l.google.com:19302"]
-		}]
-	});
-
-	const peers = JSON.stringify(Array.from(roomPeers.values()).map((value) => {
+	const peers = Array.from(roomPeers.values()).map((value) => {
 		// You can't use `delete value.ws` because it will be erase in `roonPeers` has well
 		return ({ ...value, ws: undefined });
+	});
+	socket.send(JSON.stringify({
+		type: "ConnectionCallback",
+		peerConnectionOptions: peerConnectionOptions,
+		peers: peers,
+		selfId: clientId
 	}));
-	socket.send(`{ \
-		"type": "ConnectionCallback", \
-		"peerConnectionOptions": ${peerConnectionOptions}, \
-		"peers": ${peers}, \
-		"selfId": "${clientId}" \
-	}`);
-	Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientJoin", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
+	Utils.sendMsgToAllClientsInTheRoom(
+		roomPeers,
+		JSON.stringify({
+			type: "clientJoin",
+			peers: peers,
+			from: clientId
+		}),
+		[clientId]
+	);
 });
 
 server.listen(port, () => {
