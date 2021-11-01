@@ -42,7 +42,7 @@ export default function LandingPage()
 	}
 
 	function joinRoom(roomId) {
-		if (Utils.idGenerator.isRoomIDValid(roomId)) {
+		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
 			console.warn("RoomID is not valid !");
 			return;
 		}
