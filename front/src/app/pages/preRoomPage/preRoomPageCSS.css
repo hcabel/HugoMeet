@@ -1,15 +1,14 @@
 
-.PRP-Header {
+.PreRoomPage {
 	display: flex;
-	min-height: 40px;
-	padding: 16px 16px 0 16px;
-	text-align: right;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+	margin: 0;
 }
 
-.PRP-H-Logo {
-	flex: 1;
-}
-
-.PRP-H-UserInfos {
-	flex: 1;
+.PRP-Body {
+	box-flex: 1;
+	flex-grow: 1;
+	overflow: auto;
 }

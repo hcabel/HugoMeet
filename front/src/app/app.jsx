@@ -37,7 +37,7 @@ export default function	App()
 		<Switch>
 			<Route exact path="/" component={LandingPage} />
 			<Route exact path="/room/:roomId" component={RoomPage} />
-			<Route exact path="/invatation/:roomId" component={PreRoomPage} />
+			<Route exact path="/invitation/:roomId" component={PreRoomPage} />
 			<Route render={() => <Redirect to="/" />} />
 		</Switch>
 	);
