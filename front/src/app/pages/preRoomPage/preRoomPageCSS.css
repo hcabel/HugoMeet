@@ -12,3 +12,110 @@
 	flex-grow: 1;
 	overflow: auto;
 }
+
+.PRP-Body,
+.PRP-B-Content {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+@media (max-width: 943px) {
+	.PRP-Body,
+	.PRP-B-Content {
+		display: -webkit-inline-box;
+		display: inline-flex;
+		flex-direction: column;
+	}
+}
+
+.PRP-B-C-Form {
+	display: flex;
+	flex-direction: column;
+	box-flex: 1;
+	flex-grow: 1;
+	justify-content: center;
+	width: 448px;
+}
+
+.PRP-B-C-F-Title {
+	color: rgba(0,0,0,0.87);
+
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	height: 230px;
+	justify-content: flex-end;
+
+	cursor: default;
+	text-align: center;
+	font-family: 'Google Sans',Roboto,Arial,sans-serif;
+	font-size: 1.75rem;
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 2.25rem;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.PRP-B-C-F-SubmitButtons {
+	flex: 1;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin: 16px 0;
+
+	align-items: center;
+	display: flex;
+	flex-flow: wrap;
+	justify-content: center;
+}
+
+.PRP-B-C-F-SB-Participate {
+	transition: box-shadow 280ms cubic-bezier(0.4,0,0.2,1);
+	-webkit-font-smoothing: antialiased;
+	-webkit-user-select: none;
+	transition: background .2s .1s;
+	border: 0;
+	border-radius: 4px;
+	color: #1a73e8;
+	cursor: pointer;
+	display: inline-block;
+	font-family: "Google Sans",Roboto,Arial,sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	letter-spacing: .25px;
+	line-height: 36px;
+	text-decoration: none;
+	text-transform: none;
+	min-width: auto;
+	outline: none;
+	overflow: hidden;
+	position: relative;
+	text-align: center;
+	-webkit-tap-highlight-color: transparent;
+	z-index: 0;
+
+	background: #1a73e8;
+	color: #fff;
+
+	border-radius: 24px;
+	box-shadow: 0px 1px 2px 0px rgb(60 64 67 / 30%), 0px 1px 3px 1px rgb(60 64 67 / 15%);
+	display: flex;
+	height: 48px;
+	margin: 0 4px 16px 4px;
+}
+
+.PRP-B-C-F-SB-P-Value {
+	-webkit-box-align: center;
+	box-align: center;
+	align-items: center;
+	display: flex;
+	position: relative;
+
+	padding: 0 24px;
+}
