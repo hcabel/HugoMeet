@@ -1,0 +1,15 @@
+
+.PRP-Header {
+	display: flex;
+	min-height: 40px;
+	padding: 16px 16px 0 16px;
+	text-align: right;
+}
+
+.PRP-H-Logo {
+	flex: 1;
+}
+
+.PRP-H-UserInfos {
+	flex: 1;
+}

@@ -3,6 +3,7 @@ import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
 import LandingPage from "./pages/landingPage/landingPage";
 import RoomPage from "./pages/roomPage/roomPage";
+import PreRoomPage from "./pages/preRoomPage/preRoomPage";
 
 export default function	App()
 {
@@ -36,6 +37,7 @@ export default function	App()
 		<Switch>
 			<Route exact path="/" component={LandingPage} />
 			<Route exact path="/room/:roomId" component={RoomPage} />
+			<Route exact path="/invatation/:roomId" component={PreRoomPage} />
 			<Route render={() => <Redirect to="/" />} />
 		</Switch>
 	);
