@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import "./preRoomPageCSS.css";
 
 function	PreRoomPage() {
-	const [_Video, set_Video] = useState(false);
-	const [_Audio, set_Audio] = useState(false);
+	const [_Video, set_Video] = useState(true);
+	const [_Audio, set_Audio] = useState(true);
 
 	function	toggleAudio() {
 		console.log("Eeeeeeee");
@@ -16,7 +16,33 @@ function	PreRoomPage() {
 	}
 
 	useEffect(() => {
-		// Todo: Get user Media
+		if (!navigator.mediaDevices) {
+			alert("This site is untrusted we can access to the camera and microphone !");
+			return;
+		}
+
+		// get Audio and Video
+		navigator.mediaDevices.getUserMedia({ audio: _Audio, video: _Video })
+		.then(function(localStream) {
+			const video = document.getElementById("LocalStream");
+			video.onloadedmetadata = () => video.play(); // play once video stream is setup
+			// video.muted = true;	// Mute my own vide to avoid hearing myself
+			video.srcObject = localStream;
+			window.localStream = localStream;
+		})
+		.catch((e) => {
+			switch (e.name) {
+				case "NotFoundError":
+					alert("Unable to open your call because no camera and/or microphone were found");
+					break;
+				case "SecurityError":
+				case "PermissionDeniedError":
+					break;
+				default:
+					alert("Error opening your camera and/or microphone: " + e.message);
+					break;
+			}
+		});
 	});
 
 	return (
@@ -28,7 +54,7 @@ function	PreRoomPage() {
 							<div className="PRP-B-C-S-VS-Video">
 								<div className="PRP-B-C-S-VS-V-Inside">
 									<div className="PRP-B-C-S-VS-V-I-StreamsVideo">
-										<video className="PRP-B-C-S-VS-V-I-SV-Video" />
+										<video autoplay id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">
