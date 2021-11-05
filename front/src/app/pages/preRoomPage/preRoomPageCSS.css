@@ -30,6 +30,176 @@
 	}
 }
 
+.PRP-B-C-Stream {
+	display: -webkit-inline-box;
+	display: inline-flex;
+	flex-direction: column;
+	box-flex: 1;
+	flex-grow: 1;
+	max-width: calc(740px + 24px);
+}
+
+.PRP-B-C-S-VideoShadow {
+	border-radius: 8px;
+	box-shadow: 0px 1px 2px 0px rgb(60 64 67 / 30%), 0px 1px 3px 1px rgb(60 64 67 / 15%);
+	flex: 0 1;
+	margin: 16px 8px 16px 16px;
+	min-width: 448px;
+	overflow: hidden;
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+@media (max-width: 943px) {
+	.PRP-B-C-S-VideoShadow {
+		flex: 0 1;
+		margin: 16px;
+	}
+}
+
+.PRP-B-C-S-VS-Video {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.PRP-B-C-S-VS-V-Inside {
+	display: block;
+
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+
+	background-color: #202124;
+	box-sizing: border-box;
+	padding-top: 56.25%;
+	width: 100%;
+}
+
+.PRP-B-C-S-VS-V-I-StreamsVideo {
+	position: absolute;
+	background: black;
+	width: 100%;
+	height: 100%;
+	left: 0px;
+	top: 0px;
+}
+
+.PRP-B-C-S-VS-V-I-SV-Video {
+	height: calc(100% + 2px);
+	left: -1px;
+	pointer-events: none;
+	position: absolute;
+	top: -1px;
+	width: calc(100% + 2px);
+
+	transform: scaleX(-1);
+}
+
+.PRP-B-C-S-VS-V-Buttons {
+	bottom: 16px;
+	display: flex;
+	left: 50%;
+	margin-left: -80px;
+	position: absolute;
+}
+
+.PRP-B-C-S-VS-V-B-AudioButtonOn {
+	margin: 0 12px;
+	align-items: center;
+	box-sizing: border-box;
+	border-radius: 50%;
+	display: flex;
+	height: 72px;
+	justify-content: center;
+	transition: all .25s linear;
+	width: 72px;
+
+	background-color: transparent;
+	height: 56px;
+	width: 56px;
+	z-index: 1;
+
+	border: 1px solid #fff;
+	color: #fff;
+}
+
+.PRP-B-C-S-VS-V-B-AudioButtonOff {
+	margin: 0 12px;
+	align-items: center;
+	border-radius: 50%;
+	box-sizing: border-box;
+	display: flex;
+	height: 72px;
+	justify-content: center;
+	transition: all .25s linear;
+	width: 72px;
+
+	background-color: transparent;
+	height: 56px;
+	width: 56px;
+	z-index: 1;
+
+	border: 1px solid #fff;
+	color: #fff;
+
+	background-color: #d93025;
+	border: 1px solid #d93025;
+}
+
+.PRP-B-C-S-VS-V-B-VideoButtonOn {
+	margin: 0 12px;
+	align-items: center;
+	border-radius: 50%;
+	box-sizing: border-box;
+	display: flex;
+	height: 72px;
+	justify-content: center;
+	transition: all .25s linear;
+	width: 72px;
+
+	background-color: transparent;
+	height: 56px;
+	width: 56px;
+	z-index: 1;
+
+	border: 1px solid #fff;
+	color: #fff;
+}
+
+.PRP-B-C-S-VS-V-B-VideoButtonOff {
+	margin: 0 12px;
+	align-items: center;
+	border-radius: 50%;
+	box-sizing: border-box;
+	display: flex;
+	height: 72px;
+	justify-content: center;
+	transition: all .25s linear;
+	width: 72px;
+
+	background-color: transparent;
+	height: 56px;
+	width: 56px;
+	z-index: 1;
+
+	border: 1px solid #fff;
+	color: #fff;
+
+	background-color: #d93025;
+	border: 1px solid #d93025;
+}
+
+.PRP-B-C-S-VS-V-B-AudioButtonOn > svg,
+.PRP-B-C-S-VS-V-B-AudioButtonOff > svg,
+.PRP-B-C-S-VS-V-B-VideoButtonOn > svg,
+.PRP-B-C-S-VS-V-B-VideoButtonOff > svg {
+	fill: white;
+}
+
 .PRP-B-C-Form {
 	display: flex;
 	flex-direction: column;
