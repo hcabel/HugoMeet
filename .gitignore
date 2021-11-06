@@ -106,5 +106,7 @@ dist
 .DS_Store
 .git
 
+package-lock.json
+.gitignore.swp
 front/package-lock.json
 SignallingServer/package-lock.json

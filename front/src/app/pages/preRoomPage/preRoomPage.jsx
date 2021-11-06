@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { useCookies } from 'react-cookie';
 
 import "./preRoomPageCSS.css";
 
 function	PreRoomPage() {
+	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
 	const [_Video, set_Video] = useState(true);
 	const [_Audio, set_Audio] = useState(true);
-	const [_Name, set_Name] = useState("");
+	const [_Name, set_Name] = useState(_Cookie.userName);
 
 	const history = useHistory();
 	const { roomId } = useParams();
+
+	function	participate() {
+		set_Cookie('userName', _Name, {path: '/'});
+		history.push(`/room/${roomId}`, {video: _Video, audio: _Audio, name: _Name})
+	}
 
 	function	toggleAudio() {
 		set_Audio(!_Audio);
@@ -170,9 +177,9 @@ function	PreRoomPage() {
 							Prêt à participer ?
 						</div>
 						<div className="PRP-B-C-F-Name">
-							<textarea name="Name" placeHolder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
+							<textarea name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
 						</div>
-						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`, {video: _Video, audio: _Audio, name: _Name})}>
+						<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 							<div className="PRP-B-C-F-SB-Participate">
 								<span className="PRP-B-C-F-SB-P-Value">
 									Participer
