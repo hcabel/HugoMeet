@@ -93,6 +93,7 @@ console.log(`WebSocket listening to Client connections on *:${port}`);
 clientServer.on('connection', function (socket, req) {
 	const urlOrigin = new URL(`${req.headers.origin}${req.url}`);
 	const roomId = urlOrigin.searchParams.get("roomid");
+	const clientName = urlOrigin.searchParams.get("name");
 
 	// Add new client to the list
 	let roomPeers = null; // contain everyone in the room (Also the current client)
@@ -108,7 +109,7 @@ clientServer.on('connection', function (socket, req) {
 			return;
 		}
 
-		roomPeers.set(clientId, { id: clientId, ws: socket });
+		roomPeers.set(clientId, { id: clientId, ws: socket, name: clientName });
 		rooms.set(roomId, roomPeers);
 	}
 	else {
@@ -116,7 +117,7 @@ clientServer.on('connection', function (socket, req) {
 
 		const newMap = new Map();
 		clientId = Utils.generateId(5);
-		newMap.set(clientId, { id: clientId, ws: socket });
+		newMap.set(clientId, { id: clientId, ws: socket, name: clientName });
 		rooms.set(roomId, newMap);
 		roomPeers = newMap;
 	}

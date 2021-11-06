@@ -366,7 +366,7 @@ export default function	RoomPage(props) {
 		}
 
 		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}`);
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${props.location.state ? props.location.state.name : "Unknown"}`);
 
 		window.SignalingSocket.onopen = WSonOpen;
 		window.SignalingSocket.onmessage = WSonMessage;
@@ -477,7 +477,7 @@ export default function	RoomPage(props) {
 					<div key={index} className="RP-VC-Peer">
 						<video className="RP-VC-P-Video" id={`VideoStream_${peer.id}`} />
 						<div className="RP-VC-P-Name">
-							{peer.id}
+							{peer.name}
 						</div>
 					</div>
 				)}

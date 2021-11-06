@@ -6,6 +6,7 @@ import "./preRoomPageCSS.css";
 function	PreRoomPage() {
 	const [_Video, set_Video] = useState(true);
 	const [_Audio, set_Audio] = useState(true);
+	const [_Name, set_Name] = useState("");
 
 	const history = useHistory();
 	const { roomId } = useParams();
@@ -168,7 +169,10 @@ function	PreRoomPage() {
 						<div className="PRP-B-C-F-Title">
 							Prêt à participer ?
 						</div>
-						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`, {video: _Video, audio: _Audio})}>
+						<div className="PRP-B-C-F-Name">
+							<textarea name="Name" placeHolder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
+						</div>
+						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`, {video: _Video, audio: _Audio, name: _Name})}>
 							<div className="PRP-B-C-F-SB-Participate">
 								<span className="PRP-B-C-F-SB-P-Value">
 									Participer
