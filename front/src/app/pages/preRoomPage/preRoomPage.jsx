@@ -14,14 +14,14 @@ function	PreRoomPage() {
 		set_Video(!_Video);
 	}
 
-	useEffect(() => {
+	async function	InitStreams(audio, video) {
+		console.log("Initstream with: ", audio, video);
 		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we can access to the camera and microphone !");
-			return;
+			alert("This site is untrusted we can access to the camera/or and microphone !");
 		}
 
 		// You cant user `getUserMedia` with all constraints to false
-		if (_Audio === false && _Video === false) {
+		if (audio === false && video === false) {
 			if (window.localStream) {
 				window.localStream.getTracks().forEach((track) => {
 					track.stop();
@@ -30,22 +30,30 @@ function	PreRoomPage() {
 			return;
 		}
 
-		if (_Video === false) {
-			if (window.localStream) {
-				window.localStream.getVideoTracks().forEach((track) => {
-					track.stop();
-				});
-			}
-		}
-
 		// get Audio and Video
-		navigator.mediaDevices.getUserMedia({ audio: _Audio, video: _Video })
+		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
 		.then(function(localStream) {
 			const video = document.getElementById("LocalStream");
-			video.onloadedmetadata = () => video.play(); // play once video stream is setup
-			// video.muted = true;	// Mute my own vide to avoid hearing myself
-			video.srcObject = localStream;
-			window.localStream = localStream;
+			if (!video) {
+				throw Error("ERROR");
+			}
+
+			if (!window.localStream) { // mean it never been initialised before
+				video.onloadedmetadata = () => video.play(); // play once video stream is setup
+				// video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			}
+			else {
+				// Combine previous track with the new one
+				const oldTracks = window.localStream.getTracks();
+				oldTracks.forEach((track) => {
+					localStream.addTrack(track);
+				});
+
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			}
 		})
 		.catch((e) => {
 			switch (e.name) {
@@ -60,7 +68,54 @@ function	PreRoomPage() {
 					break;
 			}
 		});
-	});
+	}
+
+	useEffect(() => {
+		InitStreams(_Audio, _Video);
+	}, [false]);
+
+	useEffect(() => {
+		if (!navigator.mediaDevices) {
+			alert("This site is untrusted we can access to the microphone !");
+			return;
+		}
+
+		if (window.localStream) {
+			const audioTracks = window.localStream.getAudioTracks();
+			if (audioTracks && audioTracks.length > 0) { // If already been initialised
+				// Audio track can just be mute/unmuted
+				audioTracks.forEach((track) => {
+					track.enabled = _Audio;
+				});
+			}
+			else {
+				InitStreams(_Audio, _Video);
+			}
+		}
+		// else {
+		// 	InitStreams(_Audio, _Video);
+		// }
+	}, [ _Audio ])
+
+	useEffect(() => {
+		if (!navigator.mediaDevices) {
+			alert("This site is untrusted we can access to the microphone !");
+			return;
+		}
+
+		if (window.localStream) {
+			if (_Video === false) {
+				if (window.localStream) {
+					window.localStream.getVideoTracks().forEach((track) => {
+						track.stop();
+					});
+				}
+			}
+			else {
+				InitStreams(_Audio, _Video);
+			}
+		}
+	}, [ _Video ])
 
 	return (
 		<div className="PreRoomPage">

@@ -358,11 +358,11 @@ export default function	RoomPage() {
 	useEffect(() => {
 		// When your micro status change
 		if (window.localStream) {
-			const audiTracks = window.localStream.getAudioTracks();
-			if (audiTracks.length > 0) { // If was alread initialised
+			const audioTracks = window.localStream.getAudioTracks();
+			if (audioTracks.length > 0) { // If was alread initialised
 
 				// switch between mute and unmute
-				audiTracks.forEach((track) => {
+				audioTracks.forEach((track) => {
 					track.enabled = !_IsMuted;
 				});
 				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
