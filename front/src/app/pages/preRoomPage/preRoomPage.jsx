@@ -40,7 +40,7 @@ function	PreRoomPage() {
 		}
 
 		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we can access to the camera/or and microphone !");
+			alert("This site is untrusted we cant access to the camera/or and microphone !");
 			return;
 		}
 		// get Audio and Video

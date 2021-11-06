@@ -37,7 +37,7 @@ export default function	RoomPage(props) {
 
 			if (!window.localStream) { // mean it never been initialised before
 				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.muted = true;	// Mute my own video to avoid hearing myself
 				video.srcObject = localStream;
 				window.localStream = localStream;
 			}
@@ -298,7 +298,7 @@ export default function	RoomPage(props) {
 		else {
 			const video = document.getElementById(`VideoStream_${msg.selfId}`);
 			video.onloadedmetadata = () => video.play(); // play once video stream is setup
-			// video.muted = true;	// Mute my own vide to avoid hearing myself
+			video.muted = true;	// Mute my own video to avoid hearing myself
 			video.srcObject = window.localStream;
 		}
 
