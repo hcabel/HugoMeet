@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
+import { useHistory, useParams } from "react-router-dom";
 
 import "./preRoomPageCSS.css";
 
 function	PreRoomPage() {
 	const [_Video, set_Video] = useState(true);
 	const [_Audio, set_Audio] = useState(true);
+
+	const history = useHistory();
+	const { roomId } = useParams();
 
 	function	toggleAudio() {
 		set_Audio(!_Audio);
@@ -62,6 +66,8 @@ function	PreRoomPage() {
 					break;
 				case "SecurityError":
 				case "PermissionDeniedError":
+					break;
+				case "NotAllowedError":
 					break;
 				default:
 					alert("Error opening your camera and/or microphone: " + e.message);
@@ -165,7 +171,7 @@ function	PreRoomPage() {
 						<div className="PRP-B-C-F-Title">
 							Prêt à participer ?
 						</div>
-						<div className="PRP-B-C-F-SubmitButtons">
+						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`)}>
 							<div className="PRP-B-C-F-SB-Participate">
 								<span className="PRP-B-C-F-SB-P-Value">
 									Participer

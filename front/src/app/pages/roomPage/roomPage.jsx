@@ -13,12 +13,11 @@ export default function	RoomPage() {
 	const [_LoadingMessage, set_LoadingMessage] = useState("Loading...");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_IsMuted, set_IsMuted] = useState(false);
-	const [_IsCameraOn, set_IsCameraOn] = useState(true);
+	const [_Audio, set_Audio] = useState(false);
+	const [_Video, set_Video] = useState(true);
 
 	const history = useHistory();
-
-	let { roomId } = useParams();
+	const { roomId } = useParams();
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	DataChanel
@@ -238,7 +237,7 @@ export default function	RoomPage() {
 	}
 
 	async function	initialiseLocalVideo(selfId) {
-		if (!_IsCameraOn && _IsMuted) {
+		if (!_Video && !_Audio) {
 			// can't init device with all the constraints has `false`
 			return;
 		}
@@ -249,7 +248,7 @@ export default function	RoomPage() {
 		}
 
 		// get Audio and Video
-		await navigator.mediaDevices.getUserMedia({ audio: !_IsMuted, video: _IsCameraOn })
+		await navigator.mediaDevices.getUserMedia({ audio: _Audio, video: _Video })
 		.then(function(localStream) {
 			const video = document.getElementById(`VideoStream_${selfId}`);
 			video.onloadedmetadata = () => video.play(); // play once video stream is setup
@@ -264,6 +263,8 @@ export default function	RoomPage() {
 					break;
 				case "SecurityError":
 				case "PermissionDeniedError":
+					break;
+				case "NotAllowedError":
 					break;
 				default:
 					alert("Error opening your camera and/or microphone: " + e.message);
@@ -363,9 +364,9 @@ export default function	RoomPage() {
 
 				// switch between mute and unmute
 				audioTracks.forEach((track) => {
-					track.enabled = !_IsMuted;
+					track.enabled = _Audio;
 				});
-				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: _IsMuted }));
+				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: !_Audio }));
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
@@ -386,19 +387,19 @@ export default function	RoomPage() {
 				});
 			}
 		}
-	}, [_IsMuted]);
+	}, [_Audio]);
 
 	useEffect(() => {
 		// when you camera state change
 		if (window.localStream) {
-			if (!_IsCameraOn) {
-				// If `_IsCameraOn` is FALSE it mean it was TRUE before, so close the video stream
+			if (!_Video) {
+				// If `_Video` is FALSE it mean it was TRUE before, so close the video stream
 				window.localStream.getVideoTracks().forEach((track) => {
 					track.stop();
 				});
 			}
 			else {
-				// If `_IsCameraOn` is TRUE it mean it was FALSE before, so restart webcam
+				// If `_Video` is TRUE it mean it was FALSE before, so restart webcam
 				navigator.mediaDevices.getUserMedia({ video: true })
 				.then((localStream) => {
 
@@ -413,7 +414,7 @@ export default function	RoomPage() {
 				});
 			}
 		}
-	}, [_IsCameraOn]);
+	}, [_Video]);
 
 	// Constructor, will be excuted only once
 	useEffect(() => {
@@ -472,8 +473,8 @@ export default function	RoomPage() {
 					{`Welcome to room: ${roomId}`}
 				</div>
 				<div className="RP-TB-Center">
-					<div className={`RP-TB-C-Button-${!_IsMuted ? "On" : "Off"} Center-Button-MicroStatus`} onClick={() => set_IsMuted(!_IsMuted)}>
-						{!_IsMuted ?
+					<div className={`RP-TB-C-Button-${_Audio ? "On" : "Off"} Center-Button-MicroStatus`} onClick={() => set_Audio(!_Audio)}>
+						{_Audio ?
 							// Icon micro turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
 								<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
@@ -487,8 +488,8 @@ export default function	RoomPage() {
 							</svg>
 						}
 					</div>
-					<div className={`RP-TB-C-Button-${_IsCameraOn ? "On" : "Off"} Center-Button-CameraStatus`} onClick={() => set_IsCameraOn(!_IsCameraOn)}>
-						{_IsCameraOn ?
+					<div className={`RP-TB-C-Button-${_Video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={() => set_Video(!_Video)}>
+						{_Video ?
 							// Icon camera turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
 								<path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"></path>
