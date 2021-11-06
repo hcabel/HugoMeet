@@ -7,7 +7,6 @@ function	PreRoomPage() {
 	const [_Audio, set_Audio] = useState(true);
 
 	function	toggleAudio() {
-		console.log("Eeeeeeee");
 		set_Audio(!_Audio);
 	}
 
@@ -19,6 +18,24 @@ function	PreRoomPage() {
 		if (!navigator.mediaDevices) {
 			alert("This site is untrusted we can access to the camera and microphone !");
 			return;
+		}
+
+		// You cant user `getUserMedia` with all constraints to false
+		if (_Audio === false && _Video === false) {
+			if (window.localStream) {
+				window.localStream.getTracks().forEach((track) => {
+					track.stop();
+				});
+			}
+			return;
+		}
+
+		if (_Video === false) {
+			if (window.localStream) {
+				window.localStream.getVideoTracks().forEach((track) => {
+					track.stop();
+				});
+			}
 		}
 
 		// get Audio and Video
@@ -54,7 +71,7 @@ function	PreRoomPage() {
 							<div className="PRP-B-C-S-VS-Video">
 								<div className="PRP-B-C-S-VS-V-Inside">
 									<div className="PRP-B-C-S-VS-V-I-StreamsVideo">
-										<video autoplay id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
+										<video autoPlay id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">
