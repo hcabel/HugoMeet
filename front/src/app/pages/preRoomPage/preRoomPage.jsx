@@ -168,7 +168,7 @@ function	PreRoomPage() {
 						<div className="PRP-B-C-F-Title">
 							Prêt à participer ?
 						</div>
-						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`)}>
+						<div className="PRP-B-C-F-SubmitButtons" onClick={() => history.push(`/room/${roomId}`, {video: _Video, audio: _Audio})}>
 							<div className="PRP-B-C-F-SB-Participate">
 								<span className="PRP-B-C-F-SB-P-Value">
 									Participer

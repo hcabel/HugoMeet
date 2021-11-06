@@ -38,7 +38,7 @@ export default function LandingPage()
 
 	function createNewRoom() {
 		const newRoomId = Utils.idGenerator.generateRoomID(9);
-		history.push("/room/" + newRoomId);
+		history.push("/invitation/" + newRoomId);
 	}
 
 	function joinRoom(roomId) {
@@ -46,7 +46,7 @@ export default function LandingPage()
 			console.warn("RoomID is not valid !");
 			return;
 		}
-		history.push("/room/" + roomId);
+		history.push("/invitation/" + roomId);
 	}
 
 	return (

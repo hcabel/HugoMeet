@@ -9,12 +9,12 @@ import "./roomPageCSS.css";
 
 let PeersConnection = new Map();
 
-export default function	RoomPage() {
+export default function	RoomPage(props) {
 	const [_LoadingMessage, set_LoadingMessage] = useState("Loading...");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_Audio, set_Audio] = useState(false);
-	const [_Video, set_Video] = useState(true);
+	const [_Audio, set_Audio] = useState(props.location.state ? props.location.state.audio : true);
+	const [_Video, set_Video] = useState(props.location.state ? props.location.state.video : true);
 
 	const history = useHistory();
 	const { roomId } = useParams();
@@ -37,7 +37,7 @@ export default function	RoomPage() {
 
 			if (!window.localStream) { // mean it never been initialised before
 				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				// video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.muted = true;	// Mute my own vide to avoid hearing myself
 				video.srcObject = localStream;
 				window.localStream = localStream;
 			}
@@ -292,7 +292,15 @@ export default function	RoomPage() {
 
 		// We wait because to initialise `window.localstream`
 		// If we don't we will be unable to send video/audio streams to the Peers
-		initialiseLocalVideo(_Audio, _Video, msg.selfId);
+		if (!window.localStream) {
+			initialiseLocalVideo(_Audio, _Video, msg.selfId);
+		}
+		else {
+			const video = document.getElementById(`VideoStream_${msg.selfId}`);
+			video.onloadedmetadata = () => video.play(); // play once video stream is setup
+			// video.muted = true;	// Mute my own vide to avoid hearing myself
+			video.srcObject = window.localStream;
+		}
 
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
@@ -398,13 +406,32 @@ export default function	RoomPage() {
 	useEffect(() => {
 		// when you camera state change
 		if (window.localStream) {
+			const VideoTracks = window.localStream.getVideoTracks();
+
+			let hasAlreadyBeenInitialised = false;
+			if (VideoTracks) {
+				if (VideoTracks.length > 0) {
+					let theyrAllEnded = true;
+
+					VideoTracks.forEach((track) => {
+						if (track.readyState !== "ended") {
+							theyrAllEnded = false;
+						}
+					});
+
+					if (!theyrAllEnded) {
+						hasAlreadyBeenInitialised = true;
+					}
+				}
+			}
+
 			if (!_Video) {
 				// If `_Video` is FALSE it mean it was TRUE before, so close the video stream
 				window.localStream.getVideoTracks().forEach((track) => {
 					track.stop();
 				});
 			}
-			else {
+			else if (!hasAlreadyBeenInitialised) {
 				// If `_Video` is TRUE it mean it was FALSE before, so restart webcam
 				initialiseLocalVideo(false, true, _SelfId);
 			}
