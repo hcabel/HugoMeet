@@ -38,13 +38,10 @@ function	PreRoomPage() {
 		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
 		.then(function(localStream) {
 			const video = document.getElementById("LocalStream");
-			if (!video) {
-				throw Error("ERROR");
-			}
 
 			if (!window.localStream) { // mean it never been initialised before
 				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				// video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.muted = true;	// Mute my own vide to avoid hearing myself
 				video.srcObject = localStream;
 				window.localStream = localStream;
 			}
@@ -95,7 +92,7 @@ function	PreRoomPage() {
 				});
 			}
 			else {
-				InitStreams(_Audio, _Video);
+				InitStreams(true, false);
 			}
 		}
 		// else {
@@ -118,7 +115,7 @@ function	PreRoomPage() {
 				}
 			}
 			else {
-				InitStreams(_Audio, _Video);
+				InitStreams(false, true);
 			}
 		}
 	}, [ _Video ])

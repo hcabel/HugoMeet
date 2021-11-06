@@ -19,6 +19,56 @@ export default function	RoomPage() {
 	const history = useHistory();
 	const { roomId } = useParams();
 
+	function	initialiseLocalVideo(audio, video, selfId) {
+		if (!audio && !video) {
+			// can't init device with all the constraints has `false`
+			return;
+		}
+		if (!navigator.mediaDevices) {
+			set_LoadingMessage("Failed, Unable to load: Untrusted");
+			alert("This site is untrusted we can access to the camera and microphone !");
+			return;
+		}
+
+		// get Audio and Video
+		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
+		.then(function(localStream) {
+			const video = document.getElementById(`VideoStream_${selfId}`);
+
+			if (!window.localStream) { // mean it never been initialised before
+				video.onloadedmetadata = () => video.play(); // play once video stream is setup
+				// video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			}
+			else {
+				// Combine previous track with the new one
+				const oldTracks = window.localStream.getTracks();
+				oldTracks.forEach((track) => {
+					localStream.addTrack(track);
+				});
+
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			}
+		})
+		.catch((e) => {
+			switch (e.name) {
+				case "NotFoundError":
+					alert("Unable to open your call because no camera and/or microphone were found");
+					break;
+				case "SecurityError":
+				case "PermissionDeniedError":
+					break;
+				case "NotAllowedError":
+					break;
+				default:
+					alert("Error opening your camera and/or microphone: " + e.message);
+					break;
+			}
+		});
+	}
+
 	///////////////////////////////////////////////////////////////////////////////
 	//	DataChanel
 
@@ -236,50 +286,13 @@ export default function	RoomPage() {
 		}
 	}
 
-	async function	initialiseLocalVideo(selfId) {
-		if (!_Video && !_Audio) {
-			// can't init device with all the constraints has `false`
-			return;
-		}
-		if (!navigator.mediaDevices) {
-			set_LoadingMessage("Failed, Unable to load: Untrusted");
-			alert("This site is untrusted we can access to the camera and microphone !");
-			return;
-		}
-
-		// get Audio and Video
-		await navigator.mediaDevices.getUserMedia({ audio: _Audio, video: _Video })
-		.then(function(localStream) {
-			const video = document.getElementById(`VideoStream_${selfId}`);
-			video.onloadedmetadata = () => video.play(); // play once video stream is setup
-			video.muted = true;	// Mute my own vide to avoid hearing myself
-			video.srcObject = localStream;
-			window.localStream = localStream;
-		})
-		.catch((e) => {
-			switch (e.name) {
-				case "NotFoundError":
-					alert("Unable to open your call because no camera and/or microphone were found");
-					break;
-				case "SecurityError":
-				case "PermissionDeniedError":
-					break;
-				case "NotAllowedError":
-					break;
-				default:
-					alert("Error opening your camera and/or microphone: " + e.message);
-					break;
-			}
-		});
-	}
-
 	async function	onRoomConnectionEstablish(msg) {
 		set_Peers(msg.peers);
 		set_SelfId(msg.selfId);
 
 		// We wait because to initialise `window.localstream`
 		// If we don't we will be unable to send video/audio streams to the Peers
-		await initialiseLocalVideo(msg.selfId);
+		initialiseLocalVideo(_Audio, _Video, msg.selfId);
 
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
@@ -356,6 +369,13 @@ export default function	RoomPage() {
 	///////////////////////////////////////////////////////////////////////////////
 	//	UseEffect
 
+	// If you enter in a room with a wrong RoomId, expulse to
+	useEffect(() => {
+		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
+			history.push("/");
+		}
+	}, [roomId]);
+
 	useEffect(() => {
 		// When your micro status change
 		if (window.localStream) {
@@ -370,21 +390,7 @@ export default function	RoomPage() {
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
-				navigator.mediaDevices.getUserMedia({ audio: true })
-				.then((localStream) => {
-
-					const newTracks = window.localStream.getVideoTracks();
-					newTracks.forEach((track) => {
-						localStream.addTrack(track);
-					});
-
-					// Update srcObject with the localstream with the new audio tracks
-					const video = document.getElementById(`VideoStream_${_SelfId}`);
-					video.srcObject = localStream;
-					window.localStream = localStream;
-
-					sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: false }));
-				});
+				initialiseLocalVideo(true, false, _SelfId);
 			}
 		}
 	}, [_Audio]);
@@ -400,18 +406,7 @@ export default function	RoomPage() {
 			}
 			else {
 				// If `_Video` is TRUE it mean it was FALSE before, so restart webcam
-				navigator.mediaDevices.getUserMedia({ video: true })
-				.then((localStream) => {
-
-					const newTracks = window.localStream.getAudioTracks();
-					newTracks.forEach((track) => {
-						localStream.addTrack(track);
-					});
-
-					const video = document.getElementById(`VideoStream_${_SelfId}`);
-					video.srcObject = localStream;
-					window.localStream = localStream;
-				});
+				initialiseLocalVideo(false, true, _SelfId);
 			}
 		}
 	}, [_Video]);
@@ -422,13 +417,6 @@ export default function	RoomPage() {
 			connectClient(roomId);
 		}
 	});
-
-	// If you enter in a room with a wrong RoomId, expulse to
-	useEffect(() => {
-		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
-			history.push("/");
-		}
-	}, [roomId]);
 
 	// TODO: find math to remove that crap
 	const numberOfColumns = {
