@@ -28,9 +28,6 @@ function	PreRoomPage() {
 
 	async function	InitStreams(audio, video) {
 		console.log("Initstream with: ", audio, video);
-		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we can access to the camera/or and microphone !");
-		}
 
 		// You cant user `getUserMedia` with all constraints to false
 		if (audio === false && video === false) {
@@ -42,6 +39,10 @@ function	PreRoomPage() {
 			return;
 		}
 
+		if (!navigator.mediaDevices) {
+			alert("This site is untrusted we can access to the camera/or and microphone !");
+			return;
+		}
 		// get Audio and Video
 		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
 		.then(function(localStream) {
@@ -86,11 +87,6 @@ function	PreRoomPage() {
 	}, [false]);
 
 	useEffect(() => {
-		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we can access to the microphone !");
-			return;
-		}
-
 		if (window.localStream) {
 			const audioTracks = window.localStream.getAudioTracks();
 			if (audioTracks && audioTracks.length > 0) { // If already been initialised
@@ -109,11 +105,6 @@ function	PreRoomPage() {
 	}, [ _Audio ])
 
 	useEffect(() => {
-		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we can access to the microphone !");
-			return;
-		}
-
 		if (window.localStream) {
 			if (_Video === false) {
 				if (window.localStream) {
