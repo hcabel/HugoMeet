@@ -46,6 +46,12 @@ export default function	RoomPage(props) {
 				const oldTracks = window.localStream.getTracks();
 				oldTracks.forEach((track) => {
 					localStream.addTrack(track);
+					_Peers.forEach((peer) => {
+						if (peer._id !== _SelfId) {
+							console.log(peer);
+							peer.PC.addTrack(peer, localStream);
+						}
+					});
 				});
 
 				video.srcObject = localStream;
