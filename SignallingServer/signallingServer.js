@@ -59,7 +59,7 @@ function	sendMsgToAllClientsInTheRoom(roomMap, msg, blacklist = []) {
 		let sendTo = true;
 
 		for (const entry of blacklist) {
-			if (entry === client.id) {
+			if (entry === client._id) {
 				sendTo = false;
 				break;
 			}
@@ -70,7 +70,7 @@ function	sendMsgToAllClientsInTheRoom(roomMap, msg, blacklist = []) {
 				client.ws.send(msg);
 			}
 			else {
-				console.warn(`Client_${client.id} WebSocket is closed, message dropped:\t`, msg);
+				console.warn(`Client_${client._id} WebSocket is closed, message dropped:\t`, msg);
 			}
 		}
 	});
@@ -109,7 +109,7 @@ clientServer.on('connection', function (socket, req) {
 			return;
 		}
 
-		roomPeers.set(clientId, { id: clientId, ws: socket, name: clientName });
+		roomPeers.set(clientId, { _id: clientId, ws: socket, name: clientName });
 		rooms.set(roomId, roomPeers);
 	}
 	else {
@@ -117,7 +117,7 @@ clientServer.on('connection', function (socket, req) {
 
 		const newMap = new Map();
 		clientId = Utils.generateId(5);
-		newMap.set(clientId, { id: clientId, ws: socket, name: clientName });
+		newMap.set(clientId, { _id: clientId, ws: socket, name: clientName });
 		rooms.set(roomId, newMap);
 		roomPeers = newMap;
 	}
@@ -187,8 +187,7 @@ clientServer.on('connection', function (socket, req) {
 		roomPeers.delete(clientId);
 		rooms.set(roomId, roomPeers);
 
-		const peers = JSON.stringify(Array.from(roomPeers.keys()));
-		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "peers": ${peers}, "from": "${clientId}" }`, [clientId]);
+		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "from": "${clientId}" }`, [clientId]);
 	}
 
 	socket.on('close', function (code, reason) {
@@ -216,7 +215,7 @@ clientServer.on('connection', function (socket, req) {
 		roomPeers,
 		JSON.stringify({
 			type: "clientJoin",
-			peers: peers,
+			newPeer: {...roomPeers.get(clientId), ws: undefined},
 			from: clientId
 		}),
 		[clientId]

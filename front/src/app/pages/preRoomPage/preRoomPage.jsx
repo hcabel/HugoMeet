@@ -50,7 +50,7 @@ function	PreRoomPage() {
 
 			if (!window.localStream) { // mean it never been initialised before
 				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				video.muted = true;	// Mute my own vide to avoid hearing myself
+				video.muted = true;	// Mute my own video to avoid hearing myself
 				video.srcObject = localStream;
 				window.localStream = localStream;
 			}

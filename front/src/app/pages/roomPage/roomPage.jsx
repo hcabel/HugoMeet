@@ -80,12 +80,12 @@ export default function	RoomPage(props) {
 		console.log(`DC_${peerId}:\tMessage Receveived`, msg.data);
 
 		if (msg.data.type === "muteStateChange") {
-			const peer = PeersConnection.get(msg.data.id);
+			const peer = PeersConnection.get(msg.data._id);
 			if (peer) {
-				console.log(`>>>>>>>>>> ${msg.data.id} is now ${msg.data.isMuted ? "muted" : "unmuted"}`);
+				console.log(`>>>>>>>>>> ${msg.data._id} is now ${msg.data.isMuted ? "muted" : "unmuted"}`);
 			}
 			else {
-				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.data.id, `does not belong to anyone`);
+				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.data._id, `does not belong to anyone`);
 			}
 		}
 	}
@@ -104,7 +104,7 @@ export default function	RoomPage(props) {
 		// send message to everyone in the room excepte you
 		const peersRTCObjs = PeersConnection.values();
 		for (const peerRtcObj of peersRTCObjs) {
-			if (peerRtcObj.id !== _SelfId) {
+			if (peerRtcObj._id !== _SelfId) {
 				if (peerRtcObj.DC && peerRtcObj.DC.readyState === "open") {
 					peerRtcObj.DC.send(msg);
 				}
@@ -154,8 +154,8 @@ export default function	RoomPage(props) {
 			// When you receive streams from the peer
 			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
 			const video = document.getElementById(`VideoStream_${peerId}`);
-			video.onloadeddata = () => video.play();
-			video.srcObject = event.streams[0];
+				video.onloadeddata = () => video.play();
+				video.srcObject = event.streams[0];
 		}
 
 		// Set local description of the peer
@@ -287,6 +287,7 @@ export default function	RoomPage(props) {
 	}
 
 	async function	onRoomConnectionEstablish(msg) {
+		window._Peers = msg.peers;
 		set_Peers(msg.peers);
 		set_SelfId(msg.selfId);
 
@@ -304,10 +305,10 @@ export default function	RoomPage(props) {
 
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
-			if (peer.id !== msg.selfId) {
-				PeersConnection.set(peer.id, {
+			if (peer._id !== msg.selfId) {
+				PeersConnection.set(peer._id, {
 					...peer,
-					...createNewPeerConnection(peer.id, msg.peerConnectionOptions)
+					...createNewPeerConnection(peer._id, msg.peerConnectionOptions)
 				});
 			}
 		}
@@ -329,9 +330,16 @@ export default function	RoomPage(props) {
 			// once you sucessfully been connected to the room (msg contain all the initialising value)
 			onRoomConnectionEstablish(msg);
 		}
-		else if (msg.type === "clientJoin" || msg.type === "clientLeave") {
-			// I have to send all the clients in `msg.peer` because for some reason `_Peers` is empty in this function
-			set_Peers(msg.peers);
+		else if (msg.type === "clientJoin") {
+			set_Peers([...window._Peers, msg.newPeer]);
+			window._Peers = [...window._Peers, msg.newPeer];
+		}
+		else if (msg.type === "clientLeave") {
+			const newPeers = window._Peers.filter((peer) => {
+				return (peer._id !== msg.from);
+			});
+			set_Peers(newPeers);
+			window._Peers = newPeers;
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
 			// msg.type === Offer | Answer | IceCandidate
@@ -394,7 +402,7 @@ export default function	RoomPage(props) {
 				audioTracks.forEach((track) => {
 					track.enabled = _Audio;
 				});
-				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", id: _SelfId, isMuted: !_Audio }));
+				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: _SelfId, isMuted: !_Audio }));
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
@@ -463,7 +471,7 @@ export default function	RoomPage(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render
 
-	console.log("RoomPage:\tRefresh");
+	console.log("RoomPage:\tRefresh", _Peers);
 	return (
 		<div className="RoomPage">
 			{_LoadingMessage !== "" &&
@@ -475,7 +483,7 @@ export default function	RoomPage(props) {
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) =>
 					<div key={index} className="RP-VC-Peer">
-						<video className="RP-VC-P-Video" id={`VideoStream_${peer.id}`} />
+						<video className="RP-VC-P-Video" id={`VideoStream_${peer._id}`} />
 						<div className="RP-VC-P-Name">
 							{peer.name}
 						</div>
