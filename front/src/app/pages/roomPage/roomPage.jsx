@@ -46,7 +46,7 @@ export default function	RoomPage(props) {
 				const oldTracks = window.localStream.getTracks();
 				oldTracks.forEach((track) => {
 					localStream.addTrack(track);
-					_Peers.forEach((peer) => {
+					PeersConnection.forEach((peer) => {
 						if (peer._id !== _SelfId) {
 							console.log(peer);
 							peer.PC.addTrack(peer, localStream);
@@ -256,7 +256,7 @@ export default function	RoomPage(props) {
 		if (msg.type === "Offer") {
 			// somemone new has join the room and send you an offer start a peer connection
 			PeersConnection.set(msg.from, {
-				id: msg.from,
+				_id: msg.from,
 				...sendAnswerBasedOffer(msg.offer, msg.from, msg.peerConnectionOptions)
 			});
 		}
@@ -313,7 +313,7 @@ export default function	RoomPage(props) {
 		for (const peer of msg.peers) {
 			if (peer._id !== msg.selfId) {
 				PeersConnection.set(peer._id, {
-					...peer,
+					_id: peer._id,
 					...createNewPeerConnection(peer._id, msg.peerConnectionOptions)
 				});
 			}
@@ -341,6 +341,10 @@ export default function	RoomPage(props) {
 			window._Peers = [...window._Peers, msg.newPeer];
 		}
 		else if (msg.type === "clientLeave") {
+			const peerConnection = PeersConnection.get(msg.from);
+			peerConnection.PC.close();
+			PeersConnection.delete(msg.from);
+
 			const newPeers = window._Peers.filter((peer) => {
 				return (peer._id !== msg.from);
 			});
