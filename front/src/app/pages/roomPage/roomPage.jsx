@@ -124,26 +124,37 @@ export default function	RoomPage(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	WebRTC
 
+	function	onIceCandidate(e, peerId) {
+		if (!e.candidate) {
+			// This function is triggered one last time with an empty candidate when all candidate are send
+			// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
+			return;
+		}
+
+		// When you create a new ice, send it to the peer
+		let descriptor = {
+			to: peerId,
+			type: "IceCandidate",
+			iceCandidate: e.candidate
+		}
+		console.log(`WebRTC:\tSend ICE to Client_${peerId}`);
+		window.SignalingSocket.send(JSON.stringify(descriptor));
+	}
+
+	function	onTrack(peerId) {
+		// When you receive streams from the peer
+		console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
+		const video = document.getElementById(`VideoStream_${peerId}`);
+		video.onloadeddata = () => video.play();
+		video.srcObject = event.streams[0];
+	}
+
 	// When a new client wish to connect with you
 	function	sendAnswerBasedOffer(offer, peerId, options) {
 		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`, options);
 		let newConnection = new RTCPeerConnection(options);
 
-		newConnection.onicecandidate = (e) => {
-			if (!e.candidate) {
-				// This function is triggered one last time with an empty candidate when all candidate are send
-				// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
-				return;
-			}
-
-			let descriptor = {
-				to: peerId,
-				type: "IceCandidate",
-				iceCandidate: e.candidate
-			}
-			console.log(`WebRTC:\tSend ICE to Client_${peerId}\t${e.candidate.type}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
-		}
+		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
 
 		newConnection.ondatachannel = (event) => {
 			// this function will be executed when the two peers has set theyr local/remote description
@@ -156,13 +167,7 @@ export default function	RoomPage(props) {
 			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
-		newConnection.ontrack = (event) => {
-			// When you receive streams from the peer
-			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
-			const video = document.getElementById(`VideoStream_${peerId}`);
-				video.onloadeddata = () => video.play();
-				video.srcObject = event.streams[0];
-		}
+		newConnection.ontrack = () => onTrack(peerId);
 
 		// Set local description of the peer
 		newConnection.setRemoteDescription(offer)
@@ -195,22 +200,7 @@ export default function	RoomPage(props) {
 		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`, options);
 		let newConnection = new RTCPeerConnection(options);
 
-		newConnection.onicecandidate = (e) => {
-			if (!e.candidate) {
-				// This function is triggered one last time with an empty candidate when all candidate are send
-				// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
-				return;
-			}
-
-			// When you create a new ice, send it to the peer
-			let descriptor = {
-				to: peerId,
-				type: "IceCandidate",
-				iceCandidate: e.candidate
-			}
-			console.log(`WebRTC:\tSend ICE to Client_${peerId}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
-		}
+		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
 
 		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
 		initDCFunctions(dataChannel, peerId);
@@ -222,13 +212,8 @@ export default function	RoomPage(props) {
 			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
-		newConnection.ontrack = (event) => {
-			// When you receive streams from the peer
-			console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
-			const video = document.getElementById(`VideoStream_${peerId}`);
-			video.onloadeddata = () => video.play();
-			video.srcObject = event.streams[0];
-		}
+
+		newConnection.ontrack = () => onTrack(peerId);
 
 		// Create/Set your own local description
 		newConnection.createOffer()
@@ -406,7 +391,7 @@ export default function	RoomPage(props) {
 		// When your micro status change
 		if (window.localStream) {
 			const audioTracks = window.localStream.getAudioTracks();
-			if (audioTracks.length > 0) { // If was alread initialised
+			if (audioTracks.length > 0) { // If was already initialised
 
 				// switch between mute and unmute
 				audioTracks.forEach((track) => {
