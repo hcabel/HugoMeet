@@ -19,7 +19,7 @@ export default function	RoomPage(props) {
 	const history = useHistory();
 	const { roomId } = useParams();
 
-	function	initialiseLocalVideo(audio, video, selfId) {
+	async function	initialiseLocalVideo(audio, video, selfId) {
 		if (!audio && !video) {
 			// can't init device with all the constraints has `false`
 			return;
@@ -31,7 +31,7 @@ export default function	RoomPage(props) {
 		}
 
 		// get Audio and Video
-		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
+		await navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
 		.then(function(localStream) {
 			const video = document.getElementById(`VideoStream_${selfId}`);
 
@@ -141,12 +141,17 @@ export default function	RoomPage(props) {
 		window.SignalingSocket.send(JSON.stringify(descriptor));
 	}
 
-	function	onTrack(peerId) {
+	function	onTrack(event, peerId) {
 		// When you receive streams from the peer
+
 		console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
 		const video = document.getElementById(`VideoStream_${peerId}`);
 		video.onloadeddata = () => video.play();
 		video.srcObject = event.streams[0];
+
+		const connection = PeersConnection.get(peerId);
+		connection.stream = event.streams[0];
+		PeersConnection.set(peerId, connection);
 	}
 
 	// When a new client wish to connect with you
@@ -167,7 +172,7 @@ export default function	RoomPage(props) {
 			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
-		newConnection.ontrack = () => onTrack(peerId);
+		newConnection.ontrack = (event) => onTrack(event, peerId);
 
 		// Set local description of the peer
 		newConnection.setRemoteDescription(offer)
@@ -207,13 +212,13 @@ export default function	RoomPage(props) {
 
 		// TODO: Make sure of the importance of this line (I think it's already set to `sendrecv`)
 		newConnection.addTransceiver("video", { direction: "sendrecv",  });
+		newConnection.addTransceiver("audio", { direction: "sendrecv",  });
 
 		if (window.localStream) {
 			// Send your streams to the peer (Audio/Video)
 			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
 		}
-
-		newConnection.ontrack = () => onTrack(peerId);
+		newConnection.ontrack = (event) => onTrack(event, peerId);
 
 		// Create/Set your own local description
 		newConnection.createOffer()
@@ -240,9 +245,18 @@ export default function	RoomPage(props) {
 	function	RTCMessageDispatcher(msg) {
 		if (msg.type === "Offer") {
 			// somemone new has join the room and send you an offer start a peer connection
+
+			const rtcOptions = {
+				...msg.peerConnectionOptions
+			};
+
+			const result = sendAnswerBasedOffer(msg.offer, msg.from, rtcOptions);
+			const AlreadyexistingValues = PeersConnection.get(msg.from);
+
 			PeersConnection.set(msg.from, {
 				_id: msg.from,
-				...sendAnswerBasedOffer(msg.offer, msg.from, msg.peerConnectionOptions)
+				...AlreadyexistingValues,
+				...result
 			});
 		}
 
@@ -285,7 +299,7 @@ export default function	RoomPage(props) {
 		// We wait because to initialise `window.localstream`
 		// If we don't we will be unable to send video/audio streams to the Peers
 		if (!window.localStream) {
-			initialiseLocalVideo(_Audio, _Video, msg.selfId);
+			await initialiseLocalVideo(_Audio, _Video, msg.selfId);
 		}
 		else {
 			const video = document.getElementById(`VideoStream_${msg.selfId}`);
@@ -294,12 +308,16 @@ export default function	RoomPage(props) {
 			video.srcObject = window.localStream;
 		}
 
+		const rtcOptions = {
+			...msg.peerConnectionOptions
+		};
+
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
 			if (peer._id !== msg.selfId) {
 				PeersConnection.set(peer._id, {
 					_id: peer._id,
-					...createNewPeerConnection(peer._id, msg.peerConnectionOptions)
+					...createNewPeerConnection(peer._id, rtcOptions)
 				});
 			}
 		}
@@ -478,9 +496,9 @@ export default function	RoomPage(props) {
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) =>
 					<div key={index} className="RP-VC-Peer">
-						<video className="RP-VC-P-Video" id={`VideoStream_${peer._id}`} />
+						<video className="RP-VC-P-Video" id={`VideoStream_${peer._id}`} src={(_SelfId && peer._id === _SelfId ? window.localStream : (PeersConnection.get(peer._id) ? PeersConnection.get(peer._id).streams : null))} />
 						<div className="RP-VC-P-Name">
-							{peer.name}
+							{`${peer.name} ${peer._id}`}
 						</div>
 					</div>
 				)}
