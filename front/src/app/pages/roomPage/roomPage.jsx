@@ -32,29 +32,11 @@ export default function	RoomPage(props) {
 
 		// get Audio and Video
 		await navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
-		.then(function(localStream) {
+		.then((localStream) => {
 			const video = document.getElementById(`VideoStream_${selfId}`);
-
-			if (!window.localStream) { // mean it never been initialised before
-				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				video.muted = true;	// Mute my own video to avoid hearing myself
-			}
-			else {
-				// Combine previous track with the new one
-				window.localStream.getTracks().forEach((track) => {
-					localStream.addTrack(track);
-					PeersConnection.forEach((peer) => {
-						if (peer._id !== _SelfId) {
-							console.log(peer);
-							peer.PC.addTrack(track, localStream);
-						}
-					});
-				});
-			}
-			video.srcObject = localStream;
-			window.localStream = localStream;
+			Utils.media.combineStream(localStream, video);
 		})
-		.catch(utils.catchMediaError);
+		.catch(Utils.media.catchError);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////

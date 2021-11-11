@@ -48,50 +48,24 @@ function	PreRoomPage() {
 		// Request audio & video separatly in case one of them are unvailable but not the other
 		if (audio) {
 			navigator.mediaDevices.getUserMedia({ audio: true })
-			.then(function(localStream) {
+			.then((localStream) => {
 				const video = document.getElementById("LocalStream");
-
-				if (!window.localStream) { // mean it never been initialised before
-					video.onloadedmetadata = () => video.play(); // play once video stream is setup
-					video.muted = true;	// Mute my own video to avoid hearing myself
-				}
-				else {
-					// Combine previous track with the new one
-					window.localStream.getTracks().forEach((track) => {
-						localStream.addTrack(track);
-					});
-				}
-
-				video.srcObject = localStream;
-				window.localStream = localStream;
+				Utils.media.combineStream(localStream, video);
 			})
 			.catch((e) => {
 				set_Audio(false);
-				Utils.catchMediaError(e)
+				Utils.media.catchError(e)
 			});
 		}
 		if (video) {
 			navigator.mediaDevices.getUserMedia({ video: true })
-			.then(function(localStream) {
+			.then((localStream) => {
 				const video = document.getElementById("LocalStream");
-
-				if (!window.localStream) { // mean it never been initialised before
-					video.onloadedmetadata = () => video.play(); // play once video stream is setup
-					video.muted = true;	// Mute my own video to avoid hearing myself
-				}
-				else {
-					// Combine previous track with the new one
-					window.localStream.getTracks().forEach((track) => {
-						localStream.addTrack(track);
-					});
-				}
-
-				video.srcObject = localStream;
-				window.localStream = localStream;
+				Utils.media.combineStream(localStream, video);
 			})
 			.catch((e) => {
 				set_Video(false);
-				Utils.catchMediaError(e)
+				Utils.media.catchError(e)
 			});
 		}
 	}
