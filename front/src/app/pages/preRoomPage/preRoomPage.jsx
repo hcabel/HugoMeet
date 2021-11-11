@@ -3,6 +3,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { useCookies } from 'react-cookie';
 
 import "./preRoomPageCSS.css";
+import Utils from "../../utils/utils";
 
 function	PreRoomPage() {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
@@ -51,35 +52,18 @@ function	PreRoomPage() {
 			if (!window.localStream) { // mean it never been initialised before
 				video.onloadedmetadata = () => video.play(); // play once video stream is setup
 				video.muted = true;	// Mute my own video to avoid hearing myself
-				video.srcObject = localStream;
-				window.localStream = localStream;
 			}
 			else {
 				// Combine previous track with the new one
-				const oldTracks = window.localStream.getTracks();
-				oldTracks.forEach((track) => {
+				window.localStream.getTracks().forEach((track) => {
 					localStream.addTrack(track);
 				});
+			}
 
-				video.srcObject = localStream;
-				window.localStream = localStream;
-			}
+			video.srcObject = localStream;
+			window.localStream = localStream;
 		})
-		.catch((e) => {
-			switch (e.name) {
-				case "NotFoundError":
-					alert("Unable to open your call because no camera and/or microphone were found");
-					break;
-				case "SecurityError":
-				case "PermissionDeniedError":
-					break;
-				case "NotAllowedError":
-					break;
-				default:
-					alert("Error opening your camera and/or microphone: " + e.message);
-					break;
-			}
-		});
+		.catch(Utils.catchMediaError);
 	}
 
 	useEffect(() => {
