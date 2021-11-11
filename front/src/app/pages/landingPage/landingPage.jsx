@@ -70,7 +70,7 @@ export default function LandingPage()
 							</div>
 						</div>
 						<div className="LP-B-TAB-B-JoinRoom">
-							<label className="LP-B-TAB-B-JR-Label">
+							<label className={`LP-B-TAB-B-JR-Label${_Focused ? "Blue" : "Grey"}`}>
 								<div className="LP-B-TAB-B-JR-L-Img"></div>
 								<input className="LP-B-TAB-B-JR-L-Input"
 									type="text"

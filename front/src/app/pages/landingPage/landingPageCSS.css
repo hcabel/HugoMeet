@@ -130,7 +130,6 @@ html, body, #root, .LandingPage {
 	flex: 1 1 12em;
 
 	margin-top: 6px;
-	max-width: 20em;
 	padding-right: .5em;
 	width: 100%;
 
@@ -139,47 +138,47 @@ html, body, #root, .LandingPage {
 
 .LP-B-TAB-B-JR-Button {
 
-    position: relative;
-    display: -webkit-inline-box;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    min-width: 64px;
-    border: none;
-    outline: none;
-    line-height: inherit;
-    -webkit-user-select: none;
-    -webkit-appearance: none;
-    overflow: visible;
-    vertical-align: middle;
-    background: transparent;
+	position: relative;
+	display: -webkit-inline-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	min-width: 64px;
+	border: none;
+	outline: none;
+	line-height: inherit;
+	-webkit-user-select: none;
+	-webkit-appearance: none;
+	overflow: visible;
+	vertical-align: middle;
+	background: transparent;
 
-    display: inline;
+	display: inline;
 
 
-    font-family: "Google Sans",Roboto,Arial,sans-serif;
-    font-size: .875rem;
-    letter-spacing: .0107142857em;
-    font-weight: 500;
-    text-transform: none;
+	font-family: "Google Sans",Roboto,Arial,sans-serif;
+	font-size: .875rem;
+	letter-spacing: .0107142857em;
+	font-weight: 500;
+	text-transform: none;
 
-    font-size: 1em;
-    height: 3em;
-    margin-bottom: 1em;
-    white-space: nowrap;
-    outline: 1px solid transparent;
+	font-size: 1em;
+	height: 3em;
+	margin-bottom: 1em;
+	white-space: nowrap;
+	outline: 1px solid transparent;
 
-    font-family: "Google Sans",Roboto,Arial,sans-serif;
+	font-family: "Google Sans",Roboto,Arial,sans-serif;
 	margin-left: 5px;
 
-    text-indent: 0px;
-    text-shadow: none;
-    text-align: center;
-    cursor: default;
+	text-indent: 0px;
+	text-shadow: none;
+	text-align: center;
+	cursor: default;
 
-    text-size-adjust: 100%;
-    width: 200%;
+	text-size-adjust: 100%;
+	width: 100%;
 }
 
 .LP-B-TAB-B-JR-Button:hover {
@@ -187,9 +186,9 @@ html, body, #root, .LandingPage {
 	transition: opacity 15ms linear,background-color 15ms linear;
 }
 
-.LP-B-TAB-B-JR-Label {
+.LP-B-TAB-B-JR-LabelBlue {
 	box-sizing: border-box;
-    display: inline-flex;
+	display: inline-flex;
 	align-items: baseline;
 	padding: 0 16px;
 	position: relative;
@@ -199,33 +198,52 @@ html, body, #root, .LandingPage {
 	width: 100vw;
 	height: 48px;
 	padding-left: 0;
+	max-width: 20em;
+
+	border: 2px solid #1a73e8;
+	border-radius: 4px;
+}
+
+.LP-B-TAB-B-JR-LabelGrey {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: baseline;
+	padding: 0 16px;
+	position: relative;
+	overflow: hidden;
+	will-change: opacity,transform,color;
+
+	width: 100vw;
+	height: 48px;
+	padding-left: 0;
+	max-width: 20em;
 
 	border: 1px solid;
 	border-radius: 4px;
 }
 
 .LP-B-TAB-B-JR-L-Img {
-    align-self: center;
+	align-self: center;
 	background: url("./assets/keyboardIcon.png") no-repeat center;
 	background-size: contain;
 
-    font-family: 'Material Icons Extended';
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: 'liga';
-    -webkit-font-smoothing: antialiased;
+	font-family: 'Material Icons Extended';
+	font-weight: normal;
+	font-style: normal;
+	font-size: 24px;
+	line-height: 1;
+	letter-spacing: normal;
+	text-transform: none;
+	display: inline-block;
+	white-space: nowrap;
+	word-wrap: normal;
+	direction: ltr;
+	-webkit-font-feature-settings: 'liga';
+	-webkit-font-smoothing: antialiased;
 
-    margin-left: 16px;
-    margin-right: 8px;
-    text-size-adjust: 100%;
+	margin-left: 16px;
+	margin-right: 8px;
+	text-size-adjust: 100%;
 
 	height: 24px;
 	width: 24px;
@@ -233,22 +251,23 @@ html, body, #root, .LandingPage {
 
 
 .LP-B-TAB-B-JR-L-Input {
-    align-self: center;
+	align-self: center;
 	font-family: Roboto,Arial,sans-serif;
 	font-size: 1rem;
 	letter-spacing: .00625em;
 	font-weight: 400;
 	caret-color: #1a73e8;
 	display: flex;
-	border: none!important;
 	background-color: transparent;
-    height: 100%;
-    appearance: none;
-    padding: 0;
-    border-radius: 0;
+	height: 100%;
+	appearance: none;
+	padding: 0;
+	border-radius: 0;
 	transition: opacity .15s cubic-bezier(.4,0,.2,1) 0ms;
-    width: 100%;
-    min-width: 0;
+	width: 100%;
+	min-width: 0;
+	border: none!important;
+	outline: none;
 }
 
 
@@ -272,38 +291,38 @@ html, body, #root, .LandingPage {
 }
 
 .LP-B-TAB-HR {
-    margin-top: 1em;
-    border-bottom: 1px solid;
-    align-self: stretch;
-    max-width: 42rem;
-    border-color: #dadce0;
+	margin-top: 1em;
+	border-bottom: 1px solid;
+	align-self: stretch;
+	max-width: 42rem;
+	border-color: #dadce0;
 }
 
 .LP-B-TAB-MoreInfos {
-    letter-spacing: .00625em;
-    font-family: Roboto,Arial,sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5rem;
-    padding-top: 1.5em;
-    color: #5f6368;
-    color: var(--gm-color-caption,#5f6368);
+	letter-spacing: .00625em;
+	font-family: Roboto,Arial,sans-serif;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5rem;
+	padding-top: 1.5em;
+	color: #5f6368;
+	color: var(--gm-color-caption,#5f6368);
 }
 
 .LP-B-TAB-MI-Span {
-    cursor: pointer;
-    letter-spacing: .00625em;
-    font-family: Roboto,Arial,sans-serif;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5rem;
-    padding-top: 1.5em;
-    color: #5f6368;
+	cursor: pointer;
+	letter-spacing: .00625em;
+	font-family: Roboto,Arial,sans-serif;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5rem;
+	padding-top: 1.5em;
+	color: #5f6368;
 }
 
 .LP-B-TAB-MI-S-Href {
-    text-decoration: none;
-    color: #2962ff;
+	text-decoration: none;
+	color: #2962ff;
 }
 
 .LP-B-IL-Content {
@@ -312,67 +331,67 @@ html, body, #root, .LandingPage {
 }
 
 .LP-B-IL-C-ButtonLeft, .LP-B-IL-C-ButtonRight {
-    margin-top: 141px;
+	margin-top: 141px;
 	display: inline-block;
-    position: relative;
-    box-sizing: border-box;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    fill: currentColor;
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
-    -webkit-user-select: none;
-    overflow: visible;
+	position: relative;
+	box-sizing: border-box;
+	border: none;
+	outline: none;
+	background-color: transparent;
+	fill: currentColor;
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+	-webkit-user-select: none;
+	overflow: visible;
 
-    width: 48px;
-    height: 48px;
+	width: 48px;
+	height: 48px;
 }
 .LP-B-IL-C-ButtonLeft:disabled, .LP-B-IL-C-ButtonRight:disabled {
 	color: rgba(60,64,67,0.38);
 }
 
 .LP-B-IL-IndexList {
-    margin-top: 8px;
-    text-align: center;
+	margin-top: 8px;
+	text-align: center;
 }
 .LP-B-IL-IL-Item {
-    background: #dadce0;
-    border-radius: 50%;
-    display: inline-block;
-    height: 6px;
-    margin: 0 4px;
-    width: 6px;
+	background: #dadce0;
+	border-radius: 50%;
+	display: inline-block;
+	height: 6px;
+	margin: 0 4px;
+	width: 6px;
 }
 
 .CurrentItem {
-    background: #1a73e8;
+	background: #1a73e8;
 }
 
 .LP-B-IL-C-C-TextImage {
-    width: 330px;
-    font-size: 1rem;
-    text-align: center;
+	width: 330px;
+	font-size: 1rem;
+	text-align: center;
 }
 
 .LP-B-IL-C-C-TI-Text {
-    display: block;
+	display: block;
 }
 
 .LP-B-IL-C-C-TI-T-Title {
-    font-family: 'Google Sans',Roboto,Arial,sans-serif;
-    font-size: 1.5rem;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 2rem;
-    margin-top: 12px;
+	font-family: 'Google Sans',Roboto,Arial,sans-serif;
+	font-size: 1.5rem;
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: 2rem;
+	margin-top: 12px;
 }
 
 .LP-B-IL-C-C-TI-T-Text {
-    letter-spacing: .01428571em;
-    font-family: Roboto,Arial,sans-serif;
-    font-size: .875rem;
-    font-weight: 400;
-    line-height: 1.25rem;
+	letter-spacing: .01428571em;
+	font-family: Roboto,Arial,sans-serif;
+	font-size: .875rem;
+	font-weight: 400;
+	line-height: 1.25rem;
 }
