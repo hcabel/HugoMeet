@@ -2,6 +2,10 @@
  /* #3c4043 */
  /* #ea4335 */
 
+html, body, boby > div {
+	/* background: #202124; */
+}
+
 .RoomPage {
 	display: flex;
 	flex-direction: column;
@@ -46,7 +50,7 @@
 	transform: rotateY(180deg);
 }
 
-.RP-VC-P-Name {
+.RP-VC-P-Overlay {
 	position: absolute;
 	width: 100%;
 	height: 100%;

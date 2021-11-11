@@ -49,13 +49,30 @@ export default function	RoomPage(props) {
 	function	DConMessage(peerId, msg) {
 		console.log(`DC_${peerId}:\tMessage Receveived`, msg.data);
 
-		if (msg.data.type === "muteStateChange") {
-			const peer = PeersConnection.get(msg.data._id);
+		// Parse JSON msg
+		try {
+			msg = JSON.parse(msg.data);
+		} catch (err) {
+			console.error(`DC_${peerId}:\tError: ${err}`);
+			return;
+		}
+
+		const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, window._Peers);
+		if (peerIndex === -1) {
+			console.error(`DC_${peerId}:\tFailed to find peerIndex from`, msg._id);
+			return;
+		}
+
+		if (msg.type === "muteStateChange") {
+			const peer = PeersConnection.get(msg._id);
 			if (peer) {
-				console.log(`>>>>>>>>>> ${msg.data._id} is now ${msg.data.isMuted ? "muted" : "unmuted"}`);
+				const peers = [...window._Peers];
+				peers[peerIndex].isMuted = msg.isMuted;
+				set_Peers(peers);
+				window._Peers = peers;
 			}
 			else {
-				console.warn(`DC_${peerId}:\tMR:\tPeerId`, msg.data._id, `does not belong to anyone`);
+				console.error(`DC_${peerId}:\tMR:\tPeerId`, msg._id, `does not belong to anyone`);
 			}
 		}
 	}
@@ -371,7 +388,7 @@ export default function	RoomPage(props) {
 
 	useEffect(() => {
 		// When your micro status change
-		if (window.localStream) {
+		if (window.localStream && window._Peers) {
 			const audioTracks = window.localStream.getAudioTracks();
 			if (audioTracks.length > 0) { // If was already initialised
 
@@ -380,6 +397,12 @@ export default function	RoomPage(props) {
 					track.enabled = _Audio;
 				});
 				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: _SelfId, isMuted: !_Audio }));
+				const peerIndex = Utils.getPeerIndexFrom_Id(_SelfId, window._Peers);
+				if (peerIndex !== -1) {
+					const peers = [...window._Peers];
+					peers[peerIndex].isMuted = !_Audio;
+					set_Peers(peers);
+				}
 			}
 			else {
 				// no videoTracks mean the client was already muted when he connect so the audio track were never create
@@ -390,7 +413,7 @@ export default function	RoomPage(props) {
 
 	useEffect(() => {
 		// when you camera state change
-		if (window.localStream) {
+		if (window.localStream && window._Peers) {
 			const VideoTracks = window.localStream.getVideoTracks();
 
 			let hasAlreadyBeenInitialised = false;
@@ -448,7 +471,7 @@ export default function	RoomPage(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render
 
-	console.log("RoomPage:\tRefresh", _Peers);
+	console.log("RoomPage:\tRefresh");
 	return (
 		<div className="RoomPage">
 			{_LoadingMessage !== "" &&
@@ -458,14 +481,24 @@ export default function	RoomPage(props) {
 			}
 			{/* VIDEOS */}
 			<div className="RP-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
-				{_Peers.map((peer, index) =>
-					<div key={index} className="RP-VC-Peer">
-						<video className="RP-VC-P-Video" id={`VideoStream_${peer._id}`} src={(_SelfId && peer._id === _SelfId ? window.localStream : (PeersConnection.get(peer._id) ? PeersConnection.get(peer._id).streams : null))} />
-						<div className="RP-VC-P-Name">
-							{`${peer.name} ${peer._id}`}
+				{_Peers.map((peer, index) => {
+					console.log(index, peer);
+					return (
+						<div key={index} className="RP-VC-Peer">
+							<video className="RP-VC-P-Video" id={`VideoStream_${peer._id}`} src={(_SelfId && peer._id === _SelfId ? window.localStream : (PeersConnection.get(peer._id) ? PeersConnection.get(peer._id).streams : null))} />
+							<div className="RP-VC-P-Overlay">
+								<div className="RP-VC-P-O-Name">
+									{`${peer.name} ${peer._id}`}
+								</div>
+								{peer.isMuted && peer.isMuted === true &&
+									<div className="RP-VC-P-O-AudioStatus">
+										Muted
+									</div>
+								}
+							</div>
 						</div>
-					</div>
-				)}
+					);
+				})}
 			</div>
 			{/* BUTTONS UNDER VIDEOS */}
 			<div className="RP-ToolsBox">
