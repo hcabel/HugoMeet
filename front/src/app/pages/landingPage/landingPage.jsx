@@ -17,16 +17,16 @@ const	PresentationPhotos = [
 	Presentation_4_Img
 ];
 const	PresentationTitle = [
-	"Obtenir un lien de partage",
-	"Voir tout le monde",
-	"Planifier et anticiper",
-	"Votre réunion est sécurisée"
+	"Get a link that you can share",
+	"See everyone together",
+	"Do not plan ahead",
+	"Your meeting is safe"
 ];
 const	PresentationText = [
-	"Cliquez sur Nouvelle réunion pour obtenir le lien à envoyer aux personnes que vous souhaitez inviter à une réunion",
-	"Pour pouvoir afficher un plus grand nombre de personnes simultanément accédez au menu Autres options et sélectionnez Modifier la disposition",
-	"Cliquez sur Nouvelle réunion pour planifier des réunions dans Google Agenda et envoyer des invitations aux participants",
-	"Personne ne peut rejoindre une réunion sans y avoir été invité ou admis par l'organisateur"
+	"Click New meeting to get a link that you can send to people that you want to meet with",
+	"To see more people at the same time, find another website it is kind of imposible here",
+	"Do not click New meeting to schedule meetings in Google Calendar and send invitations to participants because I didn't make this feature",
+	"Almost no one can join a meeting unless invited or admitted by the host"
 ];
 
 export default function LandingPage()
@@ -57,16 +57,16 @@ export default function LandingPage()
 			<div className="LP-Body">
 				<div className="LP-B-TextAndButton">
 					<div className="LP-B-TAB-Text">
-						La visioconférence haute qualité, maintenant disponible pour tous
+						Cheap video meetings. Now free for everyone.
 					</div>
 					<div className="LP-B-TAB-Text2">
-						Nous avons adapté Google Meet, notre service de visioconférence professionnel sécurisé, afin de le rendre disponible pour tous.
+						I didn't re-engineered the service that I built for secure business meetings, Hugo Meet, to make it free and available for all.
 					</div>
 					<div className="LP-B-TAB-Button">
 						<div className="LP-B-TAB-B-CreateNewRoom" onClick={createNewRoom}>
 							<div className="LP-B-TAB-B-CNR-Img"></div>
 							<div className="LP-B-TAB-B-CNR-Text">
-								Nouvelle réunion
+								New meeting
 							</div>
 						</div>
 						<div className="LP-B-TAB-B-JoinRoom">
@@ -79,7 +79,7 @@ export default function LandingPage()
 									id="i3"
 									aria-controls="i4"
 									aria-describedby="i4"
-									placeholder="Saisir un code ou un lien"
+									placeholder="Enter a code"
 									spellCheck="false"
 									maxLength="50"
 									onChange={(e) => set_Value(e.target.value)}
@@ -94,7 +94,7 @@ export default function LandingPage()
 									style={{ color: (Utils.idGenerator.isRoomIDValid(_Value) ? "#1a73e8" : "rgba(60,64,67,0.38)")}}
 									onClick={() => (Utils.idGenerator.isRoomIDValid(_Value) ? joinRoom(_Value) : undefined)}
 								>
-									Participer
+									Join
 								</button>
 							}
 						</div>
@@ -102,7 +102,7 @@ export default function LandingPage()
 					<div className="LP-B-TAB-HR"></div>
 					<div className="LP-B-TAB-MoreInfos">
 						<span className="LP-B-TAB-MI-Span">
-							<a className="LP-B-TAB-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">En savoir plus</a> sur Google&nbsp;Meet
+							<a className="LP-B-TAB-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about Hugo&nbsp;Meet
 						</span>
 					</div>
 				</div>
