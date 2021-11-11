@@ -44,26 +44,56 @@ function	PreRoomPage() {
 			alert("This site is untrusted we cant access to the camera/or and microphone !");
 			return;
 		}
-		// get Audio and Video
-		navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
-		.then(function(localStream) {
-			const video = document.getElementById("LocalStream");
 
-			if (!window.localStream) { // mean it never been initialised before
-				video.onloadedmetadata = () => video.play(); // play once video stream is setup
-				video.muted = true;	// Mute my own video to avoid hearing myself
-			}
-			else {
-				// Combine previous track with the new one
-				window.localStream.getTracks().forEach((track) => {
-					localStream.addTrack(track);
-				});
-			}
+		// Request audio & video separatly in case one of them are unvailable but not the other
+		if (audio) {
+			navigator.mediaDevices.getUserMedia({ audio: true })
+			.then(function(localStream) {
+				const video = document.getElementById("LocalStream");
 
-			video.srcObject = localStream;
-			window.localStream = localStream;
-		})
-		.catch(Utils.catchMediaError);
+				if (!window.localStream) { // mean it never been initialised before
+					video.onloadedmetadata = () => video.play(); // play once video stream is setup
+					video.muted = true;	// Mute my own video to avoid hearing myself
+				}
+				else {
+					// Combine previous track with the new one
+					window.localStream.getTracks().forEach((track) => {
+						localStream.addTrack(track);
+					});
+				}
+
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			})
+			.catch((e) => {
+				set_Audio(false);
+				Utils.catchMediaError(e)
+			});
+		}
+		if (video) {
+			navigator.mediaDevices.getUserMedia({ video: true })
+			.then(function(localStream) {
+				const video = document.getElementById("LocalStream");
+
+				if (!window.localStream) { // mean it never been initialised before
+					video.onloadedmetadata = () => video.play(); // play once video stream is setup
+					video.muted = true;	// Mute my own video to avoid hearing myself
+				}
+				else {
+					// Combine previous track with the new one
+					window.localStream.getTracks().forEach((track) => {
+						localStream.addTrack(track);
+					});
+				}
+
+				video.srcObject = localStream;
+				window.localStream = localStream;
+			})
+			.catch((e) => {
+				set_Video(false);
+				Utils.catchMediaError(e)
+			});
+		}
 	}
 
 	useEffect(() => {
