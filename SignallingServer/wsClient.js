@@ -7,7 +7,7 @@ module.exports = async function(socket, req) {
 	let clientName = "";
 
 	function	onPlayerDisconnected() {
-		roomPeers = globalVariables.rooms.get(roomId);
+		const roomPeers = globalVariables.rooms.get(roomId);
 		roomPeers.delete(clientId);
 		globalVariables.rooms.set(roomId, roomPeers);
 
@@ -119,7 +119,6 @@ module.exports = async function(socket, req) {
 	socket.on('message', onMessage);
 	socket.on('close', onClose);
 	socket.on('error', onError);
-
 
 	const roomPeers = globalVariables.rooms.get(roomId);
 	const peers = Array.from(roomPeers.values()).map((value) => {
