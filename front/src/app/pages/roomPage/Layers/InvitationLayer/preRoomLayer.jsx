@@ -1,111 +1,24 @@
-import { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { useState } from "react";
 import { useCookies } from 'react-cookie';
 
 import "./preRoomLayerCSS.css";
-import Utils from "../../../../utils/utils";
 
-export default function	PreRoomLayer() {
+export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
-	const [_Video, set_Video] = useState(true);
-	const [_Audio, set_Audio] = useState(true);
 	const [_Name, set_Name] = useState(_Cookie.userName);
-
-	const history = useHistory();
-	const { roomId } = useParams();
 
 	function	participate() {
 		set_Cookie('userName', _Name, {path: '/'});
-		history.push(`/room/${roomId}`, {video: _Video, audio: _Audio, name: _Name})
+		props.onJoin(_Name);
 	}
 
 	function	toggleAudio() {
-		set_Audio(!_Audio);
+		props.onChangeAudioStatus(!props.audio);
 	}
 
 	function	toggleVideo() {
-		set_Video(!_Video);
+		props.onChangeVideoStatus(!props.video);
 	}
-
-	async function	InitStreams(audio, video) {
-		console.log("Initstream with: ", audio, video);
-
-		// You cant user `getUserMedia` with all constraints to false
-		if (audio === false && video === false) {
-			if (window.localStream) {
-				window.localStream.getTracks().forEach((track) => {
-					track.stop();
-				});
-			}
-			return;
-		}
-
-		if (!navigator.mediaDevices) {
-			alert("This site is untrusted we cant access to the camera/or and microphone !");
-			return;
-		}
-
-		// Request audio & video separatly in case one of them are unvailable but not the other
-		if (audio) {
-			navigator.mediaDevices.getUserMedia({ audio: true })
-			.then((localStream) => {
-				const video = document.getElementById("LocalStream");
-				Utils.media.combineStream(localStream, video);
-			})
-			.catch((e) => {
-				set_Audio(false);
-				Utils.media.catchError(e)
-			});
-		}
-		if (video) {
-			navigator.mediaDevices.getUserMedia({ video: true })
-			.then((localStream) => {
-				const video = document.getElementById("LocalStream");
-				Utils.media.combineStream(localStream, video);
-			})
-			.catch((e) => {
-				set_Video(false);
-				Utils.media.catchError(e)
-			});
-		}
-	}
-
-	useEffect(() => {
-		InitStreams(_Audio, _Video);
-	}, [false]);
-
-	useEffect(() => {
-		if (window.localStream) {
-			const audioTracks = window.localStream.getAudioTracks();
-			if (audioTracks && audioTracks.length > 0) { // If already been initialised
-				// Audio track can just be mute/unmuted
-				audioTracks.forEach((track) => {
-					track.enabled = _Audio;
-				});
-			}
-			else {
-				InitStreams(true, false);
-			}
-		}
-		// else {
-		// 	InitStreams(_Audio, _Video);
-		// }
-	}, [ _Audio ])
-
-	useEffect(() => {
-		if (window.localStream) {
-			if (_Video === false) {
-				if (window.localStream) {
-					window.localStream.getVideoTracks().forEach((track) => {
-						track.stop();
-					});
-				}
-			}
-			else {
-				InitStreams(false, true);
-			}
-		}
-	}, [ _Video ])
 
 	return (
 		<div className="PreRoomPage">
@@ -120,8 +33,8 @@ export default function	PreRoomLayer() {
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">
-									<div className={`PRP-B-C-S-VS-V-B-AudioButton${_Audio ? "On" : "Off"}`} onClick={toggleAudio}>
-										{_Audio ?
+									<div className={`PRP-B-C-S-VS-V-B-AudioButton${props.audio ? "On" : "Off"}`} onClick={toggleAudio}>
+										{props.audio ?
 											// Logo micro On
 											<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">
 												<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5z"></path>
@@ -134,8 +47,8 @@ export default function	PreRoomLayer() {
 											</svg>
 										}
 									</div>
-									<div className={`PRP-B-C-S-VS-V-B-VideoButton${_Video ? "On" : "Off"}`} onClick={toggleVideo}>
-											{_Video ?
+									<div className={`PRP-B-C-S-VS-V-B-VideoButton${props.video ? "On" : "Off"}`} onClick={toggleVideo}>
+											{props.video ?
 												// Logo video On
 												<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">
 													<path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"></path>
