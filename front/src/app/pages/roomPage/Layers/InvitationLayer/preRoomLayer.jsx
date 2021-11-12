@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import { useCookies } from 'react-cookie';
 
-import "./preRoomPageCSS.css";
-import Utils from "../../utils/utils";
+import "./preRoomLayerCSS.css";
+import Utils from "../../../../utils/utils";
 
-function	PreRoomPage() {
+export default function	PreRoomLayer() {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
 	const [_Video, set_Video] = useState(true);
 	const [_Audio, set_Audio] = useState(true);
@@ -171,5 +171,3 @@ function	PreRoomPage() {
 		</div>
 	);
 }
-
-export default PreRoomPage;
