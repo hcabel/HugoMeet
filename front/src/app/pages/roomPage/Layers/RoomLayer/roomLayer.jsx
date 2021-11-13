@@ -13,30 +13,24 @@ export default function	RoomLayer(props) {
 	const [_LoadingMessage, set_LoadingMessage] = useState("Loading...");
 	const [_Peers, set_Peers] = useState([]);
 	const [_SelfId, set_SelfId] = useState("");
-	const [_Audio, set_Audio] = useState(props.location && props.location.state ? props.location.state.audio : true);
-	const [_Video, set_Video] = useState(props.location && props.location.state ? props.location.state.video : true);
 
 	const history = useHistory();
 	const { roomId } = useParams();
 
-	async function	initialiseLocalVideo(audio, video, selfId) {
-		if (!audio && !video) {
-			// can't init device with all the constraints has `false`
-			return;
-		}
-		if (!navigator.mediaDevices) {
-			set_LoadingMessage("Failed, Unable to load: Untrusted");
-			alert("This site is untrusted we can access to the camera and microphone !");
-			return;
-		}
+	function	toggleAudio() {
+		props.onChangeAudioStatus(!props.audio);
 
-		// get Audio and Video
-		await navigator.mediaDevices.getUserMedia({ audio: audio, video: video })
-		.then((localStream) => {
-			const video = document.getElementById(`VideoStream_${selfId}`);
-			Utils.media.combineStream(localStream, video);
-		})
-		.catch(Utils.media.catchError);
+		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: _SelfId, audio: !props.audio }));
+		const peerIndex = Utils.getPeerIndexFrom_Id(_SelfId, window._Peers);
+		if (peerIndex !== -1) {
+			const peers = [...window._Peers];
+			peers[peerIndex].audio = !props.audio;
+			set_Peers(peers);
+		}
+	}
+
+	function	toggleVideo() {
+		props.onChangeVideoStatus(!props.video);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -277,17 +271,10 @@ export default function	RoomLayer(props) {
 		set_Peers(msg.peers);
 		set_SelfId(msg.selfId);
 
-		// We wait because to initialise `window.localstream`
-		// If we don't we will be unable to send video/audio streams to the Peers
-		if (!window.localStream) {
-			await initialiseLocalVideo(_Audio, _Video, msg.selfId);
-		}
-		else {
-			const video = document.getElementById(`VideoStream_${msg.selfId}`);
-			video.onloadedmetadata = () => video.play(); // play once video stream is setup
-			video.muted = true;	// Mute my own video to avoid hearing myself
-			video.srcObject = window.localStream;
-		}
+		const video = document.getElementById(`LocalStream`);
+		video.onloadedmetadata = () => video.play(); // play once video stream is setup
+		video.muted = true;	// Mute my own video to avoid hearing myself
+		video.srcObject = window.localStream;
 
 		const rtcOptions = {
 			...msg.peerConnectionOptions
@@ -386,66 +373,6 @@ export default function	RoomLayer(props) {
 		}
 	}, [roomId]);
 
-	useEffect(() => {
-		// When your micro status change
-		if (window.localStream && window._Peers) {
-			const audioTracks = window.localStream.getAudioTracks();
-			if (audioTracks.length > 0) { // If was already initialised
-
-				// switch between mute and unmute
-				audioTracks.forEach((track) => {
-					track.enabled = _Audio;
-				});
-				sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: _SelfId, isMuted: !_Audio }));
-				const peerIndex = Utils.getPeerIndexFrom_Id(_SelfId, window._Peers);
-				if (peerIndex !== -1) {
-					const peers = [...window._Peers];
-					peers[peerIndex].isMuted = !_Audio;
-					set_Peers(peers);
-				}
-			}
-			else {
-				// no videoTracks mean the client was already muted when he connect so the audio track were never create
-				initialiseLocalVideo(true, false, _SelfId);
-			}
-		}
-	}, [_Audio]);
-
-	useEffect(() => {
-		// when you camera state change
-		if (window.localStream && window._Peers) {
-			const VideoTracks = window.localStream.getVideoTracks();
-
-			let hasAlreadyBeenInitialised = false;
-			if (VideoTracks) {
-				if (VideoTracks.length > 0) {
-					let theyrAllEnded = true;
-
-					VideoTracks.forEach((track) => {
-						if (track.readyState !== "ended") {
-							theyrAllEnded = false;
-						}
-					});
-
-					if (!theyrAllEnded) {
-						hasAlreadyBeenInitialised = true;
-					}
-				}
-			}
-
-			if (!_Video) {
-				// If `_Video` is FALSE it mean it was TRUE before, so close the video stream
-				window.localStream.getVideoTracks().forEach((track) => {
-					track.stop();
-				});
-			}
-			else if (!hasAlreadyBeenInitialised) {
-				// If `_Video` is TRUE it mean it was FALSE before, so restart webcam
-				initialiseLocalVideo(false, true, _SelfId);
-			}
-		}
-	}, [_Video]);
-
 	// Constructor, will be excuted only once
 	useEffect(() => {
 		if (Utils.idGenerator.isRoomIDValid(roomId) && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
@@ -485,14 +412,26 @@ export default function	RoomLayer(props) {
 					console.log(index, peer);
 					return (
 						<div key={index} className="RL-VC-Peer">
-							<video className="RL-VC-P-Video" id={`VideoStream_${peer._id}`} src={(_SelfId && peer._id === _SelfId ? window.localStream : (PeersConnection.get(peer._id) ? PeersConnection.get(peer._id).streams : null))} />
+							{(_SelfId && peer._id === _SelfId ?
+								<video // If it's me
+									className="RL-VC-P-Video"
+									id="LocalStream"
+									src={window.localStream}
+								/>
+								:
+								<video // If it's a peer
+									className="RL-VC-P-Video"
+									id={`VideoStream_${peer._id}`}
+									src={PeersConnection.get(peer._id)?.streams}
+								/>
+							)}
 							<div className="RL-VC-P-Name">
 								{peer.name}
 							</div>
-							{peer.isMuted && peer.isMuted === true &&
+							{peer.audio === false &&
 								<>
 									<div className="RL-VC-P-AudioStatus">
-										<svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 24 24" fill="#000000" class="Hdh4hc cIGbvc">
+										<svg width="24px" height="24px" viewBox="0 0 24 24" fill="#000000">
 											<path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
 											<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"></path>
 										</svg>
@@ -511,8 +450,8 @@ export default function	RoomLayer(props) {
 					</div>
 				</div>
 				<div className="RL-TB-Center">
-					<div className={`RL-TB-C-Button-${_Audio ? "On" : "Off"} Center-Button-MicroStatus`} onClick={() => set_Audio(!_Audio)}>
-						{_Audio ?
+					<div className={`RL-TB-C-Button-${props.audio ? "On" : "Off"} Center-Button-MicroStatus`} onClick={toggleAudio}>
+						{props.audio ?
 							// Icon micro turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
 								<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"></path>
@@ -526,8 +465,8 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					<div className={`RL-TB-C-Button-${_Video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={() => set_Video(!_Video)}>
-						{_Video ?
+					<div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={toggleVideo}>
+						{props.video ?
 							// Icon camera turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
 								<path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zm-2-.79V18H4V6h12v3.69z"></path>
