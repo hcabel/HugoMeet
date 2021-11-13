@@ -8,7 +8,7 @@ import RoomLayer from "./Layers/RoomLayer/roomLayer";
 
 import Utils from "../../utils/utils";
 
-export default function	RoomPage(props) {
+export default function	RoomPage() {
 	const [_Audio, set_Audio] = useState(true);
 	const [_Video, set_Video] = useState(true);
 	const [_Name, set_Name] = useState("");
@@ -111,6 +111,7 @@ export default function	RoomPage(props) {
 					onChangeVideoStatus={onChangeVideoStatus}
 					audio={_Audio}
 					video={_Video}
+					name={_Name}
 				/>
 			}
 		</div>

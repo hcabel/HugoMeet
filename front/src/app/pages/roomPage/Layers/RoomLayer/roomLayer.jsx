@@ -355,7 +355,7 @@ export default function	RoomLayer(props) {
 		}
 
 		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${props.location && props.location.state ? props.location.state.name : "Unknown"}`);
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${props.name}`);
 
 		window.SignalingSocket.onopen = WSonOpen;
 		window.SignalingSocket.onmessage = WSonMessage;
@@ -413,21 +413,28 @@ export default function	RoomLayer(props) {
 					return (
 						<div key={index} className="RL-VC-Peer">
 							{(_SelfId && peer._id === _SelfId ?
-								<video // If it's me
-									className="RL-VC-P-Video"
-									id="LocalStream"
-									src={window.localStream}
-								/>
+								<>
+									<video // If it's me
+										className="RL-VC-P-Video"
+										id="LocalStream"
+										src={window.localStream}
+									/>
+									<div className="RL-VC-P-Name">
+										{props.name}
+									</div>
+								</>
 								:
-								<video // If it's a peer
-									className="RL-VC-P-Video"
-									id={`VideoStream_${peer._id}`}
-									src={PeersConnection.get(peer._id)?.streams}
-								/>
+								<>
+									<video // If it's a peer
+										className="RL-VC-P-Video"
+										id={`VideoStream_${peer._id}`}
+										src={PeersConnection.get(peer._id)?.streams}
+									/>
+									<div className="RL-VC-P-Name">
+										{peer.name}
+									</div>
+								</>
 							)}
-							<div className="RL-VC-P-Name">
-								{peer.name}
-							</div>
 							{peer.audio === false &&
 								<>
 									<div className="RL-VC-P-AudioStatus">
