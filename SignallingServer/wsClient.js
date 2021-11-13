@@ -71,6 +71,7 @@ module.exports = async function(socket, req) {
 		// dispatch based on msg.type value
 		if (msg.type === "JoinRequest") {
 			target.name = msg.value;
+			target.role = "Client";
 			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
 
 			const roomPeers = globalVariables.rooms.get(roomId);
@@ -86,7 +87,9 @@ module.exports = async function(socket, req) {
 		}
 		else if (msg.type === "askRoomPeers") {
 			const roomPeers = globalVariables.rooms.get(roomId);
-			const peers = Array.from(roomPeers.values()).map((value) => {
+			const peers = Array.from(roomPeers.values()).filter((peer) => {
+				return (peer.role !== "Pending");
+			}).map((value) => {
 				// You can't use `delete value.ws` because it will be erase in `roonPeers` has well
 				return ({ ...value, ws: undefined });
 			});
@@ -148,7 +151,7 @@ module.exports = async function(socket, req) {
 			_id: clientId,
 			ws: socket,
 			name: "NotDefined",
-			role: "Client"
+			role: "Pending"
 		});
 		role = "Client";
 		globalVariables.rooms.set(roomId, roomPeers);
