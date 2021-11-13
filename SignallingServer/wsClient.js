@@ -40,11 +40,6 @@ module.exports = async function(socket, req) {
 			socket.close(1008 /* Policy violation */, "Cannot find peers id");
 			return;
 		}
-		else if (msg.to === clientId) {
-			console.error(`Client_${msg.to} Trying to send msg to himself`);
-			socket.close(1008 /* Policy violation */, "Sending message to himself is not allow");
-			return;
-		}
 
 		if (!target.ws || (target.ws && target.ws.readyState !== 1)) {
 			console.error(`Client_${msg.to} WebSocket is closed, message ${msg.type} dropped`);
@@ -52,10 +47,36 @@ module.exports = async function(socket, req) {
 		}
 
 		// dispatch based on msg.type value
-		if (msg.type === "Offer") {
+		if (msg.type === "JoinRequest") {
+			target.name = msg.value;
+			clientName = msg.value;
+			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
+
+			const roomPeers = globalVariables.rooms.get(roomId);
+			Utils.sendMsgToAllClientsInTheRoom(
+				roomPeers,
+				JSON.stringify({
+					type: "clientJoin",
+					newPeer: {...roomPeers.get(clientId), ws: undefined},
+					from: clientId
+				}),
+				[clientId]
+			);
+		}
+		else if (msg.type === "askRoomPeers") {
+			const roomPeers = globalVariables.rooms.get(roomId);
+			const peers = Array.from(roomPeers.values()).map((value) => {
+				// You can't use `delete value.ws` because it will be erase in `roonPeers` has well
+				return ({ ...value, ws: undefined });
+			});
+
+			target.ws.send(JSON.stringify({
+				type: "RoomPeers",
+				peers: peers
+			}))
+		}
+		else if (msg.type === "Offer") {
 			console.log(`** WS:\t<-- Client ${clientId}:\tOffer`);
-			// add peer connection options
-			msg.peerConnectionOptions = globalVariables.peerConnectionOptions;
 			target.ws.send(JSON.stringify(msg));
 		}
 		else if (msg.type === "Answer") {
@@ -89,7 +110,6 @@ module.exports = async function(socket, req) {
 
 	const urlOrigin = new URL(`${req.headers.origin}${req.url}`);
 	roomId = urlOrigin.searchParams.get("roomid");
-	clientName = urlOrigin.searchParams.get("name");
 
 	// Add new client to the list
 	if (globalVariables.rooms.has(roomId)) {
@@ -103,7 +123,7 @@ module.exports = async function(socket, req) {
 			return;
 		}
 
-		roomPeers.set(clientId, { _id: clientId, ws: socket, name: clientName });
+		roomPeers.set(clientId, { _id: clientId, ws: socket, name: "NotDefined" });
 		globalVariables.rooms.set(roomId, roomPeers);
 	}
 	else {
@@ -111,7 +131,7 @@ module.exports = async function(socket, req) {
 
 		const newMap = new Map();
 		clientId = Utils.generateId(5);
-		newMap.set(clientId, { _id: clientId, ws: socket, name: clientName });
+		newMap.set(clientId, { _id: clientId, ws: socket, name: "NotDefined" });
 		globalVariables.rooms.set(roomId, newMap);
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);
@@ -120,24 +140,9 @@ module.exports = async function(socket, req) {
 	socket.on('close', onClose);
 	socket.on('error', onError);
 
-	const roomPeers = globalVariables.rooms.get(roomId);
-	const peers = Array.from(roomPeers.values()).map((value) => {
-		// You can't use `delete value.ws` because it will be erase in `roonPeers` has well
-		return ({ ...value, ws: undefined });
-	});
 	socket.send(JSON.stringify({
 		type: "ConnectionCallback",
 		peerConnectionOptions: globalVariables.peerConnectionOptions,
-		peers: peers,
 		selfId: clientId
 	}));
-	Utils.sendMsgToAllClientsInTheRoom(
-		roomPeers,
-		JSON.stringify({
-			type: "clientJoin",
-			newPeer: {...roomPeers.get(clientId), ws: undefined},
-			from: clientId
-		}),
-		[clientId]
-	);
 };

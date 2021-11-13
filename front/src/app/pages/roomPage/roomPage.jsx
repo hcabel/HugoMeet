@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom.min";
+import { useHistory, useParams } from "react-router-dom";
 
 import "./roomPageCSS.css";
 
@@ -13,9 +13,19 @@ export default function	RoomPage() {
 	const [_Audio, set_Audio] = useState(true);
 	const [_Video, set_Video] = useState(true);
 	const [_Name, set_Name] = useState("");
+	const [_SelfId, set_SelfId] = useState("");
+	const [_RtcOptions, set_RtcOptions] = useState("");
 
 	const history = useHistory();
 	const { roomId } = useParams();
+
+	function	onConnectionCallback(msg) {
+		set_SelfId(msg.selfId);
+		set_RtcOptions({ ...msg.peerConnectionOptions });
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	//	Media audio/video
 
 	async function	InitStreams(audio, video) {
 		console.log("Initstream with: ", audio, video);
@@ -114,9 +124,11 @@ export default function	RoomPage() {
 				<PreRoomLayer
 					onChangeAudioStatus={onChangeAudioStatus}
 					onChangeVideoStatus={onChangeVideoStatus}
+					onJoin={(name) => set_Name(name)}
+					onConnectionCallback={onConnectionCallback}
 					audio={_Audio}
 					video={_Video}
-					onJoin={(name) => set_Name(name)}
+					selfId={_SelfId}
 				/>
 			:
 				<RoomLayer
@@ -125,6 +137,8 @@ export default function	RoomPage() {
 					audio={_Audio}
 					video={_Video}
 					name={_Name}
+					selfId={_SelfId}
+					rtcOptions={_RtcOptions}
 				/>
 			}
 		</div>

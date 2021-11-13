@@ -10,9 +10,7 @@ import "./roomLayerCSS.css";
 let PeersConnection = new Map();
 
 export default function	RoomLayer(props) {
-	const [_LoadingMessage, set_LoadingMessage] = useState("Loading...");
 	const [_Peers, set_Peers] = useState([]);
-	const [_SelfId, set_SelfId] = useState("");
 
 	const history = useHistory();
 	const { roomId } = useParams();
@@ -20,8 +18,8 @@ export default function	RoomLayer(props) {
 	function	toggleAudio() {
 		props.onChangeAudioStatus(!props.audio);
 
-		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: _SelfId, audio: !props.audio }));
-		const peerIndex = Utils.getPeerIndexFrom_Id(_SelfId, window._Peers);
+		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: !props.audio }));
+		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, window._Peers);
 		if (peerIndex !== -1) {
 			const peers = [...window._Peers];
 			peers[peerIndex].audio = !props.audio;
@@ -85,7 +83,7 @@ export default function	RoomLayer(props) {
 		// send message to everyone in the room excepte you
 		const peersRTCObjs = PeersConnection.values();
 		for (const peerRtcObj of peersRTCObjs) {
-			if (peerRtcObj._id !== _SelfId) {
+			if (peerRtcObj._id !== props.selfId) {
 				if (peerRtcObj.DC && peerRtcObj.DC.readyState === "open") {
 					peerRtcObj.DC.send(msg);
 				}
@@ -130,9 +128,9 @@ export default function	RoomLayer(props) {
 	}
 
 	// When a new client wish to connect with you
-	function	sendAnswerBasedOffer(offer, peerId, options) {
-		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`, options);
-		let newConnection = new RTCPeerConnection(options);
+	function	sendAnswerBasedOffer(offer, peerId) {
+		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
+		let newConnection = new RTCPeerConnection(props.rtcOptions);
 
 		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
 
@@ -176,9 +174,9 @@ export default function	RoomLayer(props) {
 	}
 
 	// when you ask a peer to be connected with
-	function	createNewPeerConnection(peerId, options) {
-		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`, options);
-		let newConnection = new RTCPeerConnection(options);
+	function	createNewPeerConnection(peerId) {
+		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`);
+		let newConnection = new RTCPeerConnection(props.rtcOptions);
 
 		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
 
@@ -221,11 +219,7 @@ export default function	RoomLayer(props) {
 		if (msg.type === "Offer") {
 			// somemone new has join the room and send you an offer start a peer connection
 
-			const rtcOptions = {
-				...msg.peerConnectionOptions
-			};
-
-			const result = sendAnswerBasedOffer(msg.offer, msg.from, rtcOptions);
+			const result = sendAnswerBasedOffer(msg.offer, msg.from);
 			const AlreadyexistingValues = PeersConnection.get(msg.from);
 
 			PeersConnection.set(msg.from, {
@@ -269,23 +263,18 @@ export default function	RoomLayer(props) {
 	async function	onRoomConnectionEstablish(msg) {
 		window._Peers = msg.peers;
 		set_Peers(msg.peers);
-		set_SelfId(msg.selfId);
 
 		const video = document.getElementById(`LocalStream`);
 		video.onloadedmetadata = () => video.play(); // play once video stream is setup
 		video.muted = true;	// Mute my own video to avoid hearing myself
 		video.srcObject = window.localStream;
 
-		const rtcOptions = {
-			...msg.peerConnectionOptions
-		};
-
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {
-			if (peer._id !== msg.selfId) {
+			if (peer._id !== props.selfId) {
 				PeersConnection.set(peer._id, {
 					_id: peer._id,
-					...createNewPeerConnection(peer._id, rtcOptions)
+					...createNewPeerConnection(peer._id)
 				});
 			}
 		}
@@ -302,8 +291,9 @@ export default function	RoomLayer(props) {
 			console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
 			return ;
 		}
+		console.log(`SS: ${msg.type}`)
 
-		if (msg.type === "ConnectionCallback") {
+		if (msg.type === "RoomPeers") {
 			// once you sucessfully been connected to the room (msg contain all the initialising value)
 			onRoomConnectionEstablish(msg);
 		}
@@ -331,13 +321,6 @@ export default function	RoomLayer(props) {
 		}
 	}
 
-	function	WSonOpen() {
-		set_LoadingMessage("SUCCEEDED: Connection to the Signaling server establish.");
-		setTimeout(() => {
-			set_LoadingMessage("");
-		}, 5000);
-	}
-
 	function	WSonClose(event) {
 		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`, event);
 		history.push(`/`);
@@ -348,30 +331,23 @@ export default function	RoomLayer(props) {
 		history.push(`/`);
 	}
 
-	function	connectClient(roomId) {
-		set_LoadingMessage("Connection to the Signaling Server...");
-		if (!window.WebSocket) {
-			set_LoadingMessage("FAILED: Your browser's version is to old.");
-		}
-
-		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${props.name}`);
-
-		window.SignalingSocket.onopen = WSonOpen;
-		window.SignalingSocket.onmessage = WSonMessage;
-		window.SignalingSocket.onclose = WSonClose;
-		window.SignalingSocket.onerror = WSonError;
-	}
+	window.SignalingSocket.onmessage = WSonMessage;
+	window.SignalingSocket.onclose = WSonClose;
+	window.SignalingSocket.onerror = WSonError;
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	UseEffect
 
-	// Constructor, will be excuted only once
 	useEffect(() => {
-		if (Utils.idGenerator.isRoomIDValid(roomId) && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
-			connectClient(roomId);
-		}
-	});
+		// Could have been done in the `JoinRequestCallback` but I like it better that way (less props parameters)
+		window.SignalingSocket.send(JSON.stringify({
+			type: "askRoomPeers",
+			to: props.selfId
+		}));
+	}, [false]);
+
+	///////////////////////////////////////////////////////////////////////////////
+	//	Render
 
 	// TODO: find math to remove that crap
 	const numberOfColumns = {
@@ -388,26 +364,22 @@ export default function	RoomLayer(props) {
 		11: 4,
 	};
 
-	///////////////////////////////////////////////////////////////////////////////
-	//	Render
-
 	console.log("RoomLayer:\tRefresh");
 	return (
 		<div className="RoomLayer">
-			{_LoadingMessage !== "" &&
+			{/* {_LoadingMessage !== "" &&
 				<div className="RL-InformationMessage">
-					{_LoadingMessage}
 				</div>
-			}
+			} */}
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) => {
 					console.log(index, peer);
 					return (
 						<div key={index} className="RL-VC-Peer">
-							{(_SelfId && peer._id === _SelfId ?
-								<>
-									<video // If it's me
+							{(props.selfId && peer._id === props.selfId ?
+								<> {/* ME */}
+									<video
 										className="RL-VC-P-Video"
 										id="LocalStream"
 										src={window.localStream}
@@ -417,8 +389,8 @@ export default function	RoomLayer(props) {
 									</div>
 								</>
 								:
-								<>
-									<video // If it's a peer
+								<> {/* PEERS */}
+									<video
 										className="RL-VC-P-Video"
 										id={`VideoStream_${peer._id}`}
 										src={PeersConnection.get(peer._id)?.streams}

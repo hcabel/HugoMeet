@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCookies } from 'react-cookie';
+import { useHistory, useParams } from "react-router-dom";
 
 import "./preRoomLayerCSS.css";
+
+import config from "../../../../config";
 
 export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
 	const [_Name, set_Name] = useState(_Cookie.userName);
 
+	const history = useHistory();
+	const { roomId } = useParams();
+
 	function	participate() {
 		set_Cookie('userName', _Name, {path: '/'});
-		props.onJoin(_Name);
+		window.SignalingSocket.send(JSON.stringify({
+			type: "JoinRequest",
+			to: props.selfId,
+			value: _Name
+		}));
 	}
 
 	function	toggleAudio() {
@@ -20,6 +30,72 @@ export default function	PreRoomLayer(props) {
 		props.onChangeVideoStatus(!props.video);
 	}
 
+	///////////////////////////////////////////////////////////////////////////////
+	//	Web Socket
+
+	function	WSonMessage(msg) {
+		try {
+			// WebSocket message are always stringify JSON (in my case)
+			msg = JSON.parse(msg.data);
+		} catch (err) {
+			console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
+			return ;
+		}
+
+		if (msg.type === "ConnectionCallback") {
+			props.onConnectionCallback(msg);
+		}
+		else if (msg.type === "JoinRequestCallback") {
+			if (msg.approved === true) {
+				props.onJoin(_Name);
+			}
+			else {
+				console.log(`The owner of the room ${roomId} denied your joining request`);
+			}
+		}
+		else {
+			console.error(`Msg dropped because type ${msg.type} is unknown`);
+		}
+	}
+
+	function	WSonOpen() {
+		// Nothing yet
+	}
+
+	function	WSonClose(event) {
+		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
+		history.push(`/`);
+	}
+
+	function	WSonError(event) {
+		console.log(`WS error:`, event);
+		history.push(`/`);
+	}
+
+	function	connectClient(roomId) {
+		if (!window.WebSocket) {
+			alert("FAILED: Your browser's version is to old.");
+		}
+
+		// connect to signalling server
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}`);
+
+		window.SignalingSocket.onopen = WSonOpen;
+		window.SignalingSocket.onmessage = WSonMessage;
+		window.SignalingSocket.onclose = WSonClose;
+		window.SignalingSocket.onerror = WSonError;
+	}
+
+	///////////////////////////////////////////////////////////////////////////////
+	//	UseEffect
+
+	useEffect(() => {
+		if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
+			connectClient(roomId);
+		}
+	});
+
+	console.log("PreRoomLayer:\tRefresh");
 	return (
 		<div className="PreRoomPage">
 			<div className="PRP-Body">
