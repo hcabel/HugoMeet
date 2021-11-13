@@ -57,6 +57,8 @@ export default function	RoomPage(props) {
 	}
 
 	function	onChangeAudioStatus(audio) {
+		set_Audio(audio);
+
 		const audioTracks = window.localStream.getAudioTracks();
 		if (audioTracks && audioTracks.length > 0) { // If already been initialised
 			// Enable/disable audio track
@@ -71,17 +73,17 @@ export default function	RoomPage(props) {
 	}
 
 	function	onChangeVideoStatus(video) {
-		if (window.localStream) {
-			if (video === false) {
-				// Kill already existing video tracks
-				window.localStream.getVideoTracks().forEach((track) => {
-					track.stop();
-				});
-			}
-			else {
-				// init new video track
-				InitStreams(false, true);
-			}
+		set_Video(video);
+
+		if (video === false) {
+			// Kill already existing video tracks
+			window.localStream.getVideoTracks().forEach((track) => {
+				track.stop();
+			});
+		}
+		else {
+			// init new video track
+			InitStreams(false, true);
 		}
 	}
 
@@ -92,6 +94,7 @@ export default function	RoomPage(props) {
 		InitStreams(_Audio, _Video);
 	}, [false]);
 
+	console.log("Refresh:\tRoomPage");
 	return (
 		<div className="RoomPage">
 			{_Name === "" ?
