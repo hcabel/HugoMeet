@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from "react";
+import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom.min";
 
 import "./roomPageCSS.css";
 
@@ -12,6 +13,9 @@ export default function	RoomPage() {
 	const [_Audio, set_Audio] = useState(true);
 	const [_Video, set_Video] = useState(true);
 	const [_Name, set_Name] = useState("");
+
+	const history = useHistory();
+	const { roomId } = useParams();
 
 	async function	InitStreams(audio, video) {
 		console.log("Initstream with: ", audio, video);
@@ -90,8 +94,17 @@ export default function	RoomPage() {
 	///////////////////////////////////////////////////////////////////////////////
 	//	UseEffect
 
+	// If you enter in a room with a wrong RoomId
 	useEffect(() => {
-		InitStreams(_Audio, _Video);
+		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
+			history.push("/");
+		}
+	}, [roomId]);
+
+	useEffect(() => {
+		if (Utils.idGenerator.isRoomIDValid(roomId)) {
+			InitStreams(_Audio, _Video);
+		}
 	}, [false]);
 
 	console.log("Refresh:\tRoomPage");

@@ -366,13 +366,6 @@ export default function	RoomLayer(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	UseEffect
 
-	// If you enter in a room with a wrong RoomId, expulse to
-	useEffect(() => {
-		if (!Utils.idGenerator.isRoomIDValid(roomId)) {
-			history.push("/");
-		}
-	}, [roomId]);
-
 	// Constructor, will be excuted only once
 	useEffect(() => {
 		if (Utils.idGenerator.isRoomIDValid(roomId) && (!window.SignalingSocket || window.SignalingSocket.readyState === 3)) {
