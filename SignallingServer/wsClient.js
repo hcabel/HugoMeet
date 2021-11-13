@@ -4,14 +4,36 @@ const globalVariables = require("./globalVariables");
 module.exports = async function(socket, req) {
 	let clientId = "";
 	let roomId = "";
-	let clientName = "";
+	let role = "";
+
+	function	giveOwnership(to) {
+		const roomPeers = globalVariables.rooms.get(roomId);
+		let newOwnerId = to;
+
+		if (to === undefined) {
+			const roomKeys = Array.from(roomPeers.keys());
+			newOwnerId = (roomKeys[0] === clientId ? roomKeys[1] : roomKeys[0]);
+		}
+
+		const newOwner = roomPeers.get(newOwnerId);
+		if (newOwner) {
+			newOwner.role = "Owner";
+			newOwner.ws.send(JSON.stringify({
+				type: "OwnershipReceived",
+			}));
+		}
+	}
 
 	function	onPlayerDisconnected() {
 		const roomPeers = globalVariables.rooms.get(roomId);
 		roomPeers.delete(clientId);
 		globalVariables.rooms.set(roomId, roomPeers);
-
 		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "from": "${clientId}" }`, [clientId]);
+
+		if (role === "Owner" && roomPeers.size > 1) {
+			// Give the ownership to a the first player in the list (May change this method BTW)
+			giveOwnership(undefined);
+		}
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +71,6 @@ module.exports = async function(socket, req) {
 		// dispatch based on msg.type value
 		if (msg.type === "JoinRequest") {
 			target.name = msg.value;
-			clientName = msg.value;
 			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
 
 			const roomPeers = globalVariables.rooms.get(roomId);
@@ -123,7 +144,13 @@ module.exports = async function(socket, req) {
 			return;
 		}
 
-		roomPeers.set(clientId, { _id: clientId, ws: socket, name: "NotDefined" });
+		roomPeers.set(clientId, {
+			_id: clientId,
+			ws: socket,
+			name: "NotDefined",
+			role: "Client"
+		});
+		role = "Client";
 		globalVariables.rooms.set(roomId, roomPeers);
 	}
 	else {
@@ -131,7 +158,13 @@ module.exports = async function(socket, req) {
 
 		const newMap = new Map();
 		clientId = Utils.generateId(5);
-		newMap.set(clientId, { _id: clientId, ws: socket, name: "NotDefined" });
+		newMap.set(clientId, {
+			_id: clientId,
+			ws: socket,
+			name: "NotDefined",
+			role: "Owner"
+		});
+		role = "Owner";
 		globalVariables.rooms.set(roomId, newMap);
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);

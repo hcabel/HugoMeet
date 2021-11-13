@@ -312,6 +312,9 @@ export default function	RoomLayer(props) {
 			set_Peers(newPeers);
 			window._Peers = newPeers;
 		}
+		else if (msg.type === "OwnershipReceived") {
+			console.log(">>>>>>> You've been promoted");
+		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
 			// msg.type === Offer | Answer | IceCandidate
 			RTCMessageDispatcher(msg);
