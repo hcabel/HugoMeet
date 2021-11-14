@@ -92,7 +92,7 @@ export default function	RoomLayer(props) {
 	function	onIceCandidate(e, peerId) {
 		if (!e.candidate) {
 			// This function is triggered one last time with an empty candidate when all candidate are send
-			// And if the first triggered has a empty candidate it mean that theyr is a wrong closure at the previous webrtc session
+			// And if the first triggered has a empty candidate it mean that the previous webrtc session has not be correctly be stoped
 			return;
 		}
 
@@ -351,6 +351,18 @@ export default function	RoomLayer(props) {
 			to: props.selfId
 		}));
 	}, [false]);
+
+	useEffect(() => {
+		// Thanks to react _Peers wont be updated in the function DConMessage
+		// and since I need _Peers values in DConMessage I reassigne each time it change
+		// I Also could store a copy in the window variable but I didn't like it
+		const peersRTC = Array.from(PeersConnection.values());
+		for (const peerRTC of peersRTC) {
+			if (peerRTC.DC) {
+				peerRTC.DC.onmessage = (msg) => DConMessage(peerRTC._id, msg);
+			}
+		}
+	}, [_Peers])
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render

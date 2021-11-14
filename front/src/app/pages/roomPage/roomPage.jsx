@@ -120,7 +120,7 @@ export default function	RoomPage() {
 	console.log("Refresh:\tRoomPage");
 	return (
 		<div className="RoomPage">
-			{_HasJoin === true ?
+			{_HasJoin === false ?
 				<PreRoomLayer
 					onChangeAudioStatus={onChangeAudioStatus}
 					onChangeVideoStatus={onChangeVideoStatus}
