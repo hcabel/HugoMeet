@@ -6,6 +6,17 @@ module.exports = async function(socket, req) {
 	let roomId = "";
 	let role = "";
 
+	function	getRoomOwner(roomId) {
+		const peers = Array.from(globalVariables.rooms.get(roomId).values());
+
+		for (const peer of peers) {
+			if (peer.role === "Owner") {
+				return (peer);
+			}
+		}
+		return (undefined);
+	}
+
 	function	giveOwnership(to) {
 		const roomPeers = globalVariables.rooms.get(roomId);
 		let newOwnerId = to;
@@ -71,19 +82,37 @@ module.exports = async function(socket, req) {
 		// dispatch based on msg.type value
 		if (msg.type === "JoinRequest") {
 			target.name = msg.value;
-			target.role = "Client";
-			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
 
-			const roomPeers = globalVariables.rooms.get(roomId);
-			Utils.sendMsgToAllClientsInTheRoom(
-				roomPeers,
-				JSON.stringify({
-					type: "clientJoin",
-					newPeer: {...roomPeers.get(clientId), ws: undefined},
-					from: clientId
-				}),
-				[clientId]
-			);
+			if (role !== "Owner") {
+				const roomOwner = getRoomOwner(roomId);
+				roomOwner.ws.send(JSON.stringify({
+					type: "JoinRequestReceived",
+					from: msg.from,
+					to: roomOwner._id,
+					name: msg.value
+				}))
+			}
+			else {
+				target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
+			}
+		}
+		else if (msg.type === "JoinRequestResponce") {
+			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: msg.approved }));
+
+			if (msg.approved) {
+				target.role = "Client";
+
+				const roomPeers = globalVariables.rooms.get(roomId);
+				Utils.sendMsgToAllClientsInTheRoom(
+					roomPeers,
+					JSON.stringify({
+						type: "clientJoin",
+						newPeer: {...target, ws: undefined},
+						from: clientId
+					}),
+					[target._id]
+				);
+			}
 		}
 		else if (msg.type === "askRoomPeers") {
 			const roomPeers = globalVariables.rooms.get(roomId);

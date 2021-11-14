@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {useHistory, useParams} from "react-router-dom";
 
-import config from "../../../../config";
 import Utils from "../../../../utils/utils";
 import HangUpIcon from "./assets/HandUpIcon.png";
 
@@ -9,8 +8,11 @@ import "./roomLayerCSS.css";
 
 let PeersConnection = new Map();
 
+window._Peers = [];
+
 export default function	RoomLayer(props) {
 	const [_Peers, set_Peers] = useState([]);
+	const [_PendingInvitation, set_PendingInvitation] = useState([/* { name: "Quentin de fougeroux" }, { name: "test1" }, { name: "test2" }, { name: "test3" } */]);
 
 	const history = useHistory();
 	const { roomId } = useParams();
@@ -231,7 +233,7 @@ export default function	RoomLayer(props) {
 
 		let connection = PeersConnection.get(msg.from);
 		if (!connection) {
-			throw Error("You receive a answer from a undefined peer");
+			throw Error("You receive a RTC message from a undefined peer");
 		}
 
 		if (msg.type === "Answer") {
@@ -283,6 +285,18 @@ export default function	RoomLayer(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	Web Socket
 
+	function	sendJoinRequestResponce(approved, id) {
+		set_PendingInvitation([..._PendingInvitation.filter((value) => {
+			return (value._id !== id);
+		})]);
+
+		window.SignalingSocket.send(JSON.stringify({
+			type: "JoinRequestResponce",
+			to: id,
+			approved: approved
+		}))
+	}
+
 	function	WSonMessage(msg) {
 		try {
 			// WebSocket message are always stringify JSON (in my case)
@@ -291,7 +305,7 @@ export default function	RoomLayer(props) {
 			console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
 			return ;
 		}
-		console.log(`SS: ${msg.type}`)
+		console.log(`--> SS: ${msg.type}`)
 
 		if (msg.type === "RoomPeers") {
 			// once you sucessfully been connected to the room (msg contain all the initialising value)
@@ -314,6 +328,10 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "OwnershipReceived") {
 			console.log(">>>>>>> You've been promoted");
+		}
+		else if (msg.type === "JoinRequestReceived") {
+			console.log("Someone want to join the room:", msg.from);
+			set_PendingInvitation([..._PendingInvitation, { name: msg.name, _id: msg.from }]);
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
 			// msg.type === Offer | Answer | IceCandidate
@@ -370,10 +388,28 @@ export default function	RoomLayer(props) {
 	console.log("RoomLayer:\tRefresh");
 	return (
 		<div className="RoomLayer">
-			{/* {_LoadingMessage !== "" &&
-				<div className="RL-InformationMessage">
-				</div>
-			} */}
+			<div className="RL-Notification">
+				{_PendingInvitation.map((invitation, index) => {
+					return (
+						<div key={index} className="RL-N-Invitation">
+							<div className="RL-N-I-Content">
+								<span className="RL-N-I-C-Name">
+									{invitation.name}
+								</span>
+								want to join the room
+							</div>
+							<div className="RL-N-I-Buttons">
+								<div className="RL-N-I-B-Allow" onClick={() => sendJoinRequestResponce(true, invitation._id)}>
+									allow
+								</div>
+								<div className="RL-N-I-B-Denied" onClick={() => sendJoinRequestResponce(false, invitation._id)}>
+									denied
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) => {
