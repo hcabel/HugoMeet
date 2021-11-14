@@ -142,15 +142,13 @@ export default function	PreRoomLayer(props) {
 					</div>
 					<div className="PRP-B-C-Form">
 						<div className="PRP-B-C-F-Title">
-							Prêt à participer ?
+							Ready to join ?
 						</div>
-						<div className="PRP-B-C-F-Name">
-							<textarea name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
-						</div>
+						<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
 						<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 							<div className="PRP-B-C-F-SB-Participate">
 								<span className="PRP-B-C-F-SB-P-Value">
-									Participer
+									Join
 								</span>
 							</div>
 						</div>

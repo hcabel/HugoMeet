@@ -95,7 +95,7 @@
 	position: absolute;
 	top: -1px;
 	width: calc(100% + 2px);
-
+	object-fit: cover;
 	transform: scaleX(-1);
 }
 
@@ -214,13 +214,33 @@
 	width: 448px;
 }
 
+.PRP-B-C-F-Name {
+	border: none;
+	border-bottom: 2px solid rgb(50, 50, 50);
+	width: 30vw;
+	align-self: center;
+	padding: 5px;
+	margin-top: 30px;
+	font-size: 18px;
+	color: gray;
+	outline: none;
+}
+
+@media (max-width: 943px) {
+	.PRP-B-C-F-Name {
+		width: 50vw;
+	}
+}
+.PRP-B-C-F-Name:focus {
+	border-color: #1a73e8;
+}
+
 .PRP-B-C-F-Title {
 	color: rgba(0,0,0,0.87);
 
 	align-items: center;
 	display: flex;
 	flex-direction: column;
-	height: 230px;
 	justify-content: flex-end;
 
 	cursor: default;
@@ -293,4 +313,5 @@
 	position: relative;
 
 	padding: 0 24px;
+	font-weight: bold;
 }
