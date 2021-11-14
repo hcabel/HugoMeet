@@ -105,7 +105,7 @@ export default function	PreRoomLayer(props) {
 							<div className="PRP-B-C-S-VS-Video">
 								<div className="PRP-B-C-S-VS-V-Inside">
 									<div className="PRP-B-C-S-VS-V-I-StreamsVideo">
-										<video autoPlay id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
+										<video autoPlay muted id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">

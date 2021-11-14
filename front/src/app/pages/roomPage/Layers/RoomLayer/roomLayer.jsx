@@ -414,6 +414,7 @@ export default function	RoomLayer(props) {
 										className="RL-VC-P-Video"
 										id="LocalStream"
 										src={window.localStream}
+										autoPlay muted
 									/>
 									<div className="RL-VC-P-Name">
 										{props.name}
@@ -425,6 +426,7 @@ export default function	RoomLayer(props) {
 										className="RL-VC-P-Video"
 										id={`VideoStream_${peer._id}`}
 										src={PeersConnection.get(peer._id)?.streams}
+										autoPlay
 									/>
 									<div className="RL-VC-P-Name">
 										{peer.name}

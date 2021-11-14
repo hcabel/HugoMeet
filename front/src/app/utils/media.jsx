@@ -15,11 +15,7 @@ function	catchError(e) {
 }
 
 function	combineStream(localStream, video) {
-	if (!window.localStream) { // mean it never been initialised before
-		video.onloadedmetadata = () => video.play(); // play once video stream is setup
-		video.muted = true;	// Mute my own video to avoid hearing myself
-	}
-	else {
+	if (window.localStream) {
 		// Combine previous track with the new one
 		window.localStream.getTracks().forEach((track) => {
 			localStream.addTrack(track);
