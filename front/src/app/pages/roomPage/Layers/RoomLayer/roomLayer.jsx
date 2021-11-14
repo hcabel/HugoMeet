@@ -10,7 +10,7 @@ let PeersConnection = new Map();
 
 export default function	RoomLayer(props) {
 	const [_Peers, set_Peers] = useState([]);
-	const [_PendingInvitation, set_PendingInvitation] = useState([/* { name: "Quentin de fougeroux" }, { name: "test1" }, { name: "test2" }, { name: "test3" } */]);
+	const [_PendingInvitation, set_PendingInvitation] = useState([]);
 
 	const history = useHistory();
 	const { roomId } = useParams();
@@ -382,28 +382,26 @@ export default function	RoomLayer(props) {
 	console.log("RoomLayer:\tRefresh");
 	return (
 		<div className="RoomLayer">
-			<div className="RL-Notification">
-				{_PendingInvitation.map((invitation, index) => {
-					return (
-						<div key={index} className="RL-N-Invitation">
-							<div className="RL-N-I-Content">
-								<span className="RL-N-I-C-Name">
-									{invitation.name}
-								</span>
-								want to join the room
+			{_PendingInvitation.map((invitation, index) => {
+				return (
+					<div key={index} className="RL-Invitation" style={{ top: `${40 * index}px` }}>
+						<div className="RL-I-Content">
+							<span className="RL-I-C-Name">
+								{invitation.name}
+							</span>
+							want to join the room
+						</div>
+						<div className="RL-I-Buttons">
+							<div className="RL-I-B-Allow" onClick={() => sendJoinRequestResponce(true, invitation._id)}>
+								allow
 							</div>
-							<div className="RL-N-I-Buttons">
-								<div className="RL-N-I-B-Allow" onClick={() => sendJoinRequestResponce(true, invitation._id)}>
-									allow
-								</div>
-								<div className="RL-N-I-B-Denied" onClick={() => sendJoinRequestResponce(false, invitation._id)}>
-									denied
-								</div>
+							<div className="RL-I-B-Denied" onClick={() => sendJoinRequestResponce(false, invitation._id)}>
+								denied
 							</div>
 						</div>
-					);
-				})}
-			</div>
+					</div>
+				);
+			})}
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) => {

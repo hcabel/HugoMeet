@@ -15,20 +15,7 @@ html, body, boby > div {
 	color: white;
 }
 
-.RL-Notification {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	z-index: 1;
-	left: 50%;
-	right: 50%;
-	transform: translateX(-50%);
-}
-
-.RL-N-Invitation {
+.RL-Invitation {
 	display: flex;
 	background-color: rgba(0,0,0,0.8);
 	padding: 5px 20px;
@@ -38,26 +25,31 @@ html, body, boby > div {
 	align-items: center;
 	margin-bottom: 5px;
 	width: fit-content;
+	position: absolute;
+	left: 50%;
+	right: 50%;
+	transform: translateX(-50%);
+	z-index: 1;
 }
 
-.RL-N-I-Content {
+.RL-I-Content {
 	color: #666666;
 }
 
-.RL-N-I-C-Name {
+.RL-I-C-Name {
 	padding: 0px 5px;
 	font-weight: bold;
 	color: coral;
 }
 
-.RL-N-I-Buttons {
+.RL-I-Buttons {
 	display: flex;
 	padding-left: 20px;
 	text-align: center;
 
 }
 
-.RL-N-I-B-Allow {
+.RL-I-B-Allow {
 	align-self: center;
 	padding: 2px 15px;
 	height: 20px;
@@ -68,7 +60,7 @@ html, body, boby > div {
 	border-radius: 5px;
 }
 
-.RL-N-I-B-Denied {
+.RL-I-B-Denied {
 	align-self: center;
 	padding: 2px 15px;
 	height: 20px;
