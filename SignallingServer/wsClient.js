@@ -6,17 +6,6 @@ module.exports = async function(socket, req) {
 	let roomId = "";
 	let role = "";
 
-	function	getRoomOwner(roomId) {
-		const peers = Array.from(globalVariables.rooms.get(roomId).values());
-
-		for (const peer of peers) {
-			if (peer.role === "Owner") {
-				return (peer);
-			}
-		}
-		return (undefined);
-	}
-
 	function	giveOwnership(to) {
 		const roomPeers = globalVariables.rooms.get(roomId);
 		let newOwnerId = to;
@@ -35,10 +24,34 @@ module.exports = async function(socket, req) {
 		}
 	}
 
+	function	getRoomOwner(roomId) {
+		const room = globalVariables.rooms.get(roomId);
+		const peers = Array.from(room.values());
+
+		let result = undefined;
+		while (result === undefined) {
+			for (const peer of peers) {
+				if (peer.role === "Owner") {
+					result = peer;
+					break;
+				}
+			}
+			giveOwnership(undefined);
+		}
+		return (result);
+	}
+
 	function	onPlayerDisconnected() {
 		const roomPeers = globalVariables.rooms.get(roomId);
-		roomPeers.delete(clientId);
-		globalVariables.rooms.set(roomId, roomPeers);
+		if (roomPeers.size === 1) {
+			// If everyone leave delete room
+			globalVariables.rooms.delete(roomId);
+		}
+		else {
+			roomPeers.delete(clientId);
+			globalVariables.rooms.set(roomId, roomPeers);
+		}
+
 		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "from": "${clientId}" }`, [clientId]);
 
 		if (role === "Owner" && roomPeers.size > 1) {
@@ -51,7 +64,6 @@ module.exports = async function(socket, req) {
 	//	WebSocket EVENT
 
 	function onMessage(msg) {
-		console.log(`Room_${roomId}:\t<-- Client_${clientId}:\tMessage received.`);
 
 		// Parse JSON msg
 		try {
@@ -61,7 +73,7 @@ module.exports = async function(socket, req) {
 			socket.close(1008 /* Policy violation */, "Cannot parse msg");
 			return;
 		}
-		// console.log('== ', msg);
+		console.log(`Room_${roomId}:\t<-- Client_${clientId}:\tMessage received.`, msg.type);
 
 		// who send the message
 		msg.from = clientId;
