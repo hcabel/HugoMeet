@@ -8,8 +8,6 @@ import "./roomLayerCSS.css";
 
 let PeersConnection = new Map();
 
-window._Peers = [];
-
 export default function	RoomLayer(props) {
 	const [_Peers, set_Peers] = useState([]);
 	const [_PendingInvitation, set_PendingInvitation] = useState([/* { name: "Quentin de fougeroux" }, { name: "test1" }, { name: "test2" }, { name: "test3" } */]);
@@ -21,9 +19,9 @@ export default function	RoomLayer(props) {
 		props.onChangeAudioStatus(!props.audio);
 
 		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: !props.audio }));
-		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, window._Peers);
+		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, _Peers);
 		if (peerIndex !== -1) {
-			const peers = [...window._Peers];
+			const peers = [..._Peers];
 			peers[peerIndex].audio = !props.audio;
 			set_Peers(peers);
 		}
@@ -51,7 +49,7 @@ export default function	RoomLayer(props) {
 			return;
 		}
 
-		const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, window._Peers);
+		const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, _Peers);
 		if (peerIndex === -1) {
 			console.error(`DC_${peerId}:\tFailed to find peerIndex from`, msg._id);
 			return;
@@ -60,10 +58,9 @@ export default function	RoomLayer(props) {
 		if (msg.type === "muteStateChange") {
 			const peer = PeersConnection.get(msg._id);
 			if (peer) {
-				const peers = [...window._Peers];
+				const peers = [..._Peers];
 				peers[peerIndex].isMuted = msg.isMuted;
 				set_Peers(peers);
-				window._Peers = peers;
 			}
 			else {
 				console.error(`DC_${peerId}:\tMR:\tPeerId`, msg._id, `does not belong to anyone`);
@@ -263,7 +260,6 @@ export default function	RoomLayer(props) {
 	}
 
 	async function	onRoomConnectionEstablish(msg) {
-		window._Peers = msg.peers;
 		set_Peers(msg.peers);
 
 		const video = document.getElementById(`LocalStream`);
@@ -312,19 +308,17 @@ export default function	RoomLayer(props) {
 			onRoomConnectionEstablish(msg);
 		}
 		else if (msg.type === "clientJoin") {
-			set_Peers([...window._Peers, msg.newPeer]);
-			window._Peers = [...window._Peers, msg.newPeer];
+			set_Peers([..._Peers, msg.newPeer]);
 		}
 		else if (msg.type === "clientLeave") {
 			const peerConnection = PeersConnection.get(msg.from);
 			peerConnection.PC.close();
 			PeersConnection.delete(msg.from);
 
-			const newPeers = window._Peers.filter((peer) => {
+			const newPeers = _Peers.filter((peer) => {
 				return (peer._id !== msg.from);
 			});
 			set_Peers(newPeers);
-			window._Peers = newPeers;
 		}
 		else if (msg.type === "OwnershipReceived") {
 			console.log(">>>>>>> You've been promoted");
