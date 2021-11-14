@@ -39,8 +39,6 @@ export default function	RoomLayer(props) {
 	}
 
 	function	DConMessage(peerId, msg) {
-		console.log(`DC_${peerId}:\tMessage Receveived`, msg.data);
-
 		// Parse JSON msg
 		try {
 			msg = JSON.parse(msg.data);
@@ -48,6 +46,7 @@ export default function	RoomLayer(props) {
 			console.error(`DC_${peerId}:\tError: ${err}`);
 			return;
 		}
+		console.log(`DC_${peerId}:\tMessage Receveived`, msg.type);
 
 		const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, _Peers);
 		if (peerIndex === -1) {
@@ -56,15 +55,9 @@ export default function	RoomLayer(props) {
 		}
 
 		if (msg.type === "muteStateChange") {
-			const peer = PeersConnection.get(msg._id);
-			if (peer) {
-				const peers = [..._Peers];
-				peers[peerIndex].isMuted = msg.isMuted;
-				set_Peers(peers);
-			}
-			else {
-				console.error(`DC_${peerId}:\tMR:\tPeerId`, msg._id, `does not belong to anyone`);
-			}
+			const peers = [..._Peers];
+			peers[peerIndex].audio = msg.audio;
+			set_Peers(peers);
 		}
 	}
 
@@ -263,8 +256,6 @@ export default function	RoomLayer(props) {
 		set_Peers(msg.peers);
 
 		const video = document.getElementById(`LocalStream`);
-		video.onloadedmetadata = () => video.play(); // play once video stream is setup
-		video.muted = true;	// Mute my own video to avoid hearing myself
 		video.srcObject = window.localStream;
 
 		// Connect with all peers in the room
@@ -417,7 +408,7 @@ export default function	RoomLayer(props) {
 										autoPlay muted
 									/>
 									<div className="RL-VC-P-Name">
-										{props.name}
+										{peer.name + " " + peer._id + " <--- YOU"}
 									</div>
 								</>
 								:
@@ -429,7 +420,7 @@ export default function	RoomLayer(props) {
 										autoPlay
 									/>
 									<div className="RL-VC-P-Name">
-										{peer.name}
+										{peer.name + " " + peer._id}
 									</div>
 								</>
 							)}

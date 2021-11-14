@@ -12,7 +12,7 @@ import Utils from "../../utils/utils";
 export default function	RoomPage() {
 	const [_Audio, set_Audio] = useState(true);
 	const [_Video, set_Video] = useState(true);
-	const [_Name, set_Name] = useState("");
+	const [_HasJoin, set_HasJoin] = useState(false);
 	const [_SelfId, set_SelfId] = useState("");
 	const [_RtcOptions, set_RtcOptions] = useState("");
 
@@ -120,11 +120,11 @@ export default function	RoomPage() {
 	console.log("Refresh:\tRoomPage");
 	return (
 		<div className="RoomPage">
-			{_Name === "" ?
+			{_HasJoin === true ?
 				<PreRoomLayer
 					onChangeAudioStatus={onChangeAudioStatus}
 					onChangeVideoStatus={onChangeVideoStatus}
-					onJoin={(name) => set_Name(name)}
+					onJoin={() => set_HasJoin(true)}
 					onConnectionCallback={onConnectionCallback}
 					audio={_Audio}
 					video={_Video}
@@ -136,7 +136,6 @@ export default function	RoomPage() {
 					onChangeVideoStatus={onChangeVideoStatus}
 					audio={_Audio}
 					video={_Video}
-					name={_Name}
 					selfId={_SelfId}
 					rtcOptions={_RtcOptions}
 				/>

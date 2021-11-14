@@ -47,7 +47,7 @@ export default function	PreRoomLayer(props) {
 		}
 		else if (msg.type === "JoinRequestCallback") {
 			if (msg.approved === true) {
-				props.onJoin(_Name);
+				props.onJoin();
 			}
 			else {
 				console.log(`The owner of the room ${roomId} denied your joining request`);
