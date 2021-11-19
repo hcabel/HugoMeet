@@ -6,12 +6,12 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:33 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:50:34 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/19 23:01:34 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 html, body, boby > div {
-	background: #202124;
+	/* background: #202124; */
 }
 
 .RoomLayer {
