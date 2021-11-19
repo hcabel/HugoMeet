@@ -4,13 +4,13 @@ This is a project that I made by myself, it's a GoogleMeet plateform like, using
 
 ## Features included:
 - **Video/Audio Meeting**
-- **Rooms security** (Required owner approval to join)
-- **Easy to send link** (Because it's the same url has your's)
+- **Rooms security** *(Required owner approval to join)*
+- **Easy to send link** *(Because it's the same url has your's)*
 
 ## Containing:
-- **Front**, which is all the client side application
-- **SignallingServer**, which is the service where clients will be connect to when joining a room.
-    This Server store all the data of the rooms because I was to lazy to create a API and Database :D
+- **Front**, *which is all the client side application*
+- **SignallingServer**, *which is the service where clients will be connect to when joining a room. This Server store all the data of the rooms because I was too lazy to create a API and Database :P*
+- **setup.sh**, *which is a script to install and launch everything*
 
 ## Installation
 1. Clone/Download `git clone https://github.com/hcabel/HugoMeet.git`
@@ -29,6 +29,9 @@ This is a project that I made by myself, it's a GoogleMeet plateform like, using
 11. Start SignallingServer `pm2 node signallingServer.js`
 12. Try your browser again (http://127.0.0.1:3000)
 
+#### Landing Page
 ![LANDING PAGE](./screens/LandingPage.png)
+#### PreRoom Page
 ![PREROOM PAGE](./screens/PreRoomPage.png)
+#### Room Page
 ![ROOM PAGE](./screens/RoomPage.png)
