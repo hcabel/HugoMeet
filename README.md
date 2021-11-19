@@ -13,21 +13,22 @@ This is a project that I made by myself, it's a GoogleMeet plateform like, using
 - **setup.sh**, *which is a script to install and launch everything*
 
 ## Installation
-1. Clone/Download `git clone https://github.com/hcabel/HugoMeet.git`
-2. Install NodeJS (https://nodejs.org/en/download/)
-3. Launch the services `sudo ./setup.sh`
-4. Open your browser (http://127.0.0.1:3000)
+1. Install NodeJS (https://nodejs.org/en/download/)
+2. Clone/Download `git clone https://github.com/hcabel/HugoMeet.git`
+3. Go in the reop `cd HugoMeet`
+4. Launch the services `sudo ./setup.sh`
+5. Open your browser (http://127.0.0.1:3000)
 
 **/!\\ __IF IT DIDN'T WORK CONTINUE__ /!\\**
 
-5. Download pm2 `npm i -g pm2`
-6. Go to the front folder `cd front`
-7. Install all the packages required `npm i`
-8. Start front service `pm2 start npm --Name "HotFront" -- start`
-9. Go to the SignallingServer folder `cd ../SignallingServer`
-10. Install all the packages required `npm i`
-11. Start SignallingServer `pm2 node signallingServer.js`
-12. Try your browser again (http://127.0.0.1:3000)
+6. Download pm2 `npm i -g pm2`
+7. Go to the front folder `cd front`
+8. Install all the packages required `npm i`
+9. Start front service `pm2 start npm --Name "HotFront" -- start`
+10. Go to the SignallingServer folder `cd ../SignallingServer`
+11. Install all the packages required `npm i`
+12. Start SignallingServer `pm2 node signallingServer.js`
+13. Try your browser again (http://127.0.0.1:3000)
 
 #### Landing Page
 ![LANDING PAGE](./screens/LandingPage.png)
