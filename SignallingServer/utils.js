@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.js                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/19 22:48:45 by hcabel            #+#    #+#             */
+/*   Updated: 2021/11/19 22:48:45 by hcabel           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 function	generateId(length) {
 	let result = '';
 	let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   preRoomLayer.jsx                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
+/*   Updated: 2021/11/19 22:49:28 by hcabel           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import { useState, useEffect } from "react";
 import { useCookies } from 'react-cookie';
 import { useHistory, useParams } from "react-router-dom";
