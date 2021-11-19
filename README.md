@@ -1,21 +1,21 @@
 # HugoMeet
 
-This is a personal project that I made by myself, it's a GoogleMeet plateform like, using **JS**, **REACT** and **WebRTC**.
+This is a project that I made by myself, it's a GoogleMeet plateform like, using **JS**, **REACT** and **WebRTC**.
 
 ## Features included:
-- Video/Audio Meeting
-- Rooms security (Required owner approval to join)
-- Easy to send link (Because it's the same url has your's)
+- **Video/Audio Meeting**
+- **Rooms security** (Required owner approval to join)
+- **Easy to send link** (Because it's the same url has your's)
 
 ## Containing:
-- *Front*, which is all the client side application
-- *SignallingServer*, which is the service where clients will be connect to when joining a room.
+- **Front**, which is all the client side application
+- **SignallingServer**, which is the service where clients will be connect to when joining a room.
     This Server store all the data of the rooms because I was to lazy to create a API and Database :D
 
-## How to use
+## Installation
 1. Clone/Download `git clone https://github.com/hcabel/HugoMeet.git`
 2. Install NodeJS (https://nodejs.org/en/download/)
-3. sudo ./setup.sh
+3. Launch the services `sudo ./setup.sh`
 4. Open your browser (http://127.0.0.1:3000)
 
 **/!\\ __IF IT DIDN'T WORK CONTINUE__ /!\\**
