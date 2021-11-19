@@ -9,12 +9,24 @@ import config from "../../../../config";
 export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
 	const [_Name, set_Name] = useState(_Cookie.userName);
+	const [_Pending, set_Pending] = useState(false);
+	const [_OwnerResponce, set_OwnerResponce] = useState(undefined);
 
 	const history = useHistory();
 	const { roomId } = useParams();
 
 	function	participate() {
 		set_Cookie('userName', _Name, {path: '/'});
+		window.SignalingSocket.send(JSON.stringify({
+			type: "JoinRequest",
+			to: props.selfId,
+			value: _Name
+		}));
+		set_Pending(true);
+	}
+
+	function	retry() {
+		set_OwnerResponce(undefined);
 		window.SignalingSocket.send(JSON.stringify({
 			type: "JoinRequest",
 			to: props.selfId,
@@ -46,6 +58,7 @@ export default function	PreRoomLayer(props) {
 			props.onConnectionCallback(msg);
 		}
 		else if (msg.type === "JoinRequestCallback") {
+			set_OwnerResponce(msg.approved);
 			if (msg.approved === true) {
 				props.onJoin();
 			}
@@ -140,19 +153,44 @@ export default function	PreRoomLayer(props) {
 							</div>
 						</div>
 					</div>
-					<div className="PRP-B-C-Form">
-						<div className="PRP-B-C-F-Title">
-							Ready to join ?
+					{_Pending ?
+						<div className="PRP-B-C-Form">
+							{_OwnerResponce !== undefined ?
+								(_OwnerResponce === false &&
+									<>
+										<div className="PRP-B-C-F-Title" style={{ color: "red" }}>
+											Rejected
+										</div>
+										<div className="PRP-B-C-F-SubmitButtons" onClick={retry}>
+											<div className="PRP-B-C-F-SB-Participate">
+												<span className="PRP-B-C-F-SB-P-Value">
+													retry
+												</span>
+											</div>
+										</div>
+									</>
+								)
+								:
+								<div className="PRP-B-C-F-Title">
+									Waiting approvation of the owner...
+								</div>
+							}
 						</div>
-						<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
-						<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
-							<div className="PRP-B-C-F-SB-Participate">
-								<span className="PRP-B-C-F-SB-P-Value">
-									Join
-								</span>
+					:
+						<div className="PRP-B-C-Form">
+							<div className="PRP-B-C-F-Title">
+								Ready to join ?
+							</div>
+							<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
+							<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
+								<div className="PRP-B-C-F-SB-Participate">
+									<span className="PRP-B-C-F-SB-P-Value">
+										Join
+									</span>
+								</div>
 							</div>
 						</div>
-					</div>
+					}
 				</div>
 			</div>
 		</div>
