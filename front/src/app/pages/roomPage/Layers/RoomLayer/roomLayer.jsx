@@ -420,7 +420,7 @@ export default function	RoomLayer(props) {
 										autoPlay muted
 									/>
 									<div className="RL-VC-P-Name">
-										{peer.name + " " + peer._id + " <--- YOU"}
+										{peer.name}
 									</div>
 								</>
 								:
@@ -432,7 +432,7 @@ export default function	RoomLayer(props) {
 										autoPlay
 									/>
 									<div className="RL-VC-P-Name">
-										{peer.name + " " + peer._id}
+										{peer.name}
 									</div>
 								</>
 							)}
