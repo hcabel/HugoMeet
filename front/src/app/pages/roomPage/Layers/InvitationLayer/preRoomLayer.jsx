@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/20 23:44:46 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 00:22:51 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ export default function	PreRoomLayer(props) {
 			to: props.selfId,
 			value: _Name
 		}));
+		set_State("Pending");
 	}
 
 	function	toggleAudio() {
