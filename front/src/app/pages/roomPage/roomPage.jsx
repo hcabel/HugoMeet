@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:23 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 14:11:45 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 23:16:25 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,32 +57,45 @@ export default function	RoomPage() {
 			return;
 		}
 
+
+		let newTracks = [];
 		// Request audio & video separatly in case one of them are unvailable but not the other
 		if (audio) {
-			navigator.mediaDevices.getUserMedia({ audio: true })
+			const newAudioTracks = await navigator.mediaDevices.getUserMedia({ audio: true })
 			.then((localStream) => {
 				const video = document.getElementById("LocalStream");
 				Utils.media.combineStream(localStream, video);
+				return (localStream);
 			})
 			.catch((e) => {
 				set_Audio(false);
 				Utils.media.catchError(e)
 			});
+
+			newAudioTracks.getTracks().forEach((track) => {
+				newTracks.push(track);
+			});
 		}
 		if (video) {
-			navigator.mediaDevices.getUserMedia({ video: true })
+			const newVideoTracks = await navigator.mediaDevices.getUserMedia({ video: true })
 			.then((localStream) => {
 				const video = document.getElementById("LocalStream");
 				Utils.media.combineStream(localStream, video);
+				return (localStream);
 			})
 			.catch((e) => {
 				set_Video(false);
 				Utils.media.catchError(e)
 			});
+
+			newVideoTracks.getTracks().forEach((track) => {
+				newTracks.push(track);
+			});
 		}
+		return (newTracks);
 	}
 
-	function	onChangeAudioStatus(audio) {
+	async function	onChangeAudioStatus(audio) {
 		set_Audio(audio);
 
 		const audioTracks = window.localStream.getAudioTracks();
@@ -91,14 +104,13 @@ export default function	RoomPage() {
 			audioTracks.forEach((track) => {
 				track.enabled = audio;
 			});
+			return (undefined);
 		}
-		else {
-			// Init new audio tracks
-			InitStreams(true, false);
-		}
+		// Init new audio tracks
+		return (await InitStreams(true, false));
 	}
 
-	function	onChangeVideoStatus(video) {
+	async function	onChangeVideoStatus(video) {
 		set_Video(video);
 
 		if (video === false) {
@@ -106,11 +118,10 @@ export default function	RoomPage() {
 			window.localStream.getVideoTracks().forEach((track) => {
 				track.stop();
 			});
+			return (undefined);
 		}
-		else {
-			// init new video track
-			InitStreams(false, true);
-		}
+		// init new video track
+		return (await InitStreams(false, true));
 	}
 
 	///////////////////////////////////////////////////////////////////////////////

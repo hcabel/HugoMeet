@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 22:58:07 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 23:16:33 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,18 @@ export default function	RoomLayer(props) {
 	}
 
 	function	toggleAudio() {
-		props.onChangeAudioStatus(!props.audio);
+		props.onChangeAudioStatus(!props.audio)
+		.then((newTracks) => {
+			if (!newTracks) {
+				return;
+			}
+			PeersConnection.forEach((entry) => {
+				newTracks.forEach((tracks) => {
+					entry.PC.addTrack(tracks)
+					.catch((e) => console.warn(tracks, e));
+				});
+			});
+		});
 
 		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: !props.audio }));
 		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, _Peers);
@@ -53,7 +64,22 @@ export default function	RoomLayer(props) {
 	}
 
 	function	toggleVideo() {
-		props.onChangeVideoStatus(!props.video);
+		props.onChangeVideoStatus(!props.video)
+		.then((newTracks) => {
+			if (!newTracks) {
+				return;
+			}
+			PeersConnection.forEach((entry) => {
+				const senders = entry.PC.getSenders();
+				senders.forEach((sender) => {
+					if (sender.track && sender.track.kind && sender.track.kind === "video") {
+						entry.PC.removeTrack(sender);
+						console.log(newTracks);
+						entry.PC.addTrack(newTracks[1]);
+					}
+				});
+			});
+		});
 	}
 
 	///////////////////////////////////////////////////////////////////////////////
