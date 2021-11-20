@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:30 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:33 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/20 23:42:27 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -216,13 +216,59 @@
 	background-color: rgba(255,255,255,0.4);
 }
 
-.PRP-B-C-Form {
+.PRP-B-C-C-LoadingAnimation {
+	margin-top: 25px;
+	display: inline-block;
+	position: relative;
+	width: 100px;
+	height: 100px;
+}
+
+.PRP-B-C-C-LoadingAnimation div {
+	box-sizing: border-box;
+	position: absolute;
+	display: block;
+	width: 100px;
+	height: 100px;
+	border: 10px solid #1a73e8;
+	border-radius: 50%;
+	animation: PRP-B-C-C-LoadingAnimation 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	border-color: #1a73e8 transparent transparent transparent;
+}
+
+.PRP-B-C-C-LoadingAnimation div:nth-child(1) {
+	animation-delay: -0.45s;
+}
+
+.PRP-B-C-C-LoadingAnimation div:nth-child(2) {
+	animation-delay: -0.3s;
+}
+
+.PRP-B-C-C-LoadingAnimation div:nth-child(3) {
+	animation-delay: -0.15s;
+}
+@keyframes PRP-B-C-C-LoadingAnimation {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.PRP-B-C-Form,
+.PRP-B-C-Connecting {
 	display: flex;
 	flex-direction: column;
-	box-flex: 1;
+	flex: 1;
 	flex-grow: 1;
 	justify-content: center;
 	width: 448px;
+	height: 448px;
+	align-items: center;
+}
+
+.PRP-B-C-Connecting {
 }
 
 .PRP-B-C-F-Name {
@@ -246,7 +292,8 @@
 	border-color: #1a73e8;
 }
 
-.PRP-B-C-F-Title {
+.PRP-B-C-F-Title,
+.PRP-B-C-C-Title {
 	color: rgba(0,0,0,0.87);
 
 	align-items: center;
@@ -268,7 +315,6 @@
 }
 
 .PRP-B-C-F-SubmitButtons {
-	flex: 1;
 	align-items: center;
 	display: flex;
 	flex-direction: column;
