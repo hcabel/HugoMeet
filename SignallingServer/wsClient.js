@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:48:48 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 00:27:54 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,11 @@ module.exports = async function(socket, req) {
 			globalVariables.rooms.set(roomId, roomPeers);
 		}
 
-		Utils.sendMsgToAllClientsInTheRoom(roomPeers, `{ "type": "clientLeave", "from": "${clientId}" }`, [clientId]);
+		Utils.sendMsgToAllClientsInTheRoom(roomPeers, JSON.stringify({
+			type: "clientLeave",
+			from: clientId,
+			role: role
+		}), [clientId]);
 
 		if (role === "Owner" && roomPeers.size > 1) {
 			// Give the ownership to a the first player in the list (May change this method BTW)
@@ -125,6 +129,7 @@ module.exports = async function(socket, req) {
 
 			if (msg.approved) {
 				target.role = "Client";
+				role = "Client";
 
 				const roomPeers = globalVariables.rooms.get(roomId);
 				Utils.sendMsgToAllClientsInTheRoom(
@@ -206,7 +211,7 @@ module.exports = async function(socket, req) {
 			name: "NotDefined",
 			role: "Pending"
 		});
-		role = "Client";
+		role = "Pending";
 		globalVariables.rooms.set(roomId, roomPeers);
 	}
 	else {

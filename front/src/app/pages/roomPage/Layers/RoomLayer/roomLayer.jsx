@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:50:26 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 00:38:50 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,14 +314,21 @@ export default function	RoomLayer(props) {
 			set_Peers([..._Peers, msg.newPeer]);
 		}
 		else if (msg.type === "clientLeave") {
-			const peerConnection = PeersConnection.get(msg.from);
-			peerConnection.PC.close();
-			PeersConnection.delete(msg.from);
+			if (msg.role === "Client" || msg.role === "Owner") {
+				const peerConnection = PeersConnection.get(msg.from);
+				peerConnection.PC.close();
+				PeersConnection.delete(msg.from);
 
-			const newPeers = _Peers.filter((peer) => {
-				return (peer._id !== msg.from);
-			});
-			set_Peers(newPeers);
+				const newPeers = _Peers.filter((peer) => {
+					return (peer._id !== msg.from);
+				});
+				set_Peers(newPeers);
+			}
+			else if (msg.role === "Pending" && _PendingInvitation.length > 0) {
+				set_PendingInvitation([..._PendingInvitation.filter((value) => {
+					return (value._id !== msg.from);
+				})]);
+			}
 		}
 		else if (msg.type === "OwnershipReceived") {
 			console.log(">>>>>>> You've been promoted");
