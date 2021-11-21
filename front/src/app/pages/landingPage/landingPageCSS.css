@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:20 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:20 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 12:23:18 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ html, body, #root, .LandingPage {
 	padding: 0;
 	margin: 0;
 	font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+	display: flex;
+	flex-direction: column;
 }
 
 .LP-Header {
@@ -31,7 +33,7 @@ html, body, #root, .LandingPage {
 	display: -webkit-inline-box;
 	display: inline-flex;
 	justify-content: space-evenly;
-	min-height: 100%;
+	flex: 1;
 	width: 100vw;
 }
 
