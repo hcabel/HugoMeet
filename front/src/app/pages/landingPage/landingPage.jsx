@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 11:16:12 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 13:05:40 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ import Header from "../header/Header";
 
 import Presentation_1_Img from "./assets/Presentation_1_Img.svg"
 import Presentation_2_Img from "./assets/Presentation_2_Img.svg"
-import Presentation_3_Img from "./assets/Presentation_3_Img.svg"
 import Presentation_4_Img from "./assets/Presentation_4_Img.svg"
 
 import Utils from "../../utils/utils";
@@ -27,19 +26,16 @@ import Utils from "../../utils/utils";
 const	PresentationPhotos = [
 	Presentation_1_Img,
 	Presentation_2_Img,
-	Presentation_3_Img,
 	Presentation_4_Img
 ];
 const	PresentationTitle = [
 	"Get a link that you can share",
 	"See everyone together",
-	"Do not plan ahead",
 	"Your meeting is safe"
 ];
 const	PresentationText = [
 	"Click New meeting to get a link that you can send to people that you want to meet with",
 	"To see more people at the same time, find another website it is kind of imposible here",
-	"Do not click New meeting to schedule meetings in Google Calendar and send invitations to participants because I didn't make this feature",
 	"Almost no one can join a meeting unless invited or admitted by the host"
 ];
 
@@ -69,10 +65,10 @@ export default function LandingPage()
 			<div className="LP-Body">
 				<div className="LP-B-TextAndButton">
 					<div className="LP-B-TAB-Text">
-						Cheap video meetings. Now free for everyone.
+						HugoMeet, now available for everyone, for free.
 					</div>
 					<div className="LP-B-TAB-Text2">
-						I didn't re-engineered the service that I built for secure business meetings, Hugo Meet, to make it free and available for all.
+						Welcome to my video meeting plateform, I made this to show my WebRTC skills I hope you would like it and maybe find it usefull.
 					</div>
 					<div className="LP-B-TAB-Button">
 						<div className="LP-B-TAB-B-CreateNewRoom" onClick={createNewRoom}>
@@ -114,7 +110,7 @@ export default function LandingPage()
 					<div className="LP-B-TAB-HR"></div>
 					<div className="LP-B-TAB-MoreInfos">
 						<span className="LP-B-TAB-MI-Span">
-							<a className="LP-B-TAB-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about Hugo&nbsp;Meet
+							<a className="LP-B-TAB-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about HugoMeet
 						</span>
 					</div>
 				</div>
@@ -138,7 +134,7 @@ export default function LandingPage()
 								</div>
 							</div>
 						</div>
-						<button className="LP-B-IL-C-ButtonRight" onClick={() => set_PresentationIndex(_PresentationIndex + 1)} disabled={(_PresentationIndex >= 3)}>
+						<button className="LP-B-IL-C-ButtonRight" onClick={() => set_PresentationIndex(_PresentationIndex + 1)} disabled={(_PresentationIndex >= 2)}>
 						<svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="LP-B-IL-C-BR-Arrow">
 							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path>
 						</svg>
@@ -148,7 +144,6 @@ export default function LandingPage()
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 0 ? "CurrentItem" : "")}></div>
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 1 ? "CurrentItem" : "")}></div>
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 2 ? "CurrentItem" : "")}></div>
-						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 3 ? "CurrentItem" : "")}></div>
 					</div>
 				</div>
 			</div>
