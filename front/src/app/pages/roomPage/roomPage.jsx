@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:23 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:23 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 14:10:02 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@ import { useHistory, useParams } from "react-router-dom";
 import "./roomPageCSS.css";
 
 // Layers
-import PreRoomLayer from "./Layers/InvitationLayer/preRoomLayer";
-import RoomLayer from "./Layers/RoomLayer/roomLayer";
+import PreRoomLayer from "./layers/preRoom/preRoomLayer";
+import RoomLayer from "./layers/roomLayer/roomLayer";
 
 import Utils from "../../utils/utils";
 
