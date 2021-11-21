@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 00:27:54 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 00:50:59 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +40,12 @@ module.exports = async function(socket, req) {
 		const room = globalVariables.rooms.get(roomId);
 		const peers = Array.from(room.values());
 
-		let result = undefined;
-		while (result === undefined) {
-			for (const peer of peers) {
-				if (peer.role === "Owner") {
-					result = peer;
-					break;
-				}
+		for (const peer of peers) {
+			if (peer.role === "Owner") {
+				return (peer);
 			}
-			giveOwnership(undefined);
 		}
-		return (result);
+		return (undefined);
 	}
 
 	function	onPlayerDisconnected() {
@@ -80,7 +75,6 @@ module.exports = async function(socket, req) {
 	//	WebSocket EVENT
 
 	function onMessage(msg) {
-
 		// Parse JSON msg
 		try {
 			msg = JSON.parse(msg);
@@ -111,17 +105,18 @@ module.exports = async function(socket, req) {
 		if (msg.type === "JoinRequest") {
 			target.name = msg.value;
 
-			if (role !== "Owner") {
-				const roomOwner = getRoomOwner(roomId);
+			const roomOwner = getRoomOwner(roomId);
+			if (roomOwner === undefined) { // They'r is no owner, take the lead (Happend if all client are in the PreRoom)
+				giveOwnership(clientId);
+				target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
+			}
+			else {
 				roomOwner.ws.send(JSON.stringify({
 					type: "JoinRequestReceived",
 					from: msg.from,
 					to: roomOwner._id,
 					name: msg.value
-				}))
-			}
-			else {
-				target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
+				}));
 			}
 		}
 		else if (msg.type === "JoinRequestResponce") {
@@ -223,9 +218,9 @@ module.exports = async function(socket, req) {
 			_id: clientId,
 			ws: socket,
 			name: "NotDefined",
-			role: "Owner"
+			role: "Pending"
 		});
-		role = "Owner";
+		role = "Pending";
 		globalVariables.rooms.set(roomId, newMap);
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);
