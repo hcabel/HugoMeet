@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:18 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 11:16:12 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@ import React, {useState} from "react";
 import {useHistory} from "react-router-dom";
 
 import "./landingPageCSS.css"
+
+import Header from "../header/Header";
 
 import Presentation_1_Img from "./assets/Presentation_1_Img.svg"
 import Presentation_2_Img from "./assets/Presentation_2_Img.svg"
@@ -63,9 +65,7 @@ export default function LandingPage()
 
 	return (
 		<div className="LandingPage">
-			<div className="LP-Header">
-
-			</div>
+			<Header />
 			<div className="LP-Body">
 				<div className="LP-B-TextAndButton">
 					<div className="LP-B-TAB-Text">

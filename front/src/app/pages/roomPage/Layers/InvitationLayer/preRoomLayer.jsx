@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 00:22:51 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/21 12:13:54 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ import { useHistory, useParams } from "react-router-dom";
 import "./preRoomLayerCSS.css";
 
 import config from "../../../../config";
+import Header from "../../../header/Header";
 
 export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
@@ -122,6 +123,7 @@ export default function	PreRoomLayer(props) {
 	console.log("PreRoomLayer:\tRefresh");
 	return (
 		<div className="PreRoomPage">
+			<Header />
 			<div className="PRP-Body">
 				<div className="PRP-B-Content">
 					<div className="PRP-B-C-Stream">
