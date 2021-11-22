@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/22 22:09:34 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/22 23:42:25 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,15 @@ import "./landingPageCSS.css"
 import Header from "../header/Header";
 
 import Presentation_1_Img from "./assets/Presentation_1_Img.png"
-import Presentation_2_Img from "./assets/Presentation_2_Img.svg"
-import Presentation_4_Img from "./assets/Presentation_4_Img.svg"
+import Presentation_2_Img from "./assets/Presentation_2_Img.png"
+import Presentation_3_Img from "./assets/Presentation_3_Img.png"
 
 import Utils from "../../utils/utils";
 
 const	PresentationPhotos = [
 	Presentation_1_Img,
 	Presentation_2_Img,
-	Presentation_4_Img
+	Presentation_3_Img
 ];
 const	PresentationTitle = [
 	"Get a link that you can share",
