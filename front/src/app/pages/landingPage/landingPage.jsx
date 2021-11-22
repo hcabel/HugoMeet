@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 13:05:40 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/11/22 22:09:34 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ import "./landingPageCSS.css"
 
 import Header from "../header/Header";
 
-import Presentation_1_Img from "./assets/Presentation_1_Img.svg"
+import Presentation_1_Img from "./assets/Presentation_1_Img.png"
 import Presentation_2_Img from "./assets/Presentation_2_Img.svg"
 import Presentation_4_Img from "./assets/Presentation_4_Img.svg"
 
@@ -123,7 +123,7 @@ export default function LandingPage()
 						</button>
 						<div className="LP-B-IL-C-Content">
 							<div className="LP-B-IL-C-C-TextImage">
-								<img alt="presentation images" src={PresentationPhotos[_PresentationIndex]} ></img>
+								<img width="100%" height="100%" alt="presentation images" src={PresentationPhotos[_PresentationIndex]} ></img>
 								<div className="LP-B-IL-C-C-TI-text">
 									<div className="LP-B-IL-C-C-TI-T-Title">
 										{PresentationTitle[_PresentationIndex]}
