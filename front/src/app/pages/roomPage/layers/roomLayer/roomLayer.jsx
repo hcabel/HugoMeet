@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 17:52:20 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 22:58:07 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,6 +441,27 @@ export default function	RoomLayer(props) {
 		11: 4,
 	};
 
+	function	setStream(video, stream) {
+		if (video) {
+			// If you want to change the srcObject of a video you need to paused them before
+			// So this function will return the appropriate stream depending on both stream id
+			// and will pause the video if a switch of stream is required
+			const videoStream = video.srcObject;
+			if (stream && videoStream) {
+				if (!video.id === stream.id) {
+					return (videoStream);
+				}
+				video.pause();
+				video.srcObject = stream;
+			}
+			else if (!videoStream && !stream) {
+				return (undefined);
+			}
+			return (videoStream ? videoStream : stream);
+		}
+		return (undefined);
+	}
+
 	console.log("RoomLayer:\tRefresh");
 	return (
 		<div className="RoomLayer">
@@ -467,15 +488,15 @@ export default function	RoomLayer(props) {
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) => {
-					console.log(index, peer);
+					console.log(index, (props.selfId && peer._id === props.selfId ? "YOU" : "PEER"), peer);
 					return (
-						<div key={index} className="RL-VC-Peer">
+						<div key={index} id={`RL-VC-Video-${index}`} className="RL-VC-Peer">
 							{(props.selfId && peer._id === props.selfId ?
 								<> {/* ME */}
 									<video
 										className="RL-VC-P-Video"
 										id="LocalStream"
-										src={window.localStream}
+										src={setStream(document.getElementById(`RL-VC-Video-${index}`)?.children[0], window.localStream)}
 										autoPlay muted
 									/>
 									<div className="RL-VC-P-Name">
@@ -487,7 +508,7 @@ export default function	RoomLayer(props) {
 									<video
 										className="RL-VC-P-Video"
 										id={`VideoStream_${peer._id}`}
-										src={PeersConnection.get(peer._id)?.streams}
+										src={setStream(document.getElementById(`RL-VC-Video-${index}`)?.children[0], PeersConnection.get(peer._id)?.stream)}
 										autoPlay
 									/>
 									<div className="RL-VC-P-Name">
