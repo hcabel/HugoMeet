@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:20 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 13:04:44 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 14:44:04 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -312,7 +312,8 @@ html, body, #root, .LandingPage {
 	border-color: #dadce0;
 }
 
-.LP-B-TAB-MoreInfos {
+.LP-B-TAB-MoreInfos,
+.LP-B-IL-MoreInfos {
 	letter-spacing: .00625em;
 	font-family: Roboto,Arial,sans-serif;
 	font-size: 1rem;
@@ -321,10 +322,24 @@ html, body, #root, .LandingPage {
 	padding-top: 1.5em;
 	color: #5f6368;
 	color: var(--gm-color-caption,#5f6368);
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
 }
 
-.LP-B-TAB-MI-Span {
-	cursor: pointer;
+.LP-B-IL-MoreInfos {
+	display: none;
+}
+@media screen and (max-aspect-ratio: 3 / 4), only screen and (max-width: 60rem) {
+	.LP-B-TAB-MoreInfos {
+		display: none;
+	}
+	.LP-B-IL-MoreInfos {
+		display: flex;
+	}
+}
+
+.LP-MI-Span {
 	letter-spacing: .00625em;
 	font-family: Roboto,Arial,sans-serif;
 	font-size: 1rem;
@@ -334,7 +349,8 @@ html, body, #root, .LandingPage {
 	color: #5f6368;
 }
 
-.LP-B-TAB-MI-S-Href {
+.LP-MI-S-Href {
+	cursor: pointer;
 	text-decoration: none;
 	color: #2962ff;
 }

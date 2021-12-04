@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/22 23:42:25 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 14:44:35 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,11 @@ export default function LandingPage()
 					</div>
 					<div className="LP-B-TAB-HR"></div>
 					<div className="LP-B-TAB-MoreInfos">
-						<span className="LP-B-TAB-MI-Span">
-							<a className="LP-B-TAB-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about HugoMeet
+						<span className="LP-MI-Span">
+							<a className="LP-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about HugoMeet
+						</span>
+						<span className="LP-MI-Span">
+							contact@hugomeet.com
 						</span>
 					</div>
 				</div>
@@ -144,6 +147,14 @@ export default function LandingPage()
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 0 ? "CurrentItem" : "")}></div>
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 1 ? "CurrentItem" : "")}></div>
 						<div className={"LP-B-IL-IL-Item " + (_PresentationIndex === 2 ? "CurrentItem" : "")}></div>
+					</div>
+					<div className="LP-B-IL-MoreInfos">
+						<span className="LP-MI-Span">
+							<a className="LP-MI-S-Href" href="https://www.youtube.com/channel/UCuKL6gBO82AEBAFc5lWJQFg">Learn more</a> about HugoMeet
+						</span>
+						<span className="LP-MI-Span">
+							contact@hugomeet.com
+						</span>
 					</div>
 				</div>
 			</div>
