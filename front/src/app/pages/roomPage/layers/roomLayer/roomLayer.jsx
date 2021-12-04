@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 13:40:57 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 17:52:20 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,7 +354,6 @@ export default function	RoomLayer(props) {
 			const notification = new Notification('Hugo Meet - Joining request', {
 				body: `${msg.from} ask you for joining the room`,
 				icon: NotificationIcon,
-				tag: "JoinRequest",
 				/* requireInteraction: true,
 				maxActions: 2,
 				actions: [{
