@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 00:38:50 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 12:58:56 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,18 @@ export default function	RoomLayer(props) {
 
 	const history = useHistory();
 	const { roomId } = useParams();
+
+	function	handUpCall() {
+		if (window.SignalingSocket && window.SignalingSocket.readyState === 1) {
+			const peersRTCObjs = PeersConnection.values();
+			for (const peerRtcObj of peersRTCObjs) {
+				peerRtcObj.PC.close();
+			}
+			PeersConnection.clear();
+			window.SignalingSocket.close();
+		}
+		history.push("/");
+	}
 
 	function	toggleAudio() {
 		props.onChangeAudioStatus(!props.audio);
@@ -188,8 +200,8 @@ export default function	RoomLayer(props) {
 		initDCFunctions(dataChannel, peerId);
 
 		// TODO: Make sure of the importance of this line (I think it's already set to `sendrecv`)
-		newConnection.addTransceiver("video", { direction: "sendrecv",  });
-		newConnection.addTransceiver("audio", { direction: "sendrecv",  });
+		newConnection.addTransceiver("video", { direction: "sendrecv" });
+		newConnection.addTransceiver("audio", { direction: "sendrecv" });
 
 		if (window.localStream) {
 			// Send your streams to the peer (Audio/Video)
@@ -316,12 +328,15 @@ export default function	RoomLayer(props) {
 		else if (msg.type === "clientLeave") {
 			if (msg.role === "Client" || msg.role === "Owner") {
 				const peerConnection = PeersConnection.get(msg.from);
-				peerConnection.PC.close();
+				if (peerConnection.PC.connectionState === "connected") {
+					peerConnection.PC.close();
+				}
 				PeersConnection.delete(msg.from);
 
 				const newPeers = _Peers.filter((peer) => {
 					return (peer._id !== msg.from);
 				});
+				console.log("eeee", newPeers);
 				set_Peers(newPeers);
 			}
 			else if (msg.role === "Pending" && _PendingInvitation.length > 0) {
@@ -331,7 +346,7 @@ export default function	RoomLayer(props) {
 			}
 		}
 		else if (msg.type === "OwnershipReceived") {
-			console.log(">>>>>>> You've been promoted");
+			console.log("You've been promoted");
 		}
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
@@ -348,12 +363,12 @@ export default function	RoomLayer(props) {
 
 	function	WSonClose(event) {
 		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`, event);
-		history.push(`/`);
+		handUpCall();
 	}
 
 	function	WSonError(event) {
 		console.log(`WS error:`, event);
-		history.push(`/`);
+		handUpCall();
 	}
 
 	window.SignalingSocket.onmessage = WSonMessage;
@@ -505,7 +520,7 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} onClick={() => history.push("/")}>
+					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} onClick={handUpCall}>
 						<img className="RL-TB-C-B-CBL-Img" alt="Leave the call" src={HangUpIcon} />
 					</div>
 				</div>

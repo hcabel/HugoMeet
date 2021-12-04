@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 00:50:59 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 12:59:32 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ const globalVariables = require("./globalVariables");
 module.exports = async function(socket, req) {
 	let clientId = "";
 	let roomId = "";
-	let role = "";
 
 	function	giveOwnership(to) {
 		const roomPeers = globalVariables.rooms.get(roomId);
@@ -50,6 +49,14 @@ module.exports = async function(socket, req) {
 
 	function	onPlayerDisconnected() {
 		const roomPeers = globalVariables.rooms.get(roomId);
+
+		const role = roomPeers.get(clientId).role;
+		Utils.sendMsgToAllClientsInTheRoom(roomPeers, JSON.stringify({
+			type: "clientLeave",
+			from: clientId,
+			role: role
+		}), [clientId]);
+
 		if (roomPeers.size === 1) {
 			// If everyone leave delete room
 			globalVariables.rooms.delete(roomId);
@@ -58,12 +65,6 @@ module.exports = async function(socket, req) {
 			roomPeers.delete(clientId);
 			globalVariables.rooms.set(roomId, roomPeers);
 		}
-
-		Utils.sendMsgToAllClientsInTheRoom(roomPeers, JSON.stringify({
-			type: "clientLeave",
-			from: clientId,
-			role: role
-		}), [clientId]);
 
 		if (role === "Owner" && roomPeers.size > 1) {
 			// Give the ownership to a the first player in the list (May change this method BTW)
@@ -124,7 +125,6 @@ module.exports = async function(socket, req) {
 
 			if (msg.approved) {
 				target.role = "Client";
-				role = "Client";
 
 				const roomPeers = globalVariables.rooms.get(roomId);
 				Utils.sendMsgToAllClientsInTheRoom(
@@ -206,7 +206,6 @@ module.exports = async function(socket, req) {
 			name: "NotDefined",
 			role: "Pending"
 		});
-		role = "Pending";
 		globalVariables.rooms.set(roomId, roomPeers);
 	}
 	else {
@@ -220,7 +219,6 @@ module.exports = async function(socket, req) {
 			name: "NotDefined",
 			role: "Pending"
 		});
-		role = "Pending";
 		globalVariables.rooms.set(roomId, newMap);
 	}
 	console.log(`** WS:\tRoom_${roomId}:\tNew client_${clientId}:\t${req.headers.origin}`);
