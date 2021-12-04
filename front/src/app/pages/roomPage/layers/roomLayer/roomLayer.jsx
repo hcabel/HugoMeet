@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 12:58:56 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 13:40:57 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import {useHistory, useParams} from "react-router-dom";
 
 import Utils from "../../../../utils/utils";
 import HangUpIcon from "./assets/HandUpIcon.png";
+import NotificationIcon from "./assets/HugoMeetLogo-256x256.png"
 
 import "./roomLayerCSS.css";
 
@@ -350,6 +351,31 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
+			const notification = new Notification('Hugo Meet - Joining request', {
+				body: `${msg.from} ask you for joining the room`,
+				icon: NotificationIcon,
+				tag: "JoinRequest",
+				/* requireInteraction: true,
+				maxActions: 2,
+				actions: [{
+					action: 'Allow',				Work only in secure context (HTTPS)
+					title: 'Allow'					But it should work
+				},{
+					action: 'Deny',
+					title: 'Deny'
+				}], */
+				silent: false
+			});
+
+			notification.notificationclick = (event) => {
+				if (event.action === 'Allow') {
+					sendJoinRequestResponce(true, msg.from);
+				}
+				else if (event.action === 'Deny') {
+					sendJoinRequestResponce(false, msg.from);
+				}
+			}
+
 			set_PendingInvitation([..._PendingInvitation, { name: msg.name, _id: msg.from }]);
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {

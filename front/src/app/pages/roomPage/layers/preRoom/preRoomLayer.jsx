@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/21 12:13:54 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 13:40:40 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,15 @@ export default function	PreRoomLayer(props) {
 	//	UseEffect
 
 	useEffect(() => {
+
+		// Ask if
+		if (!window.Notification) {
+			alert("This browser does not support notifications.");
+		} else {
+			Notification.requestPermission()
+			.catch(() => Notification.requestPermission());
+		}
+
 		if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
 			connectClient(roomId);
 		}
