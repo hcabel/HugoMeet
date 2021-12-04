@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 12:59:32 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/04 18:09:40 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ module.exports = async function(socket, req) {
 			globalVariables.rooms.set(roomId, roomPeers);
 		}
 
-		if (role === "Owner" && roomPeers.size > 1) {
+		if (role === "Owner" && roomPeers.size !== 0) {
 			// Give the ownership to a the first player in the list (May change this method BTW)
 			giveOwnership(undefined);
 		}
