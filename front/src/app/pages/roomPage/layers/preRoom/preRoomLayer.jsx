@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 13:18:35 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 20:19:33 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ import Header from "../../../header/Header";
 
 export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
-	const [_Name, set_Name] = useState(_Cookie.userName);
+	const [_Name, set_Name] = useState(!_Cookie.userName || _Cookie.userName === "undefined" ? "" : _Cookie.userName);
 	const [_State, set_State] = useState("Connecting");
 
 	const history = useHistory();
@@ -79,7 +79,7 @@ export default function	PreRoomLayer(props) {
 			}
 		}
 		else {
-			console.error(`Msg dropped because type ${msg.type} is unknown`);
+			console.warn(`Msg dropped because type ${msg.type} is unknown`);
 		}
 	}
 

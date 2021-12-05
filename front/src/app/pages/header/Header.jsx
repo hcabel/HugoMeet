@@ -18,11 +18,21 @@ export default function	Header()
 	useEffect(() => {
 		// First we refresh after X milliseconds remaining in the current minute
 		// Then we refresh each minutes
+		if (window.clockTimeout !== undefined) {
+			clearTimeout(window.clockTimeout);
+			window.clockTimeout = undefined;
+			return;
+		}
 
-		setTimeout(() => {
+		window.clockTimeout = setTimeout(() => {
 			set_Date(new Date());
 
-			setInterval(() => {
+			if (window.clockInterval !== undefined) {
+				clearInterval(window.clockInterval);
+				window.clockInterval = undefined;
+				return;
+			}
+			window.clockInterval = setInterval(() => {
 				set_Date(new Date());
 			}, 60000);
 		}, 60000 - _Date.getSeconds() * 1000 + _Date.getMilliseconds());

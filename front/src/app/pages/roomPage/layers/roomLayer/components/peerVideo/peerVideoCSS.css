@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:18 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 17:25:20 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 19:59:45 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,13 @@
 }
 
 .RL-VC-P-Video {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.RL-VC-P-Video-Mirrored {
 	position: absolute;
 	width: 100%;
 	height: 100%;

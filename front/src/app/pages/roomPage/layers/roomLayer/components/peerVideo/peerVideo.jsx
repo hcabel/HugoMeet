@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:13 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 17:25:16 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 19:58:12 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,12 @@ export default function PeerVideo(props) {
 	return (
 		<div id={`RL-VC-Video-${props.index}`} className="RL-VC-Peer">
 			<video
-				className="RL-VC-P-Video"
+				className={props.mirrored ? "RL-VC-P-Video-Mirrored" : "RL-VC-P-Video"}
 				id={props.id}
 				src={setStream(document.getElementById(`RL-VC-Video-${props.index}`)?.children[0], props.stream)}
 				autoPlay
 				muted={props.muted}
+				controls={false}
 			/>
 			<div className="RL-VC-P-Name">
 				{props.name}

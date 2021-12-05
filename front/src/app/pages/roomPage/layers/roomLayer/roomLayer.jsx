@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 17:36:45 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 20:17:10 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,12 +60,12 @@ export default function	RoomLayer(props) {
 		}
 	}
 
-	function	toggleVideo() {
-		props.onChangeVideoStatus(!props.video)
-		.then((newStream) => {
-			console.log("Update Video");
-		});
-	}
+	// function	toggleVideo() {
+	// 	props.onChangeVideoStatus(!props.video)
+	// 	.then((newStream) => {
+	// 		console.log("Update Video");
+	// 	});
+	// }
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	DataChanel
@@ -389,7 +389,7 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
-			const notification = new Notification('Hugo Meet - Joining request', {
+			new Notification('Hugo Meet - Joining request', {
 				body: `${msg.from} ask you for joining the room`,
 				icon: NotificationIcon,
 				/* requireInteraction: true,
@@ -484,8 +484,8 @@ export default function	RoomLayer(props) {
 		<div className="RoomLayer">
 			{/* NOTIFICATION */}
 			{_PendingInvitation.map((invitation, index) =>
-				<Notification
-					index={index} clientId={invitation._id}
+				<Notification key={index} index={index}
+					clientId={invitation._id}
 					name={invitation.name}
 					onResponce={sendJoinRequestResponce}
 				/>
@@ -499,6 +499,7 @@ export default function	RoomLayer(props) {
 							name={peer.name}
 							audio={peer.audio}
 							muted
+							mirrored
 						/>
 						:
 						<PeerVideo key={index} index={index}

@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:23 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 13:35:19 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 20:19:15 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ export default function	RoomPage() {
 			return;
 		}
 
-		let streamResult = window.localStream; // currentStream
+		let streamResult = window.localStream || new MediaStream(); // currentStream
 		// Request audio & video separatly in case one of them are unvailable but not the other
 		if (audio) {
 			await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -132,6 +132,11 @@ export default function	RoomPage() {
 	}, [roomId]);
 
 	useEffect(() => {
+		clearTimeout(window.clockTimeout);
+		window.clockTimeout = undefined;
+		clearInterval(window.clockInterval);
+		window.clockInterval = undefined;
+
 		if (Utils.idGenerator.isRoomIDValid(roomId)) {
 			InitStreams(_Audio, _Video);
 		}
