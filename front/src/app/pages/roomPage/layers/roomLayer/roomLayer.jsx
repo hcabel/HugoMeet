@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 16:44:13 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 16:53:50 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,8 +66,10 @@ export default function	RoomLayer(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	DataChanel
 
-	function	DConOpen(peerId) {
+	function	DConOpen(dc, peerId) {
 		console.log(`DC_${peerId}:\tConnected`);
+
+		dc.send(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: props.audio }));
 	}
 
 	function	DConMessage(peerId, msg) {
@@ -97,15 +99,16 @@ export default function	RoomLayer(props) {
 		console.log(`DC_${peerId}:\tDisconnected`);
 	}
 
-	function	DConError(event, peerId) {
+	function	DConError(dc, event, peerId) {
 		console.error(`DC_${peerId}:\tError:\t${event.error}`, event);
+		dc.close();
 	}
 
 	function	initDCFunctions(dataChannel, peerId) {
-		dataChannel.onopen = () => DConOpen(peerId);
+		dataChannel.onopen = () => DConOpen(dataChannel, peerId);
 		dataChannel.onmessage = (msg) => DConMessage(peerId, msg);
 		dataChannel.onclose = () => DConClose(peerId);
-		dataChannel.onerror = (event) => DConError(event, peerId);
+		dataChannel.onerror = (event) => DConError(dataChannel, event, peerId);
 	}
 
 	function	sendMessageToEveryoneInTheRoom(msg) {
