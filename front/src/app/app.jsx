@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:07 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:07 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 13:21:27 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@ import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
 import LandingPage from "./pages/landingPage/landingPage";
 import RoomPage from "./pages/roomPage/roomPage";
+import Utils from "./utils/utils";
 
 export default function	App()
 {
@@ -22,8 +23,9 @@ export default function	App()
 
 	useEffect(() => {
 		return (history.listen((e) => {
+			console.log(e.pathname);
 			// If go on a page that isn't a room page
-			if (!e.pathname.includes("/room/")) {
+			if (!e.pathname.startsWith("/room/")) {
 				if (window.SignalingSocket) {
 					// Close signaling WebSocket
 					if (window.SignalingSocket.readyState === 0 || window.SignalingSocket.readyState === 1) {
@@ -32,14 +34,7 @@ export default function	App()
 					window.SignalingSocket = null;
 				}
 
-				if (window.localStream) {
-					// Close Camera and Audio
-					window.localStream.getTracks().forEach((tracks) => {
-						if (tracks.readyState === "live") {
-							tracks.stop();
-						}
-					});
-				}
+				Utils.media.killTracks(window.localStream?.getTracks(), window.localStream);
 			}
 		}));
 	},[ history ])

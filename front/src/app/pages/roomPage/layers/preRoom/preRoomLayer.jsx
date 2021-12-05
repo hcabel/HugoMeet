@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 15:04:44 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 13:18:35 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,9 @@ export default function	PreRoomLayer(props) {
 
 	function	WSonClose(event) {
 		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
-		history.push(`/`);
+		if (window.location.pathname !== "/") {
+			history.push(`/`);
+		}
 	}
 
 	function	WSonError(event) {

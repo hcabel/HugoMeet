@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 23:16:33 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 13:36:20 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,18 +42,11 @@ export default function	RoomLayer(props) {
 
 	function	toggleAudio() {
 		props.onChangeAudioStatus(!props.audio)
-		.then((newTracks) => {
-			if (!newTracks) {
-				return;
-			}
-			PeersConnection.forEach((entry) => {
-				newTracks.forEach((tracks) => {
-					entry.PC.addTrack(tracks)
-					.catch((e) => console.warn(tracks, e));
-				});
-			});
+		.then((newStream) => {
+			console.log("Update Audio");
 		});
 
+		// Send message to inform everyon than I turn off/on my audioChannel
 		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: !props.audio }));
 		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, _Peers);
 		if (peerIndex !== -1) {
@@ -65,20 +58,8 @@ export default function	RoomLayer(props) {
 
 	function	toggleVideo() {
 		props.onChangeVideoStatus(!props.video)
-		.then((newTracks) => {
-			if (!newTracks) {
-				return;
-			}
-			PeersConnection.forEach((entry) => {
-				const senders = entry.PC.getSenders();
-				senders.forEach((sender) => {
-					if (sender.track && sender.track.kind && sender.track.kind === "video") {
-						entry.PC.removeTrack(sender);
-						console.log(newTracks);
-						entry.PC.addTrack(newTracks[1]);
-					}
-				});
-			});
+		.then((newStream) => {
+			console.log("Update Video");
 		});
 	}
 
@@ -140,6 +121,25 @@ export default function	RoomLayer(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	WebRTC
 
+	function	sendStreamsToPeers(connection, stream) {
+		if (connection) {
+			const senders = connection.getSenders();
+			senders.forEach((sender) => {
+				connection.removeTrack(sender);
+				// if (!sender.track || sender.track.readyState === "ended" || sender.track.readyState === "video") {
+				// 	connection.removeTrack(sender);
+				// }
+			});
+
+			stream.getTracks().forEach((track) => {
+				connection.addTrack(track, stream);
+			});
+		}
+		else {
+			console.error("Try to update peers with the new stream but peerConnection was not establish")
+		}
+	}
+
 	function	onIceCandidate(e, peerId) {
 		if (!e.candidate) {
 			// This function is triggered one last time with an empty candidate when all candidate are send
@@ -174,8 +174,8 @@ export default function	RoomLayer(props) {
 	function	sendAnswerBasedOffer(offer, peerId) {
 		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
 		let newConnection = new RTCPeerConnection(props.rtcOptions);
-
-		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
+		newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
+		newConnection.ontrack = (event) => onTrack(event, peerId);
 
 		newConnection.ondatachannel = (event) => {
 			// this function will be executed when the two peers has set theyr local/remote description
@@ -186,9 +186,8 @@ export default function	RoomLayer(props) {
 
 		if (window.localStream) {
 			// Send your streams to the peer (Audio/Video)
-			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
+			sendStreamsToPeers(newConnection, window.localStream);
 		}
-		newConnection.ontrack = (event) => onTrack(event, peerId);
 
 		// Set local description of the peer
 		newConnection.setRemoteDescription(offer)
@@ -219,10 +218,12 @@ export default function	RoomLayer(props) {
 	// when you ask a peer to be connected with
 	function	createNewPeerConnection(peerId) {
 		console.log(`WebRTC:\t>>> Create peer connection with: Client_${peerId} <<<`);
+
 		let newConnection = new RTCPeerConnection(props.rtcOptions);
+		newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
+		newConnection.ontrack = (event) => onTrack(event, peerId);
 
-		newConnection.onicecandidate = (e) => onIceCandidate(e, peerId);
-
+		// Create DataChannel
 		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
 		initDCFunctions(dataChannel, peerId);
 
@@ -232,9 +233,8 @@ export default function	RoomLayer(props) {
 
 		if (window.localStream) {
 			// Send your streams to the peer (Audio/Video)
-			window.localStream.getTracks().forEach((track) => newConnection.addTrack(track, window.localStream));
+			sendStreamsToPeers(newConnection, window.localStream);
 		}
-		newConnection.ontrack = (event) => onTrack(event, peerId);
 
 		// Create/Set your own local description
 		newConnection.createOffer()
@@ -514,7 +514,7 @@ export default function	RoomLayer(props) {
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
 				{_Peers.map((peer, index) => {
-					console.log(index, (props.selfId && peer._id === props.selfId ? "YOU" : "PEER"), peer);
+					console.log("==>", index, (props.selfId && peer._id === props.selfId ? "YOU" : "PEER"), "\n", peer, "\n", PeersConnection.get(peer._id));
 					return (
 						<div key={index} id={`RL-VC-Video-${index}`} className="RL-VC-Peer">
 							{(props.selfId && peer._id === props.selfId ?

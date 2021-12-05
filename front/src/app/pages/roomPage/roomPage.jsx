@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:23 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 23:16:25 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 13:35:19 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,61 +44,60 @@ export default function	RoomPage() {
 
 		// You cant user `getUserMedia` with all constraints to false
 		if (audio === false && video === false) {
-			if (window.localStream) {
-				window.localStream.getTracks().forEach((track) => {
-					track.stop();
-				});
-			}
+			Utils.media.killTracks(window.localStream?.getTracks(), window.localStream);
 			return;
 		}
 
 		if (!navigator.mediaDevices) {
 			alert("This site is untrusted we cant access to the camera/or and microphone !");
+			history.push("/");
 			return;
 		}
 
-
-		let newTracks = [];
+		let streamResult = window.localStream; // currentStream
 		// Request audio & video separatly in case one of them are unvailable but not the other
 		if (audio) {
-			const newAudioTracks = await navigator.mediaDevices.getUserMedia({ audio: true })
-			.then((localStream) => {
+			await navigator.mediaDevices.getUserMedia({ audio: true })
+			.then((newAudioStream) => {
 				const video = document.getElementById("LocalStream");
-				Utils.media.combineStream(localStream, video);
-				return (localStream);
+				if (video) {
+					streamResult = Utils.media.combineStream(streamResult, newAudioStream); // currentStream + newAudioTracks
+					video.srcObject = streamResult;
+				}
+				else {
+					Utils.media.killTracks(newAudioStream.getTracks(), newAudioStream);
+				}
 			})
 			.catch((e) => {
 				set_Audio(false);
 				Utils.media.catchError(e)
 			});
-
-			newAudioTracks.getTracks().forEach((track) => {
-				newTracks.push(track);
-			});
 		}
 		if (video) {
-			const newVideoTracks = await navigator.mediaDevices.getUserMedia({ video: true })
-			.then((localStream) => {
+			await navigator.mediaDevices.getUserMedia({ video: true })
+			.then((newVideoStream) => {
 				const video = document.getElementById("LocalStream");
-				Utils.media.combineStream(localStream, video);
-				return (localStream);
+				if (video) {
+					streamResult = Utils.media.combineStream(streamResult, newVideoStream); // currentStream + newVideoTracks
+					video.srcObject = streamResult;
+				}
+				else {
+					Utils.media.killTracks(newVideoStream.getTracks(), newVideoStream);
+				}
 			})
 			.catch((e) => {
 				set_Video(false);
 				Utils.media.catchError(e)
 			});
-
-			newVideoTracks.getTracks().forEach((track) => {
-				newTracks.push(track);
-			});
 		}
-		return (newTracks);
+		window.localStream = streamResult;
+		return (streamResult); // return a stream with all the active tracks
 	}
 
 	async function	onChangeAudioStatus(audio) {
 		set_Audio(audio);
 
-		const audioTracks = window.localStream.getAudioTracks();
+		const audioTracks = window.localStream?.getAudioTracks();
 		if (audioTracks && audioTracks.length > 0) { // If already been initialised
 			// Enable/disable audio track
 			audioTracks.forEach((track) => {
@@ -115,9 +114,7 @@ export default function	RoomPage() {
 
 		if (video === false) {
 			// Kill already existing video tracks
-			window.localStream.getVideoTracks().forEach((track) => {
-				track.stop();
-			});
+			Utils.media.killTracks(window.localStream?.getVideoTracks(), window.localStream);
 			return (undefined);
 		}
 		// init new video track
