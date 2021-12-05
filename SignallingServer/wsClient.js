@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 22:59:42 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 13:46:23 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,18 @@ module.exports = async function(socket, req) {
 		const roomPeers = globalVariables.rooms.get(roomId);
 		let newOwnerId = to;
 
-		if (to === undefined) {
-			const roomKeys = Array.from(roomPeers.keys());
-			newOwnerId = (roomKeys[0] === clientId ? roomKeys[1] : roomKeys[0]);
+		if (newOwnerId === undefined) {
+			const peers = Array.from(roomPeers.keys());
+			for (const peer in peers) {
+				if (peer.role === "Client") {
+					newOwnerId = peer._id;
+					break;
+				}
+			}
+
+			if (newOwnerId === undefined) {
+				return;
+			}
 		}
 
 		const newOwner = roomPeers.get(newOwnerId);
