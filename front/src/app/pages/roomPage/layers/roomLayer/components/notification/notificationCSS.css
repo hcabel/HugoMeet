@@ -1,0 +1,68 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   notificationCSS.css                                :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/05 17:25:10 by hcabel            #+#    #+#             */
+/*   Updated: 2021/12/05 17:25:54 by hcabel           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+.RL-Invitation {
+	display: flex;
+	background-color: rgba(0,0,0,0.8);
+	padding: 5px 20px;
+	box-sizing: border-box;
+	border-radius: 15px;
+	height: 35px;
+	align-items: center;
+	margin-bottom: 5px;
+	width: fit-content;
+	position: absolute;
+	left: 50%;
+	right: 50%;
+	transform: translateX(-50%);
+	z-index: 1;
+}
+
+.RL-I-Content {
+	color: #666666;
+}
+
+.RL-I-C-Name {
+	padding: 0px 5px;
+	font-weight: bold;
+	color: coral;
+}
+
+.RL-I-Buttons {
+	display: flex;
+	padding-left: 20px;
+	text-align: center;
+
+}
+
+.RL-I-B-Allow {
+	align-self: center;
+	padding: 2px 15px;
+	height: 20px;
+	background: #37af37;
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 5px;
+}
+
+.RL-I-B-Denied {
+	align-self: center;
+	padding: 2px 15px;
+	height: 20px;
+	margin-left: 5px;
+	background: #ff3c3c;
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	border-radius: 5px;
+}

@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 16:53:50 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 17:31:15 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,10 @@ import {useHistory, useParams} from "react-router-dom";
 import Utils from "../../../../utils/utils";
 import HangUpIcon from "./assets/HandUpIcon.png";
 import NotificationIcon from "./assets/HugoMeetLogo-256x256.png"
+
+// Components
+import PeerVideo from "./components/peerVideo/peerVideo";
+import Notification from "./components/notification/notification";
 
 import "./roomLayerCSS.css";
 
@@ -400,14 +404,14 @@ export default function	RoomLayer(props) {
 				silent: false
 			});
 
-			notification.notificationclick = (event) => {
-				if (event.action === 'Allow') {
-					sendJoinRequestResponce(true, msg.from);
-				}
-				else if (event.action === 'Deny') {
-					sendJoinRequestResponce(false, msg.from);
-				}
-			}
+			// notification.notificationclick = (event) => {
+			// 	if (event.action === 'Allow') {
+			// 		sendJoinRequestResponce(true, msg.from);
+			// 	}
+			// 	else if (event.action === 'Deny') {
+			// 		sendJoinRequestResponce(false, msg.from);
+			// 	}
+			// }
 
 			set_PendingInvitation([..._PendingInvitation, { name: msg.name, _id: msg.from }]);
 		}
@@ -475,94 +479,36 @@ export default function	RoomLayer(props) {
 		11: 4,
 	};
 
-	function	setStream(video, stream) {
-		if (video) {
-			// If you want to change the srcObject of a video you need to paused them before
-			// So this function will return the appropriate stream depending on both stream id
-			// and will pause the video if a switch of stream is required
-			const videoStream = video.srcObject;
-			if (stream && videoStream) {
-				if (!video.id === stream.id) {
-					return (videoStream);
-				}
-				video.pause();
-				video.srcObject = stream;
-			}
-			else if (!videoStream && !stream) {
-				return (undefined);
-			}
-			return (videoStream ? videoStream : stream);
-		}
-		return (undefined);
-	}
-
 	console.log("RoomLayer:\tRefresh");
 	return (
 		<div className="RoomLayer">
-			{_PendingInvitation.map((invitation, index) => {
-				return (
-					<div key={index} className="RL-Invitation" style={{ top: `${40 * index}px` }}>
-						<div className="RL-I-Content">
-							<span className="RL-I-C-Name">
-								{invitation.name}
-							</span>
-							want to join the room
-						</div>
-						<div className="RL-I-Buttons">
-							<div className="RL-I-B-Allow" onClick={() => sendJoinRequestResponce(true, invitation._id)}>
-								allow
-							</div>
-							<div className="RL-I-B-Denied" onClick={() => sendJoinRequestResponce(false, invitation._id)}>
-								denied
-							</div>
-						</div>
-					</div>
-				);
-			})}
+			{/* NOTIFICATION */}
+			{_PendingInvitation.map((invitation, index) =>
+				<Notification
+					index={index} clientId={invitation._id}
+					name={invitation.name}
+					onResponce={sendJoinRequestResponce}
+				/>
+			)}
 			{/* VIDEOS */}
 			<div className="RL-VideoContainer" style={{ gridTemplateColumns: `${"auto ".repeat(numberOfColumns[_Peers.length])}` }}>
-				{_Peers.map((peer, index) => {
-					console.log("==>", index, (props.selfId && peer._id === props.selfId ? "YOU" : "PEER"), "\n", peer, "\n", PeersConnection.get(peer._id));
-					return (
-						<div key={index} id={`RL-VC-Video-${index}`} className="RL-VC-Peer">
-							{(props.selfId && peer._id === props.selfId ?
-								<> {/* ME */}
-									<video
-										className="RL-VC-P-Video"
-										id="LocalStream"
-										src={setStream(document.getElementById(`RL-VC-Video-${index}`)?.children[0], window.localStream)}
-										autoPlay muted
-									/>
-									<div className="RL-VC-P-Name">
-										{peer.name}
-									</div>
-								</>
-								:
-								<> {/* PEERS */}
-									<video
-										className="RL-VC-P-Video"
-										id={`VideoStream_${peer._id}`}
-										src={setStream(document.getElementById(`RL-VC-Video-${index}`)?.children[0], PeersConnection.get(peer._id)?.stream)}
-										autoPlay
-									/>
-									<div className="RL-VC-P-Name">
-										{peer.name}
-									</div>
-								</>
-							)}
-							{peer.audio === false &&
-								<>
-									<div className="RL-VC-P-AudioStatus">
-										<svg width="24px" height="24px" viewBox="0 0 24 24" fill="#000000">
-											<path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
-											<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"></path>
-										</svg>
-									</div>
-								</>
-							}
-						</div>
-					);
-				})}
+				{_Peers.map((peer, index) => (props.selfId && peer._id === props.selfId ?
+						<PeerVideo key={index} index={index}
+							id="LocalStream"
+							stream={window.localStream}
+							name={peer.name}
+							audio={peer.audio}
+							muted
+						/>
+						:
+						<PeerVideo key={index} index={index}
+							id={`VideoStream_${peer._id}`}
+							stream={PeersConnection.get(peer._id)?.stream}
+							name={peer.name}
+							audio={peer.audio}
+						/>
+					))
+				}
 			</div>
 			{/* BUTTONS UNDER VIDEOS */}
 			<div className="RL-ToolsBox">
