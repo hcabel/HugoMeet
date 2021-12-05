@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 17:31:15 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 17:36:45 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -533,7 +533,7 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					<div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={toggleVideo}>
+					{/* <div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={toggleVideo}>
 						{props.video ?
 							// Icon camera turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -545,7 +545,7 @@ export default function	RoomLayer(props) {
 								<path d="M18 10.48V6c0-1.1-.9-2-2-2H6.83l2 2H16v7.17l2 2v-1.65l4 3.98v-11l-4 3.98zM16 16L6 6 4 4 2.81 2.81 1.39 4.22l.85.85C2.09 5.35 2 5.66 2 6v12c0 1.1.9 2 2 2h12c.34 0 .65-.09.93-.24l2.85 2.85 1.41-1.41L18 18l-2-2zM4 18V6.83L15.17 18H4z"></path>
 							</svg>
 						}
-					</div>
+					</div> */}
 					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} onClick={handUpCall}>
 						<img className="RL-TB-C-B-CBL-Img" alt="Leave the call" src={HangUpIcon} />
 					</div>
