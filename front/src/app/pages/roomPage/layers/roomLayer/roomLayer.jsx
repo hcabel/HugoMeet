@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 13:36:20 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 16:44:13 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,10 +97,15 @@ export default function	RoomLayer(props) {
 		console.log(`DC_${peerId}:\tDisconnected`);
 	}
 
+	function	DConError(event, peerId) {
+		console.error(`DC_${peerId}:\tError:\t${event.error}`, event);
+	}
+
 	function	initDCFunctions(dataChannel, peerId) {
 		dataChannel.onopen = () => DConOpen(peerId);
 		dataChannel.onmessage = (msg) => DConMessage(peerId, msg);
 		dataChannel.onclose = () => DConClose(peerId);
+		dataChannel.onerror = (event) => DConError(event, peerId);
 	}
 
 	function	sendMessageToEveryoneInTheRoom(msg) {
@@ -207,7 +212,7 @@ export default function	RoomLayer(props) {
 			}
 			console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
 			window.SignalingSocket.send(JSON.stringify(descriptor));
-		})
+		});
 
 		return ({
 			PC: newConnection,
