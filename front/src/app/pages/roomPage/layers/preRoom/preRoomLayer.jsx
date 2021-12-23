@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 16:21:13 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 17:01:28 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,9 @@ export default function	PreRoomLayer(props) {
 		if (event.code === 4005) {
 			console.log(`The owner of the room ${roomId} deny your joining request`);
 			set_State("Rejected");
+		}
+		else if (event.code === 1006) {
+			set_State("Connection Error");
 		}
 		else {
 			console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
@@ -205,11 +208,11 @@ export default function	PreRoomLayer(props) {
 											</div>
 										</div>
 									);
-								case "Rejected":
+								default:
 									return (
 										<div className="PRP-B-C-Form">
 											<div className="PRP-B-C-F-Title" style={{ color: "red" }}>
-												Rejected
+												{_State}
 											</div>
 											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
