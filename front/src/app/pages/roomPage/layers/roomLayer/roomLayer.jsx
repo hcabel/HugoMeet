@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 20:17:10 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 12:21:31 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@ export default function	RoomLayer(props) {
 	const history = useHistory();
 	const { roomId } = useParams();
 
+	///////////////////////////////////////////////////////////////////////////////
+	//	Client Input
+
 	function	handUpCall() {
 		if (window.SignalingSocket && window.SignalingSocket.readyState === 1) {
 			const peersRTCObjs = PeersConnection.values();
@@ -47,11 +50,11 @@ export default function	RoomLayer(props) {
 	function	toggleAudio() {
 		props.onChangeAudioStatus(!props.audio)
 		.then((newStream) => {
-			console.log("Update Audio");
+			console.log(1, "Update Audio", newStream);
 		});
 
 		// Send message to inform everyon than I turn off/on my audioChannel
-		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: !props.audio }));
+		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "audioStateChange", _id: props.selfId, audio: !props.audio }));
 		const peerIndex = Utils.getPeerIndexFrom_Id(props.selfId, _Peers);
 		if (peerIndex !== -1) {
 			const peers = [..._Peers];
@@ -60,12 +63,14 @@ export default function	RoomLayer(props) {
 		}
 	}
 
-	// function	toggleVideo() {
-	// 	props.onChangeVideoStatus(!props.video)
-	// 	.then((newStream) => {
-	// 		console.log("Update Video");
-	// 	});
-	// }
+	function	toggleVideo() {
+		props.onChangeVideoStatus(!props.video)
+		.then((newStream) => {
+			console.log(2, "Update Video", newStream);
+		});
+
+		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "videoStateChange", _id: props.selfId, video: !props.video }));
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	DataChanel
@@ -73,7 +78,9 @@ export default function	RoomLayer(props) {
 	function	DConOpen(dc, peerId) {
 		console.log(`DC_${peerId}:\tConnected`);
 
-		dc.send(JSON.stringify({ type: "muteStateChange", _id: props.selfId, audio: props.audio }));
+		// Send your audio/video status
+		dc.send(JSON.stringify({ type: "audioStateChange", _id: props.selfId, audio: props.audio }));
+		dc.send(JSON.stringify({ type: "videoStateChange", _id: props.selfId, video: props.video }));
 	}
 
 	function	DConMessage(peerId, msg) {
@@ -88,13 +95,21 @@ export default function	RoomLayer(props) {
 
 		const peerIndex = Utils.getPeerIndexFrom_Id(msg._id, _Peers);
 		if (peerIndex === -1) {
+			// Update Audio status
 			console.error(`DC_${peerId}:\tFailed to find peerIndex from`, msg._id);
 			return;
 		}
 
-		if (msg.type === "muteStateChange") {
+		if (msg.type === "audioStateChange") {
+			// Update Audio status
 			const peers = [..._Peers];
 			peers[peerIndex].audio = msg.audio;
+			set_Peers(peers);
+		}
+		else if (msg.type === "videoStateChange") {
+			// Update Video status
+			const peers = [..._Peers];
+			peers[peerIndex].video = msg.video;
 			set_Peers(peers);
 		}
 	}
@@ -174,9 +189,12 @@ export default function	RoomLayer(props) {
 
 		console.log(`WebRTC:\tYou received STREAM from Client_${peerId}`);
 		const video = document.getElementById(`VideoStream_${peerId}`);
-		video.onloadeddata = () => video.play();
-		video.srcObject = event.streams[0];
-
+		if (video) {
+			video.srcObject = event.streams[0];
+		}
+		else {
+			console.error("WebRTC:\tStream received was not able to be apply to the peer video")
+		}
 		const connection = PeersConnection.get(peerId);
 		connection.stream = event.streams[0];
 		PeersConnection.set(peerId, connection);
@@ -274,13 +292,13 @@ export default function	RoomLayer(props) {
 		if (msg.type === "Offer") {
 			// somemone new has join the room and send you an offer start a peer connection
 
-			const result = sendAnswerBasedOffer(msg.offer, msg.from);
+			const newValues = sendAnswerBasedOffer(msg.offer, msg.from);
 			const AlreadyexistingValues = PeersConnection.get(msg.from);
 
 			PeersConnection.set(msg.from, {
 				_id: msg.from,
 				...AlreadyexistingValues,
-				...result
+				...newValues
 			});
 		}
 
@@ -299,7 +317,7 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "IceCandidate") {
 			if (!msg.iceCandidate) {
-				console.error(`WebRTC:\tClient_${msg.from}:\tSend you a not valid ICE candidate`);
+				console.warn(`WebRTC:\tClient_${msg.from}:\tSend you a not valid ICE candidate`);
 				return;
 			}
 
@@ -315,7 +333,7 @@ export default function	RoomLayer(props) {
 		}
 	}
 
-	async function	onRoomConnectionEstablish(msg) {
+	async function	onRoomSetup(msg) {
 		set_Peers(msg.peers);
 
 		const video = document.getElementById(`LocalStream`);
@@ -335,6 +353,8 @@ export default function	RoomLayer(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	Web Socket
 
+	// If you'r the owner notification of which want to join the room will be send to you
+	// This function will send them they'r responces
 	function	sendJoinRequestResponce(approved, id) {
 		set_PendingInvitation([..._PendingInvitation.filter((value) => {
 			return (value._id !== id);
@@ -347,7 +367,7 @@ export default function	RoomLayer(props) {
 		}))
 	}
 
-	function	WSonMessage(msg) {
+	async function	WSonMessage(msg) {
 		try {
 			// WebSocket message are always stringify JSON (in my case)
 			msg = JSON.parse(msg.data);
@@ -357,28 +377,35 @@ export default function	RoomLayer(props) {
 		}
 		console.log(`--> SS: ${msg.type}`)
 
-		if (msg.type === "RoomPeers") {
-			// once you sucessfully been connected to the room (msg contain all the initialising value)
-			onRoomConnectionEstablish(msg);
+		if (msg.type === "RoomSetupCallback") {
+			// This will initialise the room from your side
+			onRoomSetup(msg);
 		}
 		else if (msg.type === "clientJoin") {
+			// Add to the peer map (we dont create peerConnection because he will ask us to connect)
 			set_Peers([..._Peers, msg.newPeer]);
 		}
 		else if (msg.type === "clientLeave") {
 			if (msg.role === "Client" || msg.role === "Owner") {
+				// If it was a client or the owner of the room, close is PeerConnection
 				const peerConnection = PeersConnection.get(msg.from);
-				if (peerConnection.PC.connectionState === "connected") {
-					peerConnection.PC.close();
+				if (peerConnection) {
+					if (peerConnection.PC && peerConnection.PC.connectionState === "connected") {
+						peerConnection.PC.close();
+					}
+					if (peerConnection.DC && peerConnection.DC.connectionState === "connected") {
+						peerConnection.DC.close();
+					}
+					PeersConnection.delete(msg.from);
 				}
-				PeersConnection.delete(msg.from);
 
 				const newPeers = _Peers.filter((peer) => {
 					return (peer._id !== msg.from);
 				});
-				console.log("eeee", newPeers);
 				set_Peers(newPeers);
 			}
 			else if (msg.role === "Pending" && _PendingInvitation.length > 0) {
+				// If it was a client who was waiting for joining in the room, remove is invitation
 				set_PendingInvitation([..._PendingInvitation.filter((value) => {
 					return (value._id !== msg.from);
 				})]);
@@ -386,6 +413,7 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "OwnershipReceived") {
 			console.log("You've been promoted");
+			// TODO: Show the admin panel or something
 		}
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
@@ -431,7 +459,7 @@ export default function	RoomLayer(props) {
 
 	function	WSonError(event) {
 		console.log(`WS error:`, event);
-		handUpCall();
+		window.SignalingSocket.close();
 	}
 
 	window.SignalingSocket.onmessage = WSonMessage;
@@ -443,8 +471,9 @@ export default function	RoomLayer(props) {
 
 	useEffect(() => {
 		// Could have been done in the `JoinRequestCallback` but I like it better that way (less props parameters)
+		// This will be triggered only once at the time your joining the room and will fetch all the peer in the room with you
 		window.SignalingSocket.send(JSON.stringify({
-			type: "askRoomPeers",
+			type: "RoomSetup",
 			to: props.selfId
 		}));
 	}, [false]);
@@ -497,7 +526,8 @@ export default function	RoomLayer(props) {
 							id="LocalStream"
 							stream={window.localStream}
 							name={peer.name}
-							audio={peer.audio}
+							audio={props.audio}
+							video={props.video}
 							muted
 							mirrored
 						/>
@@ -507,6 +537,7 @@ export default function	RoomLayer(props) {
 							stream={PeersConnection.get(peer._id)?.stream}
 							name={peer.name}
 							audio={peer.audio}
+							video={peer.video}
 						/>
 					))
 				}
@@ -534,7 +565,7 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					{/* <div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={toggleVideo}>
+					<div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onClick={toggleVideo}>
 						{props.video ?
 							// Icon camera turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -546,7 +577,7 @@ export default function	RoomLayer(props) {
 								<path d="M18 10.48V6c0-1.1-.9-2-2-2H6.83l2 2H16v7.17l2 2v-1.65l4 3.98v-11l-4 3.98zM16 16L6 6 4 4 2.81 2.81 1.39 4.22l.85.85C2.09 5.35 2 5.66 2 6v12c0 1.1.9 2 2 2h12c.34 0 .65-.09.93-.24l2.85 2.85 1.41-1.41L18 18l-2-2zM4 18V6.83L15.17 18H4z"></path>
 							</svg>
 						}
-					</div> */}
+					</div>
 					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} onClick={handUpCall}>
 						<img className="RL-TB-C-B-CBL-Img" alt="Leave the call" src={HangUpIcon} />
 					</div>
