@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 13:26:51 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 16:21:13 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,14 +83,14 @@ export default function	PreRoomLayer(props) {
 		else {
 			console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
 			if (window.location.pathname !== "/") {
-				history.push(`/`);
+				history.push("/");
 			}
 		}
 	}
 
 	function	WSonError(event) {
 		console.log(`WS error:`, event);
-		history.push(`/`);
+		window.SignalingSocket.close();
 	}
 
 	function	connectClient(roomId) {

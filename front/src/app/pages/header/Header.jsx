@@ -12,7 +12,9 @@ export default function	Header()
 	const history = useHistory();
 
 	function	goToTheLandingPage() {
-		history.push("/");
+		if (window.location.pathname !== "/"); {
+			history.push("/");
+		}
 	}
 
 	useEffect(() => {
