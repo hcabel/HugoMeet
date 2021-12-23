@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:13 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 12:23:09 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 14:55:49 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ export default function PeerVideo(props) {
 				muted={props.muted}
 				controls={false}
 				onLoadedMetadata={(e) => e.target.play()}
+				style={{ display: (props.video ? "block" : "none") }}
 			/>
 			{props.video ?
 				<div className="RL-VC-P-Name">
