@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:18 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 19:59:45 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 20:38:39 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,19 @@
 	text-align: center;
 	font-weight: bold;
 	font-size: 2.5vh;
+	color: coral;
+}
+
+.RL-VC-P-NameOverlay {
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	font-weight: bold;
+	font-size: 5vw;
 	color: coral;
 }
 

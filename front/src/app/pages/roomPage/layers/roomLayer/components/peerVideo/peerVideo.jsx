@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:13 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 19:58:12 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 12:23:09 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,40 +17,27 @@ export default function PeerVideo(props) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render
 
-	function	setStream(video, stream) {
-		if (video) {
-			// If you want to change the srcObject of a video you need to paused them before
-			// So this function will return the appropriate stream depending on both stream id
-			// and will pause the video if a switch of stream is required
-			const videoStream = video.srcObject;
-			if (stream && videoStream) {
-				if (video.id === stream.id) {
-					return (videoStream);
-				}
-				video.pause();
-				video.srcObject = stream;
-			}
-			else if (!videoStream && !stream) {
-				return (undefined);
-			}
-			return (videoStream ? videoStream : stream);
-		}
-		return (undefined);
-	}
 
+	console.log(`PeerVideo_${props.index}:\tRefresh`);
 	return (
 		<div id={`RL-VC-Video-${props.index}`} className="RL-VC-Peer">
 			<video
 				className={props.mirrored ? "RL-VC-P-Video-Mirrored" : "RL-VC-P-Video"}
 				id={props.id}
-				src={setStream(document.getElementById(`RL-VC-Video-${props.index}`)?.children[0], props.stream)}
 				autoPlay
 				muted={props.muted}
 				controls={false}
+				onLoadedMetadata={(e) => e.target.play()}
 			/>
-			<div className="RL-VC-P-Name">
-				{props.name}
-			</div>
+			{props.video ?
+				<div className="RL-VC-P-Name">
+					{props.name}
+				</div>
+			:
+				<div className="RL-VC-P-NameOverlay">
+					{props.name}
+				</div>
+			}
 			{props.audio === false &&
 				<div className="RL-VC-P-AudioStatus">
 					<svg width="24px" height="24px" viewBox="0 0 24 24" fill="#000000">

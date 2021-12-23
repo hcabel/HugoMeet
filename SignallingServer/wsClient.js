@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 13:46:23 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/05 22:13:57 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ module.exports = async function(socket, req) {
 				);
 			}
 		}
-		else if (msg.type === "askRoomPeers") {
+		else if (msg.type === "RoomSetup") {
 			const roomPeers = globalVariables.rooms.get(roomId);
 			const peers = Array.from(roomPeers.values()).filter((peer) => {
 				return (peer.role !== "Pending");
@@ -157,7 +157,7 @@ module.exports = async function(socket, req) {
 			});
 
 			target.ws.send(JSON.stringify({
-				type: "RoomPeers",
+				type: "RoomSetupCallback",
 				peers: peers
 			}))
 		}
