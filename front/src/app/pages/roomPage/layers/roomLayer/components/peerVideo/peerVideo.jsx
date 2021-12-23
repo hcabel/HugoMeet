@@ -6,22 +6,31 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/05 17:25:13 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 14:55:49 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 16:24:33 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+import { useEffect, useRef } from "react";
 import "./peerVideoCSS.css";
 
 export default function PeerVideo(props) {
+	const videoElement = useRef(null);
 
 	///////////////////////////////////////////////////////////////////////////////
 	//	Render
 
+	useEffect(() => {
+		console.log(`PeerVideo_${props.index}:\tUseEffect`);
+		if (videoElement && videoElement.current) {
+			videoElement.current.srcObject = props.stream;
+		}
+	}, [ props.name ])
 
 	console.log(`PeerVideo_${props.index}:\tRefresh`);
 	return (
 		<div id={`RL-VC-Video-${props.index}`} className="RL-VC-Peer">
 			<video
+				ref={videoElement}
 				className={props.mirrored ? "RL-VC-P-Video-Mirrored" : "RL-VC-P-Video"}
 				id={props.id}
 				autoPlay
