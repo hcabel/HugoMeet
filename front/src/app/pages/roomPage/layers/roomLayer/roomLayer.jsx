@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 12:21:31 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 13:09:34 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ export default function	RoomLayer(props) {
 			video.srcObject = event.streams[0];
 		}
 		else {
-			console.error("WebRTC:\tStream received was not able to be apply to the peer video")
+			console.error("WebRTC:\tStream received was not able to be apply to the peer video");
 		}
 		const connection = PeersConnection.get(peerId);
 		connection.stream = event.streams[0];
@@ -337,7 +337,12 @@ export default function	RoomLayer(props) {
 		set_Peers(msg.peers);
 
 		const video = document.getElementById(`LocalStream`);
-		video.srcObject = window.localStream;
+		if (video) {
+			video.srcObject = window.localStream;
+		}
+		else {
+			console.error("WebRTC:\tStream received was not able to be apply to the peer video");
+		}
 
 		// Connect with all peers in the room
 		for (const peer of msg.peers) {

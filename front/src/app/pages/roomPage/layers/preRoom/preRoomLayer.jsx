@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/05 20:19:33 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 13:26:51 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,28 +22,19 @@ import Header from "../../../header/Header";
 export default function	PreRoomLayer(props) {
 	const [_Cookie, set_Cookie] = useCookies(['HugoMeet']);
 	const [_Name, set_Name] = useState(!_Cookie.userName || _Cookie.userName === "undefined" ? "" : _Cookie.userName);
-	const [_State, set_State] = useState("Connecting");
+	const [_State, set_State] = useState("Form");
 
 	const history = useHistory();
 	const { roomId } = useParams();
 
 	function	participate() {
-		set_Cookie('userName', _Name, {path: '/'});
-		window.SignalingSocket.send(JSON.stringify({
-			type: "JoinRequest",
-			to: props.selfId,
-			value: _Name
-		}));
-		set_State("Pending");
-	}
 
-	function	retry() {
-		window.SignalingSocket.send(JSON.stringify({
-			type: "JoinRequest",
-			to: props.selfId,
-			value: _Name
-		}));
-		set_State("Pending");
+		set_Cookie('userName', _Name, {path: '/'});
+		// Connect to the signalling server
+		if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
+			connectClient(roomId);
+		}
+		set_State("Connecting");
 	}
 
 	function	toggleAudio() {
@@ -65,32 +56,35 @@ export default function	PreRoomLayer(props) {
 			console.error(`Cannot parse message: ${msg.data}\nError: ${err}`);
 			return ;
 		}
+		console.log(msg);
 
 		if (msg.type === "ConnectionCallback") {
 			props.onConnectionCallback(msg);
-		}
-		else if (msg.type === "JoinRequestCallback") {
-			if (msg.approved === true) {
+			if (msg.instantJoin === true) {
 				props.onJoin();
 			}
 			else {
-				console.log(`The owner of the room ${roomId} denied your joining request`);
-				set_State("Rejected");
+				set_State("Pending");
 			}
+		}
+		else if (msg.type === "JoinRequestCallback") {
+			props.onJoin();
 		}
 		else {
 			console.warn(`Msg dropped because type ${msg.type} is unknown`);
 		}
 	}
 
-	function	WSonOpen() {
-		set_State("Form");
-	}
-
 	function	WSonClose(event) {
-		console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
-		if (window.location.pathname !== "/") {
-			history.push(`/`);
+		if (event.code === 4005) {
+			console.log(`The owner of the room ${roomId} deny your joining request`);
+			set_State("Rejected");
+		}
+		else {
+			console.log(`WS close: ${event.code}${event.reason && ` - ${event.reason}`}`);
+			if (window.location.pathname !== "/") {
+				history.push(`/`);
+			}
 		}
 	}
 
@@ -101,13 +95,12 @@ export default function	PreRoomLayer(props) {
 
 	function	connectClient(roomId) {
 		if (!window.WebSocket) {
-			alert("FAILED: Your browser's version is to old.");
+			alert("FAILED: Your browser's version is too old.");
 		}
 
 		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}`);
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${_Name}`);
 
-		window.SignalingSocket.onopen = WSonOpen;
 		window.SignalingSocket.onmessage = WSonMessage;
 		window.SignalingSocket.onclose = WSonClose;
 		window.SignalingSocket.onerror = WSonError;
@@ -117,18 +110,12 @@ export default function	PreRoomLayer(props) {
 	//	UseEffect
 
 	useEffect(() => {
-
 		// Ask to allow notification from HugoMeet
 		if (!window.Notification) {
 			alert("This browser does not support notifications.");
 		} else {
 			Notification.requestPermission()
 			.catch(() => Notification.requestPermission());
-		}
-
-		// Connect to the signalling server
-		if (!window.SignalingSocket || window.SignalingSocket.readyState === 3) {
-			connectClient(roomId);
 		}
 	});
 
@@ -224,7 +211,7 @@ export default function	PreRoomLayer(props) {
 											<div className="PRP-B-C-F-Title" style={{ color: "red" }}>
 												Rejected
 											</div>
-											<div className="PRP-B-C-F-SubmitButtons" onClick={retry}>
+											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">
 														retry
