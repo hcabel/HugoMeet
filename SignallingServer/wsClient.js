@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 13:35:28 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 15:15:09 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,14 @@ module.exports = async function(socket, req) {
 		const roomPeers = globalVariables.rooms.get(roomId);
 		let newOwnerId = to;
 
+		// If the last client to leave is the owner
+		if (!roomPeers) {
+			return;
+		}
+
 		if (newOwnerId === undefined) {
-			const peers = Array.from(roomPeers.keys());
-			for (const peer in peers) {
+			const peers = Array.from(roomPeers.values());
+			for (const peer of peers) {
 				if (peer.role === "Client") {
 					newOwnerId = peer._id;
 					break;
@@ -31,7 +36,7 @@ module.exports = async function(socket, req) {
 			}
 
 			if (newOwnerId === undefined) {
-				return;
+				throw Error("couldn't give ownership");
 			}
 		}
 
@@ -41,6 +46,9 @@ module.exports = async function(socket, req) {
 			newOwner.ws.send(JSON.stringify({
 				type: "OwnershipReceived",
 			}));
+		}
+		else {
+			throw Error("couldn't give ownership");
 		}
 	}
 
@@ -73,11 +81,12 @@ module.exports = async function(socket, req) {
 		else {
 			roomPeers.delete(clientId);
 			globalVariables.rooms.set(roomId, roomPeers);
+		}
 
-			if (role === "Owner") {
-				// Give the ownership to a the first player in the list (May change this method BTW)
-				giveOwnership(undefined);
-			}
+		if (role === "Owner") {
+			console.log(`Room_${roomId}:\tThe owner leave.`);
+			// Give the ownership to a the first player in the list (May change this method BTW)
+			giveOwnership(undefined);
 		}
 	}
 
