@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 13:30:28 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 13:35:28 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,8 +180,9 @@ module.exports = async function(socket, req) {
 	///////////////////////////////////////////////////////////////////////////////
 	//	WebSocket Connection
 
-	const urlOrigin = new URL(`${req.headers.origin}${req.url}`);
-	roomId = urlOrigin.searchParams.get("roomid");
+	const queryParams = new URL(`${req.headers.origin}${req.url}`).searchParams;
+	const clientName = queryParams.get("name");
+	roomId = queryParams.get("roomid");
 
 	// console.log(Array.from(roomMap.keys()));
 
@@ -204,7 +205,7 @@ module.exports = async function(socket, req) {
 	roomMap.set(clientId, {
 		_id: clientId,
 		ws: socket,
-		name: "NotDefined",
+		name: clientName,
 		role: "Pending"
 	});
 	// Override the map
@@ -224,7 +225,7 @@ module.exports = async function(socket, req) {
 			type: "JoinRequestReceived",
 			from: clientId,
 			to: roomOwner._id,
-			name: urlOrigin.searchParams.get("name")
+			name: clientName
 		}));
 	}
 	else {
