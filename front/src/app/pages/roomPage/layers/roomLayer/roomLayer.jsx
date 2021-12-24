@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 13:09:34 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/24 12:24:48 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ export default function	RoomLayer(props) {
 	function	toggleAudio() {
 		props.onChangeAudioStatus(!props.audio)
 		.then((newStream) => {
-			console.log(1, "Update Audio", newStream);
+			console.log("Update Audio", newStream);
 		});
 
 		// Send message to inform everyon than I turn off/on my audioChannel
@@ -66,7 +66,18 @@ export default function	RoomLayer(props) {
 	function	toggleVideo() {
 		props.onChangeVideoStatus(!props.video)
 		.then((newStream) => {
-			console.log(2, "Update Video", newStream);
+			if (!props.video) {
+				PeersConnection.forEach((peerConnection) => {
+					const tracks = newStream.getTracks();
+					tracks.forEach((track) => {
+						try {
+							console.log(track);
+							peerConnection.PC.addTrack(track);
+						}
+						catch (e) {}
+					});
+				});
+			}
 		});
 
 		sendMessageToEveryoneInTheRoom(JSON.stringify({ type: "videoStateChange", _id: props.selfId, video: !props.video }));
@@ -200,12 +211,62 @@ export default function	RoomLayer(props) {
 		PeersConnection.set(peerId, connection);
 	}
 
+	function	onNegotiationNeeded(connection, peerId) {
+		if (window.localStream) {
+			// Send your streams to the peer (Audio/Video)
+			sendStreamsToPeers(connection, window.localStream);
+		}
+
+		// Create/Set your own local description
+		connection.createOffer()
+		.then((offer) => {
+			connection.setLocalDescription(offer)
+			.then(() => console.log(`WebRTC:\tLocal description set`));
+
+			// send local description to the peer
+			let descriptor = {
+				to: peerId,
+				type: "Offer",
+				offer: offer
+			}
+			console.log(`WebRTC:\tSend Offer to Client_${peerId}`);
+			window.SignalingSocket.send(JSON.stringify(descriptor));
+		})
+	}
+
+	function	setRemoteThenLocalDescriptionTo(connection, offer, peerId) {
+
+		if (connection.connectionState === "stable") {
+			return;
+		}
+
+		connection.setRemoteDescription(offer)
+		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
+
+		connection.createAnswer()
+		.then((answer) => {
+			connection.setLocalDescription(answer)
+			.then(() => console.log(`WebRTC:\tLocal description set`));
+
+			// Send your local description to the peer
+			let descriptor = {
+				to: peerId,
+				type: "Answer",
+				answer: answer
+			}
+			console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
+			window.SignalingSocket.send(JSON.stringify(descriptor));
+		});
+	}
+
 	// When a new client wish to connect with you
 	function	sendAnswerBasedOffer(offer, peerId) {
-		console.log(`WebRTC:\t>>> Client_${peerId} send you an Offer <<<`);
+		console.log(`WebRTC:\t>>> New peer connection with: Client_${peerId} <<<`);
+
 		let newConnection = new RTCPeerConnection(props.rtcOptions);
 		newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
 		newConnection.ontrack = (event) => onTrack(event, peerId);
+		newConnection.onnegotiationneeded = (event) => onNegotiationNeeded(event.currentTarget, peerId);
 
 		newConnection.ondatachannel = (event) => {
 			// this function will be executed when the two peers has set theyr local/remote description
@@ -219,25 +280,7 @@ export default function	RoomLayer(props) {
 			sendStreamsToPeers(newConnection, window.localStream);
 		}
 
-		// Set local description of the peer
-		newConnection.setRemoteDescription(offer)
-		.then(() => console.log(`WebRTC:\tClient_${peerId}:\tRemote description set`));
-
-		// Create/Set your own local description
-		newConnection.createAnswer()
-		.then((answer) => {
-			newConnection.setLocalDescription(answer)
-			.then(() => console.log(`WebRTC:\tLocal description set`));
-
-			// Send your local description to the peer
-			let descriptor = {
-				to: peerId,
-				type: "Answer",
-				answer: answer
-			}
-			console.log(`WebRTC:\tSend Answer to Client_${peerId}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
-		});
+		setRemoteThenLocalDescriptionTo(newConnection, offer, peerId);
 
 		return ({
 			PC: newConnection,
@@ -252,35 +295,15 @@ export default function	RoomLayer(props) {
 		let newConnection = new RTCPeerConnection(props.rtcOptions);
 		newConnection.onicecandidate = (event) => onIceCandidate(event, peerId);
 		newConnection.ontrack = (event) => onTrack(event, peerId);
-
-		// Create DataChannel
-		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
-		initDCFunctions(dataChannel, peerId);
+		newConnection.onnegotiationneeded = (event) => onNegotiationNeeded(event.currentTarget, peerId);
 
 		// TODO: Make sure of the importance of this line (I think it's already set to `sendrecv`)
 		newConnection.addTransceiver("video", { direction: "sendrecv" });
 		newConnection.addTransceiver("audio", { direction: "sendrecv" });
 
-		if (window.localStream) {
-			// Send your streams to the peer (Audio/Video)
-			sendStreamsToPeers(newConnection, window.localStream);
-		}
-
-		// Create/Set your own local description
-		newConnection.createOffer()
-		.then((offer) => {
-			newConnection.setLocalDescription(offer)
-			.then(() => console.log(`WebRTC:\tLocal description set`));
-
-			// send local description to the peer
-			let descriptor = {
-				to: peerId,
-				type: "Offer",
-				offer: offer
-			}
-			console.log(`WebRTC:\tSend Offer to Client_${peerId}`);
-			window.SignalingSocket.send(JSON.stringify(descriptor));
-		})
+		// Create DataChannel
+		let dataChannel = newConnection.createDataChannel(`HugoMeet_${roomId}`);
+		initDCFunctions(dataChannel, peerId);
 
 		return ({
 			PC: newConnection,
@@ -292,19 +315,29 @@ export default function	RoomLayer(props) {
 		if (msg.type === "Offer") {
 			// somemone new has join the room and send you an offer start a peer connection
 
-			const newValues = sendAnswerBasedOffer(msg.offer, msg.from);
-			const AlreadyexistingValues = PeersConnection.get(msg.from);
+			if (PeersConnection.has(msg.from)) {
+				// Update webrtc descriptions (renegotiation)
+				console.log(`WebRTC:\t>>> Client_${msg.from} send you his Offer <<<`);
+				const connection = PeersConnection.get(msg.from).PC;
+				setRemoteThenLocalDescriptionTo(connection, msg.offer, msg.from);
+			}
+			else {
+				// Create a new connection with the peer
+				const newValues = sendAnswerBasedOffer(msg.offer, msg.from);
+				const AlreadyexistingValues = PeersConnection.get(msg.from);
 
-			PeersConnection.set(msg.from, {
-				_id: msg.from,
-				...AlreadyexistingValues,
-				...newValues
-			});
+				PeersConnection.set(msg.from, {
+					_id: msg.from,
+					...AlreadyexistingValues,
+					...newValues
+				});
+			}
+			return;
 		}
 
 		let connection = PeersConnection.get(msg.from);
 		if (!connection) {
-			throw Error("You receive a RTC message from a undefined peer");
+			throw Error(`You receive a RTC message from a undefined peer:\t${msg.type}`);
 		}
 
 		if (msg.type === "Answer") {
