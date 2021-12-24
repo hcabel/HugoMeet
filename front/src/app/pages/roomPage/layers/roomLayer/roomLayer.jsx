@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/24 12:24:48 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/24 12:38:13 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,14 +68,7 @@ export default function	RoomLayer(props) {
 		.then((newStream) => {
 			if (!props.video) {
 				PeersConnection.forEach((peerConnection) => {
-					const tracks = newStream.getTracks();
-					tracks.forEach((track) => {
-						try {
-							console.log(track);
-							peerConnection.PC.addTrack(track);
-						}
-						catch (e) {}
-					});
+					sendStreamsToPeers(peerConnection.PC, newStream);
 				});
 			}
 		});
@@ -161,16 +154,24 @@ export default function	RoomLayer(props) {
 
 	function	sendStreamsToPeers(connection, stream) {
 		if (connection) {
+			let livingTracksId = []
 			const senders = connection.getSenders();
+
+			// remove all useless tracks and save the living ones
 			senders.forEach((sender) => {
-				connection.removeTrack(sender);
-				// if (!sender.track || sender.track.readyState === "ended" || sender.track.readyState === "video") {
-				// 	connection.removeTrack(sender);
-				// }
+				if (!sender.track || sender.track.readyState === "ended" || sender.track.kind === "video") {
+					connection.removeTrack(sender);
+				}
+				else {
+					livingTracksId = livingTracksId.concat(sender.track.id);
+				}
 			});
 
+			// Add new non already existing track
 			stream.getTracks().forEach((track) => {
-				connection.addTrack(track, stream);
+				if (!livingTracksId.includes(track.id)) {
+					connection.addTrack(track, stream);
+				}
 			});
 		}
 		else {
@@ -234,7 +235,7 @@ export default function	RoomLayer(props) {
 		})
 	}
 
-	function	setRemoteThenLocalDescriptionTo(connection, offer, peerId) {
+	function	setRemoteThenLocalDescription(connection, offer, peerId) {
 
 		if (connection.connectionState === "stable") {
 			return;
@@ -280,7 +281,7 @@ export default function	RoomLayer(props) {
 			sendStreamsToPeers(newConnection, window.localStream);
 		}
 
-		setRemoteThenLocalDescriptionTo(newConnection, offer, peerId);
+		setRemoteThenLocalDescription(newConnection, offer, peerId);
 
 		return ({
 			PC: newConnection,
@@ -319,7 +320,7 @@ export default function	RoomLayer(props) {
 				// Update webrtc descriptions (renegotiation)
 				console.log(`WebRTC:\t>>> Client_${msg.from} send you his Offer <<<`);
 				const connection = PeersConnection.get(msg.from).PC;
-				setRemoteThenLocalDescriptionTo(connection, msg.offer, msg.from);
+				setRemoteThenLocalDescription(connection, msg.offer, msg.from);
 			}
 			else {
 				// Create a new connection with the peer
