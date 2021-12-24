@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:07 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 12:21:43 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/23 16:22:28 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,12 @@ export default function	App()
 			console.log(e.pathname);
 			// If go on a page that isn't a room page
 			if (!e.pathname.startsWith("/room/")) {
+				// Close signalling WebSocket
 				if (window.SignalingSocket) {
-					// Close signaling WebSocket
+					window.SignalingSocket.onopen = undefined;
+					window.SignalingSocket.onmessage = undefined;
+					window.SignalingSocket.onerror = undefined;
+					window.SignalingSocket.onclose = undefined;
 					if (window.SignalingSocket.readyState === 0 || window.SignalingSocket.readyState === 1) {
 						window.SignalingSocket.close();
 					}
