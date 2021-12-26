@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/24 12:38:13 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/26 11:52:19 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ import NotificationIcon from "./assets/HugoMeetLogo-256x256.png"
 
 // Components
 import PeerVideo from "./components/peerVideo/peerVideo";
-import Notification from "./components/notification/notification";
+import JoiningNotificationElement from "./components/notification/notification";
 
 import "./roomLayerCSS.css";
 
@@ -552,7 +552,7 @@ export default function	RoomLayer(props) {
 		<div className="RoomLayer">
 			{/* NOTIFICATION */}
 			{_PendingInvitation.map((invitation, index) =>
-				<Notification key={index} index={index}
+				<JoiningNotificationElement key={index} index={index}
 					clientId={invitation._id}
 					name={invitation.name}
 					onResponce={sendJoinRequestResponce}

@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:48:47 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 15:15:09 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/26 11:40:49 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,8 @@ module.exports = async function(socket, req) {
 			}
 
 			if (newOwnerId === undefined) {
-				throw Error("couldn't give ownership");
+				console.warn("couldn't give ownership");
+				return;
 			}
 		}
 

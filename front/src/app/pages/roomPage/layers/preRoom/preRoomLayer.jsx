@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/26 11:00:41 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/26 11:32:02 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ export default function	PreRoomLayer(props) {
 			Notification.requestPermission()
 			.catch(() => Notification.requestPermission());
 		}
-	});
+	}, [ false ]);
 
 	console.log("PreRoomLayer:\tRefresh");
 	return (
