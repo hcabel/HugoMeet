@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/26 11:52:19 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/26 13:27:05 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,26 +153,14 @@ export default function	RoomLayer(props) {
 	//	WebRTC
 
 	function	sendStreamsToPeers(connection, stream) {
+		// This function isn't efficient but there is no bug for simple usage.
+		// (My guess is that it my crash when restarting the camera too much like 100 times or more)
 		if (connection) {
-			let livingTracksId = []
+			// remove all tracks
 			const senders = connection.getSenders();
-
-			// remove all useless tracks and save the living ones
-			senders.forEach((sender) => {
-				if (!sender.track || sender.track.readyState === "ended" || sender.track.kind === "video") {
-					connection.removeTrack(sender);
-				}
-				else {
-					livingTracksId = livingTracksId.concat(sender.track.id);
-				}
-			});
-
-			// Add new non already existing track
-			stream.getTracks().forEach((track) => {
-				if (!livingTracksId.includes(track.id)) {
-					connection.addTrack(track, stream);
-				}
-			});
+			senders.forEach((sender) => connection.removeTrack(sender));
+			// Add all new track
+			stream.getTracks().forEach((track) => connection.addTrack(track, stream));
 		}
 		else {
 			console.error("Try to update peers with the new stream but peerConnection was not establish")
