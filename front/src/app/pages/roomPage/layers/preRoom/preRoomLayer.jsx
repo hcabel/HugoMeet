@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/23 17:01:28 by hcabel           ###   ########.fr       */
+/*   Updated: 2021/12/26 11:00:41 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,12 @@ export default function	PreRoomLayer(props) {
 			alert("FAILED: Your browser's version is too old.");
 		}
 
+		let name = _Name;
+		if (name.length > 25) {
+			name = name.slice(0, 22) + "...";
+		}
 		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${_Name}`);
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${name}`);
 
 		window.SignalingSocket.onmessage = WSonMessage;
 		window.SignalingSocket.onclose = WSonClose;
