@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:28 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/29 22:37:59 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 16:36:23 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ export default function	PreRoomLayer(props) {
 
 	function	WSonClose(event) {
 		if (event.code === 4005) {
-			console.log(`The owner of the room ${roomId} deny your joining request`);
+			console.log(`The owner of the room ${roomId} denied your joining request`);
 			set_State("Rejected");
 		}
 		else if (event.code === 1006) {
@@ -192,7 +192,7 @@ export default function	PreRoomLayer(props) {
 									return (
 										<div className="PRP-B-C-Form">
 											<div className="PRP-B-C-F-Title">
-												Ready to join ?
+												Ready to join?
 											</div>
 											<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
 											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
@@ -208,7 +208,7 @@ export default function	PreRoomLayer(props) {
 									return (
 										<div className="PRP-B-C-Form">
 											<div className="PRP-B-C-F-Title">
-												Waiting owner approval...
+												Waiting for approval...
 											</div>
 											<div className="PRP-B-C-C-LoadingAnimation">
 												<div></div>

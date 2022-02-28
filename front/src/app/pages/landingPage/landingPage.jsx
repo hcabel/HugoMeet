@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/04 14:44:35 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 16:32:29 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ const	PresentationTitle = [
 ];
 const	PresentationText = [
 	"Click New meeting to get a link that you can send to people that you want to meet with",
-	"To see more people at the same time, find another website it is kind of imposible here",
+	"See multiple people at the same time (with some lag)",
 	"Almost no one can join a meeting unless invited or admitted by the host"
 ];
 
@@ -68,7 +68,7 @@ export default function LandingPage()
 						HugoMeet, now available for everyone, for free.
 					</div>
 					<div className="LP-B-TAB-Text2">
-						Welcome to my video meeting plateform, I made this to show my WebRTC skills I hope you would like it and maybe find it usefull.
+						Welcome to my video meeting platform. I made this to show my WebRTC skills. I hope you like it and maybe find it useful.
 					</div>
 					<div className="LP-B-TAB-Button">
 						<div className="LP-B-TAB-B-CreateNewRoom" onClick={createNewRoom}>
