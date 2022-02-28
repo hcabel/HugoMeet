@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2022/02/28 19:11:28 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 19:18:34 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -447,26 +447,26 @@ export default function	RoomLayer(props) {
 			new Notification('Hugo Meet - Joining request', {
 				body: `${msg.name} ask you for joining the room`,
 				icon: NotificationIcon,
-				/* requireInteraction: true,
+				requireInteraction: true,
 				maxActions: 2,
 				actions: [{
-					action: 'Allow',				Work only in secure context (HTTPS)
-					title: 'Allow'					But it should work
+					action: 'Allow',
+					title: 'Allow'
 				},{
 					action: 'Deny',
 					title: 'Deny'
-				}], */
+				}],
 				silent: false
 			});
 
-			// notification.notificationclick = (event) => {
-			// 	if (event.action === 'Allow') {
-			// 		sendJoinRequestResponce(true, msg.from);
-			// 	}
-			// 	else if (event.action === 'Deny') {
-			// 		sendJoinRequestResponce(false, msg.from);
-			// 	}
-			// }
+			notification.notificationclick = (event) => {
+				if (event.action === 'Allow') {
+					sendJoinRequestResponce(true, msg.from);
+				}
+				else if (event.action === 'Deny') {
+					sendJoinRequestResponce(false, msg.from);
+				}
+			}
 
 			set_PendingInvitation([..._PendingInvitation, { name: msg.name, _id: msg.from }]);
 		}
