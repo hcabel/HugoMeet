@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:17 by hcabel            #+#    #+#             */
-/*   Updated: 2022/02/28 16:32:29 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 17:10:57 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,21 @@ export default function LandingPage()
 		history.push("/room/" + roomId);
 	}
 
+	function	updateInputValue(e) {
+		const value = e.target.value;
+		let result = value;
+
+		if (_Value.length === value.length + 1 && _Value[_Value.length - 1] === '-') {
+			// If you removing a '-' remove another letter
+			result = result.slice(0, result.length - 1);
+		}
+		else if (value.length == 3 || value.length == 7) {
+			// add '-' at 3th and 7th postion
+			result += '-';
+		}
+		set_Value(result.slice(0, 11));
+	}
+
 	return (
 		<div className="LandingPage">
 			<Header />
@@ -90,8 +105,8 @@ export default function LandingPage()
 									placeholder="Enter a code"
 									spellCheck="false"
 									maxLength="50"
-									onChange={(e) => set_Value(e.target.value)}
-									onFocus={() => set_Focused(true)}
+									onChange={updateInputValue}
+									onFocus={(e) => {set_Focused(true); set_Value(e.target.value);} }
 									onBlur={() => set_Focused(false)}
 								>
 								</input>

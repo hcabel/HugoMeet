@@ -6,11 +6,11 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:49:04 by hcabel            #+#    #+#             */
-/*   Updated: 2021/11/19 22:49:51 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 16:42:59 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-const https = true;
+const https = false;
 
 let url = "localhost";
 
