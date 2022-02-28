@@ -118,11 +118,12 @@ export default function	PreRoomLayer(props) {
 
 	useEffect(() => {
 		// Ask to allow notification from HugoMeet
-		if (!window.Notification) {
-			alert("This browser does not support notifications.");
-		} else {
+		if (window.Notification) {
 			Notification.requestPermission()
 			.catch(() => Notification.requestPermission());
+		}
+		else {
+			// alert("This browser does not support notifications.");
 		}
 	}, [ false ]);
 
@@ -137,7 +138,15 @@ export default function	PreRoomLayer(props) {
 							<div className="PRP-B-C-S-VS-Video">
 								<div className="PRP-B-C-S-VS-V-Inside">
 									<div className="PRP-B-C-S-VS-V-I-StreamsVideo">
-										<video autoPlay muted id="LocalStream" className="PRP-B-C-S-VS-V-I-SV-Video" />
+										<video
+											id="LocalStream"
+											className="PRP-B-C-S-VS-V-I-SV-Video"
+											autoPlay
+											muted
+											webkit-playsInline
+											playsInline
+											loop
+										/>
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">

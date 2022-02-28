@@ -31,13 +31,15 @@ export default function PeerVideo(props) {
 		<div id={`RL-VC-Video-${props.index}`} className="RL-VC-Peer">
 			<video
 				ref={videoElement}
-				className={props.mirrored ? "RL-VC-P-Video-Mirrored" : "RL-VC-P-Video"}
 				id={props.id}
+				className={props.mirrored ? "RL-VC-P-Video-Mirrored" : "RL-VC-P-Video"}
 				autoPlay
 				muted={props.muted}
-				controls={false}
 				onLoadedMetadata={(e) => e.target.play()}
 				style={{ display: (props.video ? "block" : "none") }}
+				webkit-playsInline
+				playsInline
+				loop
 			/>
 			{props.video ?
 				<div className="RL-VC-P-Name">
