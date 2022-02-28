@@ -6,7 +6,7 @@
 /*   By: hcabel <hcabel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 22:50:24 by hcabel            #+#    #+#             */
-/*   Updated: 2021/12/26 13:27:05 by hcabel           ###   ########.fr       */
+/*   Updated: 2022/02/28 19:11:28 by hcabel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -445,7 +445,7 @@ export default function	RoomLayer(props) {
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
 			new Notification('Hugo Meet - Joining request', {
-				body: `${msg.from} ask you for joining the room`,
+				body: `${msg.name} ask you for joining the room`,
 				icon: NotificationIcon,
 				/* requireInteraction: true,
 				maxActions: 2,
