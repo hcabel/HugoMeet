@@ -38,7 +38,7 @@ export default function	Header()
 				set_Date(new Date());
 			}, 60000);
 		}, 60000 - _Date.getSeconds() * 1000 + _Date.getMilliseconds());
-	})
+	}, [false])
 
 	function	getHours(date) {
 		const minutes = date.getMinutes();

@@ -125,7 +125,7 @@ export default function	PreRoomLayer(props) {
 		else {
 			// alert("This browser does not support notifications.");
 		}
-	});
+	}, [false]);
 
 	console.log("PreRoomLayer:\tRefresh");
 	return (

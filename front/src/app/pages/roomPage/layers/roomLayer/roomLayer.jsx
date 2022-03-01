@@ -488,7 +488,7 @@ export default function	RoomLayer(props) {
 			type: "RoomSetup",
 			to: props.selfId
 		}));
-	});
+	}, [false]);
 
 	useEffect(() => {
 		// Thanks to react _Peers wont be updated in the function DConMessage

@@ -28,7 +28,7 @@ export default function Notification(props) {
 				<span className="RL-I-C-Name">
 					{formatName(props.name)}
 				</span>
-				wants to join the room
+				wants to join the room qwerqwerwants to join the room qwerqwerwants to join the room qwerqwerwants to join the room qwerqwer
 			</div>
 			<div className="RL-I-Buttons">
 				<div

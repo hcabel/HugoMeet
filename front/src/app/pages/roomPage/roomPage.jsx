@@ -140,7 +140,7 @@ export default function	RoomPage() {
 		if (Utils.idGenerator.isRoomIDValid(roomId)) {
 			InitStreams(_Audio, _Video);
 		}
-	});
+	}, [false]);
 
 	console.log("Refresh:\tRoomPage");
 	return (
