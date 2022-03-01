@@ -17,31 +17,7 @@ module.exports = async function(socket, req) {
 	let clientId = "";
 	let roomId = "";
 
-	function	giveOwnership(to) {
-		const roomPeers = globalVariables.rooms.get(roomId);
-		let newOwnerId = to;
-
-		// If the last client to leave is the owner
-		if (!roomPeers) {
-			return;
-		}
-
-		if (newOwnerId === undefined) {
-			const peers = Array.from(roomPeers.values());
-			for (const peer of peers) {
-				if (peer.role === "Client") {
-					newOwnerId = peer._id;
-					break;
-				}
-			}
-
-			if (newOwnerId === undefined) {
-				console.warn("couldn't give ownership");
-				return;
-			}
-		}
-
-		const newOwner = roomPeers.get(newOwnerId);
+	function	promotePeer(newOwner) {
 		if (newOwner) {
 			newOwner.role = "Owner";
 			newOwner.ws.send(JSON.stringify({
@@ -51,6 +27,73 @@ module.exports = async function(socket, req) {
 		else {
 			throw Error("couldn't give ownership");
 		}
+	}
+
+	function	giveOwnership(to) {
+		const roomPeers = globalVariables.rooms.get(roomId);
+		let newOwnerId = to;
+
+		// If the last client to leave is the owner
+		if (!roomPeers || roomPeers.length >= 0) {
+			return;
+		}
+
+		if (newOwnerId === undefined) {
+
+			// Try to give ownership to client
+			const peers = Array.from(roomPeers.values());
+			for (const peer of peers) {
+				if (peer.role === "Client") {
+					newOwnerId = peer._id;
+					break;
+				}
+			}
+
+			if (newOwnerId === undefined) {
+				console.log("CHECK PENDING");
+
+				// Try to give ownership to Pending client
+				for (const peer of peers) {
+					if (peer.role === "Pending") {
+						newOwnerId = peer._id;
+						break;
+					}
+				}
+
+				if (newOwnerId) {
+					console.log("NONE");
+					// Fond someone Pending
+
+					// Approve connection AND promote
+					const newOwner = roomPeers.get(newOwnerId);
+					newOwner.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
+					promotePeer(newOwner);
+
+					// We wait before giving him all the pending notification to give him time to get all previous message
+					setTimeout(() => {
+
+						const peers = Array.from(roomPeers.values());
+						for (const peer of peers) {
+							if (peer.role === "Pending") {
+								newOwner.ws.send(JSON.stringify({
+									type: "JoinRequestReceived",
+									from: peer._id,
+									to: newOwner._id,
+									name: peer.name
+								}));
+							}
+						}
+					}, 1000);
+				}
+				else {
+					// Found nobody (room is empty)
+					return;
+				}
+			}
+		}
+
+		const newOwner = roomPeers.get(newOwnerId);
+		promotePeer(newOwner);
 	}
 
 	function	getRoomOwner(roomId) {
@@ -128,7 +171,7 @@ module.exports = async function(socket, req) {
 				return;
 			}
 
-			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: msg.approved }));
+			target.ws.send(JSON.stringify({ type: "JoinRequestCallback", approved: true }));
 			target.role = "Client";
 
 			const roomPeers = globalVariables.rooms.get(roomId);

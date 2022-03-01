@@ -102,7 +102,7 @@ export default function	PreRoomLayer(props) {
 		}
 
 		// connect to signalling server
-		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${name}`);
+		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${_Name}`);
 
 		window.SignalingSocket.onmessage = WSonMessage;
 		window.SignalingSocket.onclose = WSonClose;
