@@ -101,10 +101,6 @@ export default function	PreRoomLayer(props) {
 			alert("FAILED: Your browser's version is too old.");
 		}
 
-		let name = _Name;
-		if (name.length > 25) {
-			name = name.slice(0, 22) + "...";
-		}
 		// connect to signalling server
 		window.SignalingSocket = new window.WebSocket(`${config.url_signaling}?roomid=${roomId}&name=${name}`);
 
@@ -203,7 +199,7 @@ export default function	PreRoomLayer(props) {
 											<div className="PRP-B-C-F-Title">
 												Ready to join?
 											</div>
-											<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
+											<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value.length >= 30 ? _Name : e.target.value)}/>
 											<div className="PRP-B-C-F-SubmitButtons" onTouchStart={participate} onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">

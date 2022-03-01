@@ -13,13 +13,12 @@
 import "./notificationCSS.css";
 
 export default function Notification(props) {
-	function formatName(value) {
-		let result = value.slice(0, 20);
 
-		if (value.length > 20) {
-			result += '...';
+	function formatName(value) {
+		if (value.length > 23) {
+			return (value.slice(0, 20) + "...");
 		}
-		return (result);
+		return (value.slice(0, 23));
 	}
 
 	return (
