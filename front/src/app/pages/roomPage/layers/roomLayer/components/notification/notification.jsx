@@ -13,13 +13,22 @@
 import "./notificationCSS.css";
 
 export default function Notification(props) {
+	function formatName(value) {
+		let result = value.slice(0, 20);
+
+		if (value.length > 20) {
+			result += '...';
+		}
+		return (result);
+	}
+
 	return (
 		<div key={props.index} className="RL-Invitation" style={{ top: `${40 * props.index}px` }}>
 			<div className="RL-I-Content">
 				<span className="RL-I-C-Name">
-					{props.name}
+					{formatName(props.name)}
 				</span>
-				want to join the room
+				wants to join the room
 			</div>
 			<div className="RL-I-Buttons">
 				<div
@@ -34,7 +43,7 @@ export default function Notification(props) {
 					onClick={() => props.onResponce(false, props.clientId)}
 					onTouchStart={() => props.onResponce(false, props.clientId)}
 				>
-					denied
+					deny
 				</div>
 			</div>
 		</div>

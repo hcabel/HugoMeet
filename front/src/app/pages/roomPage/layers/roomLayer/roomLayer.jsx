@@ -488,7 +488,7 @@ export default function	RoomLayer(props) {
 			type: "RoomSetup",
 			to: props.selfId
 		}));
-	}, [false]);
+	});
 
 	useEffect(() => {
 		// Thanks to react _Peers wont be updated in the function DConMessage
@@ -562,7 +562,7 @@ export default function	RoomLayer(props) {
 					</div>
 				</div>
 				<div className="RL-TB-Center">
-					<div className={`RL-TB-C-Button-${props.audio ? "On" : "Off"} Center-Button-MicroStatus`} touchstart={toggleAudio} onClick={toggleAudio}>
+					<div className={`RL-TB-C-Button-${props.audio ? "On" : "Off"} Center-Button-MicroStatus`} onTouchStart={toggleAudio} onClick={toggleAudio}>
 						{props.audio ?
 							// Icon micro turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -577,7 +577,7 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					<div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} touchstart={toggleVideo} onClick={toggleVideo}>
+					<div className={`RL-TB-C-Button-${props.video ? "On" : "Off"} Center-Button-CameraStatus`} onTouchStart={toggleVideo} onClick={toggleVideo}>
 						{props.video ?
 							// Icon camera turn on
 							<svg className="svg-icon" focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -590,7 +590,7 @@ export default function	RoomLayer(props) {
 							</svg>
 						}
 					</div>
-					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} touchstart={handUpCall} onClick={handUpCall}>
+					<div className={`RL-TB-C-Button-Off Center-Button-LeaveRoom`} onTouchStart={handUpCall} onClick={handUpCall}>
 						<img className="RL-TB-C-B-CBL-Img" alt="Leave the call" src={HangUpIcon} />
 					</div>
 				</div>

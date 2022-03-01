@@ -67,7 +67,7 @@ export default function LandingPage()
 			// If you removing a '-' remove another letter
 			result = result.slice(0, result.length - 1);
 		}
-		else if (value.length == 3 || value.length == 7) {
+		else if (value.length === 3 || value.length === 7) {
 			// add '-' at 3th and 7th postion
 			result += '-';
 		}
@@ -86,7 +86,7 @@ export default function LandingPage()
 						Welcome to my video meeting platform. I made this to show my WebRTC skills. I hope you like it and maybe find it useful.
 					</div>
 					<div className="LP-B-TAB-Button">
-						<div className="LP-B-TAB-B-CreateNewRoom" touchstart={createNewRoom} onClick={createNewRoom}>
+						<div className="LP-B-TAB-B-CreateNewRoom" onTouchStart={createNewRoom} onClick={createNewRoom}>
 							<div className="LP-B-TAB-B-CNR-Img"></div>
 							<div className="LP-B-TAB-B-CNR-Text">
 								New meeting
@@ -137,8 +137,9 @@ export default function LandingPage()
 					<div className="LP-B-IL-Content">
 						<button
 							className="LP-B-IL-C-ButtonLeft"
-							onClick={() => set_PresentationIndex(_PresentationIndex - 1)} disabled={(_PresentationIndex <= 0)}
-							onTouchStart={() => set_PresentationIndex(_PresentationIndex - 1)} disabled={(_PresentationIndex <= 0)}
+							disabled={(_PresentationIndex <= 0)}
+							onClick={() => set_PresentationIndex(_PresentationIndex - 1)}
+							onTouchStart={() => set_PresentationIndex(_PresentationIndex - 1)}
 						>
 							<svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="LP-B-IL-C-BL-Arrow">
 								<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"></path>
@@ -159,9 +160,10 @@ export default function LandingPage()
 						</div>
 						<button
 							className="LP-B-IL-C-ButtonRight"
-							onClick={() => set_PresentationIndex(_PresentationIndex + 1)} disabled={(_PresentationIndex >= 2)}
-							onTouchStart={() => set_PresentationIndex(_PresentationIndex + 1)} disabled={(_PresentationIndex >= 2)}
-							>
+							disabled={(_PresentationIndex >= 2)}
+							onClick={() => set_PresentationIndex(_PresentationIndex + 1)}
+							onTouchStart={() => set_PresentationIndex(_PresentationIndex + 1)}
+						>
 						<svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="LP-B-IL-C-BR-Arrow">
 							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path>
 						</svg>

@@ -12,7 +12,7 @@ export default function	Header()
 	const history = useHistory();
 
 	function	goToTheLandingPage() {
-		if (window.location.pathname !== "/"); {
+		if (window.location.pathname !== "/") {
 			history.push("/");
 		}
 	}
@@ -59,7 +59,7 @@ export default function	Header()
 
 	return (
 		<header className="Header">
-			<div className="H-Logo" touchstart={goToTheLandingPage} onClick={goToTheLandingPage}>
+			<div className="H-Logo" onTouchStart={goToTheLandingPage} onClick={goToTheLandingPage}>
 				<img className="H-L-Logo" src={HugoMeetLogo} alt="HugoMeet logo" />
 				<span className="H-L-Hugo">
 					Hugo
