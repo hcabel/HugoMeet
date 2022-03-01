@@ -19,7 +19,7 @@
 	height: 35px;
 	align-items: center;
 	margin-bottom: 5px;
-	width: fit-content;
+    width: max-content;
 	position: absolute;
 	left: 50%;
 	right: 50%;

@@ -41,7 +41,7 @@ export default function	App()
 				Utils.media.killTracks(window.localStream?.getTracks(), window.localStream);
 			}
 		}));
-	},[ history ])
+	}, [ history ])
 
 	return (
 		<Switch>
