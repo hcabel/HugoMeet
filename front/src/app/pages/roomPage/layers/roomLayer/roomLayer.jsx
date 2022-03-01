@@ -444,13 +444,15 @@ export default function	RoomLayer(props) {
 		}
 		else if (msg.type === "JoinRequestReceived") {
 			console.log("Someone want to join the room:", msg.from);
-			new Notification('Hugo Meet - Joining request', {
-				body: `${msg.name} ask you for joining the room`,
-				icon: NotificationIcon,
-				requireInteraction: true,
-				silent: false
-			});
 
+			if (window.Notification && window.Notification.permission === "granted") {
+				new Notification('Hugo Meet - Joining request', {
+					body: `${msg.name} ask you for joining the room`,
+					icon: NotificationIcon,
+					requireInteraction: true,
+					silent: false
+				});
+			}
 			set_PendingInvitation([..._PendingInvitation, { name: msg.name, _id: msg.from }]);
 		}
 		else if (Utils.rtc.isRTCMessage(msg.type)) {
