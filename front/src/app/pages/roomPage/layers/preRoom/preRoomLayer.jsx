@@ -204,7 +204,7 @@ export default function	PreRoomLayer(props) {
 												Ready to join?
 											</div>
 											<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value)}/>
-											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
+											<div className="PRP-B-C-F-SubmitButtons" onTouchStart={participate} onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">
 														Join
@@ -233,7 +233,7 @@ export default function	PreRoomLayer(props) {
 											<div className="PRP-B-C-F-Title" style={{ color: "red" }}>
 												{_State}
 											</div>
-											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
+											<div className="PRP-B-C-F-SubmitButtons" onTouchStart={participate} onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">
 														retry
