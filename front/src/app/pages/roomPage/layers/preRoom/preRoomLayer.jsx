@@ -150,7 +150,7 @@ export default function	PreRoomLayer(props) {
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">
-									<div className={`PRP-B-C-S-VS-V-B-AudioButton${props.audio ? "On" : "Off"}`} onClick={toggleAudio}>
+									<div className={`PRP-B-C-S-VS-V-B-AudioButton${props.audio ? "On" : "Off"}`} onTouchStart={toggleAudio} onClick={toggleAudio}>
 										{props.audio ?
 											// Logo micro On
 											<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -164,7 +164,7 @@ export default function	PreRoomLayer(props) {
 											</svg>
 										}
 									</div>
-									<div className={`PRP-B-C-S-VS-V-B-VideoButton${props.video ? "On" : "Off"}`} onClick={toggleVideo}>
+									<div className={`PRP-B-C-S-VS-V-B-VideoButton${props.video ? "On" : "Off"}`} onTouchStart={toggleVideo} onClick={toggleVideo}>
 											{props.video ?
 												// Logo video On
 												<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">

@@ -22,10 +22,18 @@ export default function Notification(props) {
 				want to join the room
 			</div>
 			<div className="RL-I-Buttons">
-				<div className="RL-I-B-Allow" onClick={() => props.onResponce(true, props.clientId)}>
+				<div
+					className="RL-I-B-Allow"
+					onClick={() => props.onResponce(true, props.clientId)}
+					onTouchStart={() => props.onResponce(true, props.clientId)}
+				>
 					allow
 				</div>
-				<div className="RL-I-B-Denied" onClick={() => props.onResponce(false, props.clientId)}>
+				<div
+					className="RL-I-B-Denied"
+					onClick={() => props.onResponce(false, props.clientId)}
+					onTouchStart={() => props.onResponce(false, props.clientId)}
+				>
 					denied
 				</div>
 			</div>
