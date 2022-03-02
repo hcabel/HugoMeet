@@ -139,7 +139,7 @@ export default function	PreRoomLayer(props) {
 											className="PRP-B-C-S-VS-V-I-SV-Video"
 											autoPlay
 											muted
-											webkit-playsInline
+											webkit-playsinline
 											playsInline
 											loop
 										/>

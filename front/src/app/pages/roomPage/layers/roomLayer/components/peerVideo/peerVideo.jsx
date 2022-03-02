@@ -37,7 +37,7 @@ export default function PeerVideo(props) {
 				muted={props.muted}
 				onLoadedMetadata={(e) => e.target.play()}
 				style={{ display: (props.video ? "block" : "none") }}
-				webkit-playsInline
+				webkit-playsinline
 				playsInline
 				loop
 			/>
