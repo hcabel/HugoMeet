@@ -59,7 +59,7 @@ export default function	Header()
 
 	return (
 		<header className="Header">
-			<div className="H-Logo" onTouchStart={goToTheLandingPage} onClick={goToTheLandingPage}>
+			<div className="H-Logo" onClick={goToTheLandingPage}>
 				<img className="H-L-Logo" src={HugoMeetLogo} alt="HugoMeet logo" />
 				<span className="H-L-Hugo">
 					Hugo

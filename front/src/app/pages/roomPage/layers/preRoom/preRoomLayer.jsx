@@ -146,7 +146,7 @@ export default function	PreRoomLayer(props) {
 									</div>
 								</div>
 								<div className="PRP-B-C-S-VS-V-Buttons">
-									<div className={`PRP-B-C-S-VS-V-B-AudioButton${props.audio ? "On" : "Off"}`} onTouchStart={toggleAudio} onClick={toggleAudio}>
+									<div className={`PRP-B-C-S-VS-V-B-AudioButton${props.audio ? "On" : "Off"}`} onClick={toggleAudio}>
 										{props.audio ?
 											// Logo micro On
 											<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -160,7 +160,7 @@ export default function	PreRoomLayer(props) {
 											</svg>
 										}
 									</div>
-									<div className={`PRP-B-C-S-VS-V-B-VideoButton${props.video ? "On" : "Off"}`} onTouchStart={toggleVideo} onClick={toggleVideo}>
+									<div className={`PRP-B-C-S-VS-V-B-VideoButton${props.video ? "On" : "Off"}`} onClick={toggleVideo}>
 											{props.video ?
 												// Logo video On
 												<svg focusable="false" width="24" height="24" viewBox="0 0 24 24">
@@ -200,7 +200,7 @@ export default function	PreRoomLayer(props) {
 												Ready to join?
 											</div>
 											<input className="PRP-B-C-F-Name" name="Name" placeholder="Name" value={_Name} onChange={(e) => set_Name(e.target.value.length >= 30 ? _Name : e.target.value)}/>
-											<div className="PRP-B-C-F-SubmitButtons" onTouchStart={participate} onClick={participate}>
+											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">
 														Join
@@ -229,7 +229,7 @@ export default function	PreRoomLayer(props) {
 											<div className="PRP-B-C-F-Title" style={{ color: "red" }}>
 												{_State}
 											</div>
-											<div className="PRP-B-C-F-SubmitButtons" onTouchStart={participate} onClick={participate}>
+											<div className="PRP-B-C-F-SubmitButtons" onClick={participate}>
 												<div className="PRP-B-C-F-SB-Participate">
 													<span className="PRP-B-C-F-SB-P-Value">
 														retry

@@ -86,7 +86,7 @@ export default function LandingPage()
 						Welcome to my video meeting platform. I made this to show my WebRTC skills. I hope you like it and maybe find it useful.
 					</div>
 					<div className="LP-B-TAB-Button">
-						<div className="LP-B-TAB-B-CreateNewRoom" onTouchStart={createNewRoom} onClick={createNewRoom}>
+						<div className="LP-B-TAB-B-CreateNewRoom" onClick={createNewRoom}>
 							<div className="LP-B-TAB-B-CNR-Img"></div>
 							<div className="LP-B-TAB-B-CNR-Text">
 								New meeting
@@ -116,7 +116,6 @@ export default function LandingPage()
 									className="LP-B-TAB-B-JR-Button"
 									style={{ color: (Utils.idGenerator.isRoomIDValid(_Value) ? "#1a73e8" : "rgba(60,64,67,0.38)")}}
 									onClick={() => (Utils.idGenerator.isRoomIDValid(_Value) ? joinRoom(_Value) : undefined)}
-									onTouchStart={() => (Utils.idGenerator.isRoomIDValid(_Value) ? joinRoom(_Value) : undefined)}
 								>
 									Join
 								</button>
@@ -139,7 +138,6 @@ export default function LandingPage()
 							className="LP-B-IL-C-ButtonLeft"
 							disabled={(_PresentationIndex <= 0)}
 							onClick={() => set_PresentationIndex(_PresentationIndex - 1)}
-							onTouchStart={() => set_PresentationIndex(_PresentationIndex - 1)}
 						>
 							<svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="LP-B-IL-C-BL-Arrow">
 								<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12l4.58-4.59z"></path>
@@ -162,7 +160,6 @@ export default function LandingPage()
 							className="LP-B-IL-C-ButtonRight"
 							disabled={(_PresentationIndex >= 2)}
 							onClick={() => set_PresentationIndex(_PresentationIndex + 1)}
-							onTouchStart={() => set_PresentationIndex(_PresentationIndex + 1)}
 						>
 						<svg width="24" height="24" viewBox="0 0 24 24" focusable="false" className="LP-B-IL-C-BR-Arrow">
 							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6-6-6z"></path>
